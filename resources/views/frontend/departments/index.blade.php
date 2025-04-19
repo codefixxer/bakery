@@ -4,14 +4,50 @@
 @section('title', 'All Departments')
 
 @section('content')
-<div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0">All Departments</h4>
-    <a href="{{ route('departments.create') }}" class="btn btn-success">
-      <i class="bi bi-plus-circle me-1"></i> Add New Department
-    </a>
-  </div>
 
+
+
+
+
+
+
+<div class="container py-5">
+  <div class="card-body">
+    <form
+      action="{{ isset($department) ? route('departments.update', $department->id) : route('departments.store') }}"
+      method="POST"
+      class="needs-validation"
+      novalidate
+    >
+      @csrf
+      @if(isset($department))
+        @method('PUT')
+      @endif
+
+      <div class="mb-3">
+        <label for="name" class="form-label fw-semibold">Department Name</label>
+        <input
+          type="text"
+          name="name"
+          id="name"
+          class="form-control form-control-lg"
+          placeholder="e.g. Production, Logistics"
+          value="{{ old('name', $department->name ?? '') }}"
+          required
+        >
+        <div class="invalid-feedback">
+          Please enter a department name.
+        </div>
+      </div>
+
+      <div class="text-end">
+        <button type="submit" class="btn btn-lg btn-primary">
+          <i class="bi bi-save2 me-2"></i> {{ isset($department) ? 'Update' : 'Save Department' }}
+        </button>
+      </div>
+    </form>
+  </div>
+<br><br>
   <div class="card basic-data-table mb-4">
     <div class="card-header">
       <h5 class="card-title mb-0">All Departments</h5>

@@ -3,13 +3,50 @@
 @section('title', 'All Categories')
 
 @section('content')
+
+
+
+
 <div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0">All Categories</h4>
-    <a href="{{ route('categories.create') }}" class="btn btn-success">
-      <i class="bi bi-plus-circle me-1"></i> Add New Category
-    </a>
+  <div class="card border-primary shadow-sm">
+      <div class="card-header bg-primary text-white d-flex align-items-center">
+          <i class="bi bi-tags fs-4 me-2"></i>
+          <h5 class="mb-0">{{ isset($category) ? 'Edit Category' : 'Add Category' }}</h5>
+      </div>
+      <div class="card-body">
+          <form
+              action="{{ isset($category) ? route('cost_categories.update', $category->id) : route('cost_categories.store') }}"
+              method="POST" class="needs-validation" novalidate>
+              @csrf
+              @if (isset($category))
+                  @method('PUT')
+              @endif
+
+              <div class="mb-3">
+                  <label for="name" class="form-label fw-semibold">Category Name</label>
+                  <input type="text" name="name" id="name" class="form-control form-control-lg"
+                      placeholder="e.g. Utilities, Rent, Packaging" value="{{ old('name', $category->name ?? '') }}"
+                      required>
+                  <div class="invalid-feedback">
+                      Please enter a category name.
+                  </div>
+              </div>
+
+              <div class="text-end">
+                  <button type="submit" class="btn btn-lg btn-primary">
+                      <i class="bi bi-save2 me-2"></i> {{ isset($category) ? 'Update' : 'Save Category' }}
+                  </button>
+              </div>
+          </form>
+      </div>
   </div>
+</div>
+
+
+
+
+<div class="container py-5">
+
 
   
 
@@ -29,11 +66,11 @@
               <td>{{ $loop->iteration }}</td>
               <td>{{ $category->name }}</td>
               <td>
-                <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-sm btn-primary">
+                <a href="{{ route('cost_categories.edit', $category->id) }}" class="btn btn-sm btn-primary">
                   <i class="bi bi-pencil-square"></i> Edit
                 </a>
 
-                <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                <form action="{{ route('cost_categories.destroy', $category->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
                   @csrf
                   @method('DELETE')
                   <button class="btn btn-sm btn-danger">

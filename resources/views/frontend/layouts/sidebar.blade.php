@@ -82,13 +82,7 @@
               
             </li>
 
-            <li>
-                <a href="{{ route('recipe-categories.index') }}">
-                  <iconify-icon icon="bi:chat-dots" class="menu-icon"></iconify-icon>
-                  <span>Recipee Category</span>
-              </a>
-              
-            </li>
+           
             <li>
                 <a href="{{ route('costs.dashboard') }}">
                   <iconify-icon icon="bi:chat-dots" class="menu-icon"></iconify-icon>
@@ -212,35 +206,58 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
             <li class="dropdown">
                 <a href="javascript:void(0)">
                     <iconify-icon icon="solar:home-smile-angle-outline1" class="menu-icon"></iconify-icon>
-                    <span>Clietn</span>
+                    <span>Managment</span>
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a href="{{ route('clients.create') }}"><i
-                                class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Create</a>
+                        <a href="{{ route('recipe-categories.index') }}"><i
+                                class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Recipe Ctaegory</a>
                     </li>
                     <li>
                         <a href="{{ route('clients.index') }}"><i
-                                class="ri-circle-fill circle-icon text-warning-main w-auto"></i> List</a>
+                                class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Client </a>
+                    </li>
+
+
+
+                    <li>
+                        <a href="{{ route('cost_categories.index') }}"><i
+                                class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Cost categories</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('departments.index') }}"><i
+                                class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Department management
+                            </a>
+                    </li>
+
+
+
+                    <li>
+                        <a href="{{ route('pastry-chefs.index') }}"><i
+                                class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Pastry-Chef</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('equipment.index') }}"><i
+                                class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Equipment
+                            </a>
                     </li>
                 </ul>
 
             </li>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -295,22 +312,6 @@
 
 
             
-            <li class="dropdown">
-                <a href="javascript:void(0)">
-                    <iconify-icon icon="solar:home-smile-angle-outline1" class="menu-icon"></iconify-icon>
-                    <span>Categories</span>
-                </a>
-                <ul class="sidebar-submenu">
-                    <li>
-                        <a href="{{ route('cost_categories.create') }}"><i
-                                class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Create</a>
-                    </li>
-                    <li>
-                        <a href="{{ route('cost_categories.index') }}"><i
-                                class="ri-circle-fill circle-icon text-warning-main w-auto"></i> List</a>
-                    </li>
-                </ul>
-            </li>
 
 
 
@@ -333,22 +334,7 @@
             </li>
 
 
-            <li class="dropdown">
-                <a href="javascript:void(0)">
-                    <iconify-icon icon="solar:home-smile-angle-outline1" class="menu-icon"></iconify-icon>
-                    <span>Department Managment</span>
-                </a>
-                <ul class="sidebar-submenu">
-                    <li>
-                        <a href="{{ route('departments.create') }}"><i
-                                class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Create</a>
-                    </li>
-                    <li>
-                        <a href="{{ route('departments.index') }}"><i
-                                class="ri-circle-fill circle-icon text-warning-main w-auto"></i> List</a>
-                    </li>
-                </ul>
-            </li>
+            
 
 
 
@@ -382,45 +368,14 @@
 
 
             
-          <li class="dropdown">
-            <a href="javascript:void(0)">
-                <iconify-icon icon="solar:home-smile-angle-outline1" class="menu-icon"></iconify-icon>
-                <span>Pastry-chefs</span>
-            </a>
-            <ul class="sidebar-submenu">
-                <li>
-                    <a href="{{ route('pastry-chefs.create') }}"><i
-                            class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Create</a>
-                </li>
-                <li>
-                    <a href="{{ route('pastry-chefs.index') }}"><i
-                            class="ri-circle-fill circle-icon text-warning-main w-auto"></i> List</a>
-                </li>
-            </ul>
-        </li>
+        
 
 
 
 
 
 
-        <li class="dropdown">
-            <a href="javascript:void(0)">
-                <iconify-icon icon="solar:home-smile-angle-outline1" class="menu-icon"></iconify-icon>
-                <span>Equipments</span>
-            </a>
-            <ul class="sidebar-submenu">
-                <li>
-                    <a href="{{ route('equipment.create') }}"><i
-                            class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Create</a>
-                </li>
-                <li>
-                    <a href="{{ route('equipment.index') }}"><i
-                            class="ri-circle-fill circle-icon text-warning-main w-auto"></i> List</a>
-                </li>
-            </ul>
-        </li>
-
+        
 
 
 

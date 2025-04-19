@@ -4,73 +4,86 @@ namespace App\Http\Controllers;
 
 use App\Models\CostCategory;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class CostCategoryController extends Controller
 {
     /**
-     * Show form to create a category.
+     * Display a listing of categories (and the create form).
+     */
+    public function index()
+    {
+        $categories = CostCategory::latest()->get();
+
+        return view('frontend.categories.index', compact('categories'));
+    }
+
+    /**
+     * Redirect create-page requests back to the index,
+     * since the form lives on the index view.
      */
     public function create()
     {
-        return view('frontend.categories.create');
+        return redirect()->route('cost_categories.index');
     }
 
     /**
-     * Store new category.
+     * Store a newly created category.
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        CostCategory::create($data);
+        CostCategory::create([
+            'name' => $request->name,
+        ]);
 
-        return redirect()->back()->with('success', 'CostCategory added successfully!');
+        return redirect()
+            ->route('cost_categories.index')
+            ->with('success', 'Category added successfully!');
     }
 
     /**
-     * Show form to edit a category.
+     * Show the edit form (same index view, but with $category filled).
      */
-    public function edit(CostCategory $category)
+    public function edit(CostCategory $cost_category)
     {
-        return view('frontend.categories.create', compact('category'));
+        $categories = CostCategory::latest()->get();
+
+        return view('frontend.categories.create', [
+            'category'   => $cost_category,
+            'categories' => $categories,
+        ]);
     }
 
     /**
      * Update an existing category.
      */
-    public function update(Request $request, CostCategory $category)
+    public function update(Request $request, CostCategory $cost_category)
     {
-        $data = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        $category->update($data);
+        $cost_category->update([
+            'name' => $request->name,
+        ]);
 
-        return redirect()->route('categories.create')->with('success', 'CostCategory updated successfully!');
+        return redirect()
+            ->route('cost_categories.index')
+            ->with('success', 'Category updated successfully!');
     }
-
-
-
-
-    public function index()
-    {
-        $categories = CostCategory::latest()->get();
-        return view('frontend.categories.index', compact('categories'));
-    }
-
-    
-    
-
 
     /**
-     * Optional: Delete a category.
+     * Delete a category.
      */
-    public function destroy(CostCategory $category)
+    public function destroy(CostCategory $cost_category)
     {
-        $category->delete();
-        return back()->with('success', 'CostCategory deleted.');
+        $cost_category->delete();
+
+        return redirect()
+            ->route('cost_categories.index')
+            ->with('success', 'Category deleted successfully!');
     }
 }

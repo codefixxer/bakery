@@ -10,8 +10,9 @@ class EquipmentController extends Controller
     // List all equipment
     public function index()
     {
-        $equipment = Equipment::latest()->get();
-        return view('frontend.equipment.index', compact('equipment'));
+        // rename to $equipments
+        $equipments = Equipment::latest()->get();
+        return view('frontend.equipment.index', compact('equipments'));
     }
 
     // Show create form

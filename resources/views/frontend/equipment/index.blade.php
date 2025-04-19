@@ -5,13 +5,41 @@
 
 @section('content')
 <div class="container py-5">
-  <div class="card basic-data-table mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="card-title mb-0">Equipments Showcase</h5>
-      <a href="{{ route('equipment.create') }}" class="btn btn-light btn-sm">
-        <i class="bi bi-plus-circle me-1"></i> Add New
-      </a>
+
+  <!-- Add New Equipment Form -->
+  <form 
+    action="{{ route('equipment.store') }}" 
+    method="POST" 
+    class="row g-3 needs-validation" 
+    novalidate
+  >
+    @csrf
+    <div class="col-md-6">
+      <label for="Name" class="form-label fw-semibold">Equipment Name</label>
+      <input 
+        type="text" 
+        id="Name" 
+        name="name" 
+        class="form-control form-control-lg" 
+        placeholder="Add Equipment Name" 
+        required 
+        value="{{ old('name') }}"
+      >
+      <div class="invalid-feedback">
+        Please provide an equipment name.
+      </div>
     </div>
+    <div class="col-12 text-end">
+      <button type="submit" class="btn btn-lg btn-success">
+        <i class="bi bi-save2 me-2"></i> Save Equipment
+      </button>
+    </div>
+  </form>
+<br><br>
+  <hr class="my-4">
+
+  <!-- Equipment List -->
+  <div class="card basic-data-table mb-4">
     <div class="card-body">
       <table
         id="equipmentTable"
@@ -20,64 +48,68 @@
       >
         <thead>
           <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Name</th>
-            <th scope="col" class="text-center">Actions</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th class="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @foreach($equipment as $equ)
-          <tr>
-            <td>{{ $equ->id }}</td>
-            <td>{{ $equ->name }}</td>
-            <td class="text-center">
-              <a
-                href="{{ route('equipment.edit', $equ) }}"
-                class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
-                title="Edit"
-              >
-                <iconify-icon icon="lucide:edit"></iconify-icon>
-              </a>
-              <form
-                action="{{ route('equipment.destroy', $equ) }}"
-                method="POST"
-                class="d-inline"
-                onsubmit="return confirm('Delete this equipment?');"
-              >
-                @csrf
-                @method('DELETE')
-                <button
-                  type="submit"
-                  class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                  title="Delete"
+          @foreach($equipments as $equ)
+            <tr>
+              <td>{{ $equ->id }}</td>
+              <td>{{ $equ->name }}</td>
+              <td class="text-center">
+                <!-- Edit Button -->
+                <a 
+                  href="{{ route('equipment.edit', $equ) }}"
+                  class="btn btn-sm btn-outline-primary me-1"
+                  title="Edit Equipment"
                 >
-                  <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
-                </button>
-              </form>
-            </td>
-          </tr>
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+                
+                <!-- Delete Button -->
+                <form 
+                  action="{{ route('equipment.destroy', $equ) }}" 
+                  method="POST" 
+                  class="d-inline" 
+                  onsubmit="return confirm('Delete this equipment?');"
+                >
+                  @csrf
+                  @method('DELETE')
+                  <button 
+                    type="submit" 
+                    class="btn btn-sm btn-outline-danger"
+                    title="Delete Equipment"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
           @endforeach
         </tbody>
       </table>
     </div>
   </div>
+
 </div>
 @endsection
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  if (window.$ && $.fn.DataTable) {
-    $('#equipmentTable').DataTable({
-      pageLength: $('#equipmentTable').data('page-length'),
-      responsive: true,
-      scrollX: true,
-   autoWidth: false,
-      columnDefs: [
-        { orderable: false, targets: 2 }
-      ]
-    });
-  }
-});
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.$ && $.fn.DataTable) {
+      $('#equipmentTable').DataTable({
+        pageLength: $('#equipmentTable').data('page-length'),
+        responsive: true,
+        scrollX: true,
+        autoWidth: false,
+        columnDefs: [
+          { orderable: false, targets: 2 }
+        ]
+      });
+    }
+  });
 </script>
 @endsection

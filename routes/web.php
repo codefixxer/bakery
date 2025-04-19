@@ -60,6 +60,8 @@ Route::get('costs-comparison', [CostController::class,'dashboard'])->name('costs
 
 Route::resource('departments', DepartmentController::class);
 
+
+
 Route::resource('newss', NewsController::class);
 Route::resource('comparison', RecordFilterController::class);
 
@@ -70,6 +72,7 @@ Route::resource('incomes', IncomeController::class);
 
 
 Route::resource('pastry-chefs', PastryChefController::class);
+
 
 
 Route::resource('equipment', EquipmentController::class);
