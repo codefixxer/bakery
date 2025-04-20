@@ -13,8 +13,8 @@ class LaborCostController extends Controller
     public function index()
     {
         // Grab the first (and only) record, or null
-        $laborCost = LaborCost::first();
-        return view('frontend.labor-cost.index', compact('laborCost'));
+         
+        return view('frontend.labor-cost.index');
     }
 
     /**
@@ -22,18 +22,33 @@ class LaborCostController extends Controller
      */
     public function store(Request $request)
     {
+
+
         $data = $request->validate([
-            'cost_per_minute' => 'required|numeric|min:0',
+            'num_chefs'             => 'required|integer|min:1',
+            'opening_days'          => 'required|integer|min:1',
+            'hours_per_day'         => 'required|integer|min:0',
+            'electricity'           => 'required|numeric',
+            'ingredients'           => 'required|numeric',
+            'leasing_loan'          => 'required|numeric',
+            'packaging'             => 'required|numeric',
+            'owner'                 => 'required|numeric',
+            'van_rental'            => 'required|numeric',
+            'chefs'                 => 'required|numeric',
+            'shop_assistants'       => 'required|numeric',
+            'other_salaries'        => 'required|numeric',
+            'taxes'                 => 'required|numeric',
+            'other_categories'      => 'required|numeric',
+            'driver_salary'         => 'required|numeric',
+            'monthly_bep'           => 'required|numeric',
+            'daily_bep'             => 'required|numeric',
+            'shop_cost_per_min'     => 'required|numeric',
+            'external_cost_per_min' => 'required|numeric',
         ]);
 
-        // update existing or create new (no matching attributes => always first record)
-        LaborCost::updateOrCreate(
-            [], // no conditions, so it picks first row or creates one
-            ['cost_per_minute' => $data['cost_per_minute']]
-        );
-
+        LaborCost::create($data);
         return redirect()
             ->route('labor-cost.index')
-            ->with('success', 'Labor cost per minute saved.');
+            ->with('success', 'Labour cost details saved.');
     }
 }

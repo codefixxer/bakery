@@ -21,6 +21,7 @@ use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\ExternalSuppliesController;
 
 
+
 Route::get('/', function () {
     return view('frontend.ingredients.create');
 })->name('register');
@@ -90,6 +91,8 @@ Route::resource('production', ProductionController::class);
 
 
 
+
+ 
 
 
 

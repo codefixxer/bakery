@@ -25,8 +25,8 @@ class ShowcaseController extends Controller
     public function create()
     {
         $departments = Department::all();
-        $recipes     = Recipe::all();
         $isEdit      = false;
+        $recipes = Recipe::where('labor_cost_mode', 'shop')->get();
         return view('frontend.showcase.create', compact('departments', 'recipes', 'isEdit'));
     }
 

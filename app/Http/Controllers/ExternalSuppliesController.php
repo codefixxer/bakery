@@ -24,7 +24,7 @@ class ExternalSuppliesController extends Controller
     {
         $laborCost = LaborCost::first();
         $clients   = Client::all();
-        $recipes   = Recipe::all();
+        $recipes = Recipe::where('labor_cost_mode', 'external')->get();
 
         return view('frontend.external-supplies.create', compact('laborCost', 'clients', 'recipes'));
     }

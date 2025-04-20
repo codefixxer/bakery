@@ -22,6 +22,7 @@ class Recipe extends Model
         'ingredients_total_cost',
         'total_expense',
         'potential_margin', // <-- allow mass‑assignment
+        'labor_cost_mode',
     ];
 
     /**

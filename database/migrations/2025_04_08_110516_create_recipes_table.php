@@ -24,6 +24,7 @@ return new class extends Migration {
             $table->decimal('selling_price_per_kg',    10, 2)->nullable();
             $table->integer('labour_time_min')->default(0);
             $table->decimal('labour_cost',     12, 2)->default(0);
+            $table->enum('labor_cost_mode', ['shop', 'external'])->nullable();
             $table->decimal('packing_cost',     8, 2)->default(0);
         
             $table->decimal('ingredients_total_cost', 12, 2)->default(0);
