@@ -31,7 +31,7 @@
                     <div class="col-md-6">
                         <label for="pricePerKg" class="form-label fw-semibold">Price per kg</label>
                         <div class="input-group input-group-lg has-validation">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">€</span>
                             <input type="number" id="pricePerKg" name="price_per_kg" class="form-control" step="0.01"
                                 placeholder="0.00" value="{{ old('price_per_kg', $ingredient->price_per_kg ?? '') }}"
                                 required>

@@ -10,6 +10,7 @@ return new class extends Migration {
         Schema::create('costs', function (Blueprint $table) {
             $table->id();
             $table->string('supplier');
+            $table->string('cost_identifier')->nullable();
             $table->decimal('amount', 10, 2);
             $table->date('due_date');
             $table->foreignId('category_id')

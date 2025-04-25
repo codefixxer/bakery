@@ -117,7 +117,7 @@
 
                 <td>
                   <div class="input-group">
-                    <span class="input-group-text">$</span>
+                    <span class="input-group-text">€</span>
                     <input
                       type="text"
                       name="items[{{ $i }}][price]"

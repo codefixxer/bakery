@@ -16,6 +16,7 @@ use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\PastryChefController;
 use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\CostCategoryController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RecordFilterController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\ExternalSuppliesController;
@@ -63,7 +64,12 @@ Route::resource('departments', DepartmentController::class);
 
 
 
-Route::resource('newss', NewsController::class);
+Route::resource('news', NewsController::class);
+Route::post('notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+
+Route::resource('notifications', NotificationController::class);
+
+
 Route::resource('comparison', RecordFilterController::class);
 
 

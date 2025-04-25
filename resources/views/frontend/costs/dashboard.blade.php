@@ -45,8 +45,8 @@
       @for($m=1; $m<=12; $m++)
         <tr>
           <td>{{ \Carbon\Carbon::create($year,$m,1)->format('F') }}</td>
-          <td>${{ number_format($costsThisYear->get($m,0),2) }}</td>
-          <td>${{ number_format($costsLastYear->get($m,0),2) }}</td>
+          <td>€{{ number_format($costsThisYear->get($m,0),2) }}</td>
+          <td>€{{ number_format($costsLastYear->get($m,0),2) }}</td>
         </tr>
       @endfor
     </tbody>

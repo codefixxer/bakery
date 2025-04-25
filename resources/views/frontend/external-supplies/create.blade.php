@@ -78,7 +78,7 @@
                   {{-- Price + Unit --}}
                   <td>
                     <div class="input-group">
-                      <span class="input-group-text">$</span>
+                      <span class="input-group-text">€</span>
                       <input type="text"
                              name="recipes[{{ $index }}][price]"
                              class="form-control price-field"

@@ -217,7 +217,7 @@
                         <div class="col-md-3">
                             <label for="costPerMin" class="form-label fw-semibold">Cost per Minute</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">€</span>
                                 <input type="text" id="costPerMin" class="form-control" readonly required>
                             </div>
                         </div>
@@ -234,7 +234,7 @@
                         <div class="col-md-3">
                             <label for="laborCost" class="form-label fw-semibold">Labor Cost ($)</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">€</span>
                                 <input type="text" id="laborCost" name="labor_cost" class="form-control" readonly
                                     required>
                             </div>
@@ -261,7 +261,7 @@
                             {{-- Cost per kg before packing --}}
                             <div class="input-group w-75 mb-3">
                                 <span class="input-group-text">Cost&nbsp;/&nbsp;kg&nbsp;Before&nbsp;Packing</span>
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">€</span>
                                 <input type="text" id="prodCostKg" name="production_cost_per_kg"
                                     class="form-control text-end" readonly
                                     value="{{ old('production_cost_per_kg', $isEdit ? $recipe->production_cost_per_kg : '') }}">
@@ -269,7 +269,7 @@
 
                             {{-- Packing Cost --}}
                             <div class="input-group w-75 mb-3">
-                                <span class="input-group-text">Packing</span><span class="input-group-text">$</span>
+                                <span class="input-group-text">Packing</span><span class="input-group-text">€</span>
                                 <input type="number" step="0.01" id="packingCost" name="packing_cost"
                                     class="form-control text-end"
                                     value="{{ old('packing_cost', $isEdit ? $recipe->packing_cost : '0.00') }}">
@@ -278,7 +278,7 @@
                             {{-- Cost after packing (total expense) --}}
                             <div class="input-group input-group-lg w-75 mb-3">
                                 <span class="input-group-text">Cost&nbsp;/&nbsp;kg&nbsp;After&nbsp;Packing</span>
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">€</span>
                                 <input type="text" id="totalExpense" name="total_expense"
                                     class="form-control fw-bold text-center" readonly required
                                     value="{{ old('total_expense', $isEdit ? $recipe->total_expense : '') }}">
@@ -337,7 +337,7 @@
                                     <label for="pricePerPiece" class="form-label fw-semibold">Selling Price per
                                         Piece&nbsp;($)</label>
                                     <div class="input-group">
-                                        <span class="input-group-text">$</span>
+                                        <span class="input-group-text">€</span>
                                         <input type="number" step="0.01" id="pricePerPiece"
                                             name="selling_price_per_piece" class="form-control"
                                             value="{{ old('selling_price_per_piece', $isEdit ? $recipe->selling_price_per_piece : '') }}">
@@ -357,7 +357,7 @@
                                     <label for="pricePerKg" class="form-label fw-semibold">Selling Price per
                                         Kg&nbsp;($)</label>
                                     <div class="input-group">
-                                        <span class="input-group-text">$</span>
+                                        <span class="input-group-text">€</span>
                                         <input type="number" step="0.01" id="pricePerKg" name="selling_price_per_kg"
                                             class="form-control"
                                             value="{{ old('selling_price_per_kg', $isEdit ? $recipe->selling_price_per_kg : '') }}">

@@ -1,3 +1,4 @@
+{{-- resources/views/labor_cost_card.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title','Labor & BEP Calculator')
@@ -83,14 +84,14 @@
             <label class="form-label">Labor Cost / Minute (Shop)</label>
             <input type="text" id="shopCostPerMin" name="shop_cost_per_min" class="form-control" readonly>
             <div class="form-text">
-              (Total − Ingredients − Van Rental − Driver Salary) ÷ (Days × Hours × 60 × Chefs)
+              Official: <code>((Total − Ingredients − Van Rental − Driver Salary) ÷ (Days × Hours × 60)) ÷ Chefs</code>
             </div>
           </div>
           <div class="col-md-6">
             <label class="form-label">Labor Cost / Minute (External)</label>
             <input type="text" id="externalCostPerMin" name="external_cost_per_min" class="form-control" readonly>
             <div class="form-text">
-              (Total − Ingredients − Shop Assistants) ÷ (Days × Hours × 60 × Chefs)
+              Official: <code>((Total − Ingredients − Shop Assistants) ÷ (Days × Hours × 60)) ÷ Chefs</code>
             </div>
           </div>
         </div>
@@ -110,36 +111,36 @@
 document.addEventListener('DOMContentLoaded', function(){
   const byId = id => document.getElementById(id);
 
-  // Top inputs
+  // 1) Top inputs
   const numChefs    = byId('numChefs'),
         openDays    = byId('openDays'),
         hoursPerDay = byId('hoursPerDay');
 
-  // All cost‑category inputs
+  // 2) All cost‑category inputs
   const costs = Array.from(document.querySelectorAll('.cost-input'));
 
-  // Outputs
+  // 3) Outputs
   const monthlyEl  = byId('monthlyBEP'),
         dailyEl    = byId('dailyBEP'),
         shopEl     = byId('shopCostPerMin'),
         externalEl = byId('externalCostPerMin');
 
   function recalc(){
-    // 1) Sum of all costs
-    const total = costs.reduce((s,el)=> s + (parseFloat(el.value)||0), 0);
+    // a) Sum of all costs
+    const total = costs.reduce((sum, el) => sum + (parseFloat(el.value)||0), 0);
     monthlyEl.value = total.toFixed(2);
 
-    // 2) Daily BEP
+    // b) Daily BEP
     const days = Math.max(1, parseInt(openDays.value)||1);
-    dailyEl.value = (total/days).toFixed(2);
+    dailyEl.value = (total / days).toFixed(2);
 
-    // 3) minutes × chefs
-    const mins    = days*(parseFloat(hoursPerDay.value)||0)*60,
-          chefs   = Math.max(1, parseInt(numChefs.value)||1);
+    // c) Minutes × chefs
+    const mins  = days * (parseFloat(hoursPerDay.value)||0) * 60,
+          chefs = Math.max(1, parseInt(numChefs.value)||1);
 
-    // grab each cost by its data-cat
+    // Helper: pick a cost by data-cat
     const getCost = key => {
-      let el = document.querySelector(`.cost-input[data-cat="${key}"]`);
+      const el = document.querySelector(`.cost-input[data-cat="${key}"]`);
       return el ? (parseFloat(el.value)||0) : 0;
     };
 
@@ -148,26 +149,27 @@ document.addEventListener('DOMContentLoaded', function(){
           drv = getCost('driver_salary'),
           sa  = getCost('shop_assistants');
 
-    // 4) Shop labour/m
-    shopEl.value = mins>0
-      ? ((total - ing - van - drv)/mins/chefs).toFixed(4)
+    // d) Shop labor/min/chef
+    shopEl.value = mins > 0
+      ? ((total - ing - van - drv) / mins / chefs).toFixed(4)
       : '0.0000';
 
-    // 5) External labour/m
-    externalEl.value = mins>0
-      ? ((total - ing - sa)/mins/chefs).toFixed(4)
+    // e) External labor/min/chef
+    externalEl.value = mins > 0
+      ? ((total - ing - sa) / mins / chefs).toFixed(4)
       : '0.0000';
   }
 
-  // re‐calc on every change
-  [ numChefs, openDays, hoursPerDay, ...costs ]
-    .forEach(el=> el.addEventListener('input', recalc));
+  // Re‑calc on any input change
+  [ numChefs, openDays, hoursPerDay, ...costs ].forEach(el =>
+    el.addEventListener('input', recalc)
+  );
 
-  // ensure up‐to‐date right before saving
+  // Ensure fresh values just before submit
   document.querySelector('form')
-    .addEventListener('submit', recalc);
+          .addEventListener('submit', recalc);
 
-  // initial
+  // Initial run
   recalc();
 });
 </script>

@@ -69,14 +69,14 @@
                     <div class="col-md-4">
                         <label for="costPerMin" class="form-label fw-semibold">Cost per Minute</label>
                         <div class="input-group">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">€</span>
                             <input type="text" id="costPerMin" class="form-control" value="{{ optional($laborCost)->cost_per_minute ?? '0.00' }}" readonly required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <label for="laborCost" class="form-label fw-semibold">Labor Cost ($)</label>
                         <div class="input-group">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">€</span>
                             <input type="text" id="laborCost" name="labor_cost" class="form-control" readonly required>
                         </div>
                     </div>
@@ -97,13 +97,13 @@
                         {{-- Packing Cost --}}
                         <div class="input-group w-75 mb-3">
                             <span class="input-group-text">Packing</span>
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">€</span>
                             <input type="number" step="0.01" id="packingCost" name="packing_cost" class="form-control text-end" value="0.00">
                         </div>
 
                         {{-- Sum Expense --}}
                         <div class="input-group input-group-lg w-75 mb-3">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">€</span>
                             <input type="text" id="totalExpense" name="total_expense" class="form-control fw-bold text-center" readonly required>
                         </div>
 
@@ -145,7 +145,7 @@
                             <div class="mb-3">
                                 <label for="pricePerPiece" class="form-label fw-semibold">Selling Price per Piece ($)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">€</span>
                                     <input type="number" step="0.01" id="pricePerPiece" name="selling_price_per_piece" class="form-control">
                                 </div>
                             </div>
@@ -160,7 +160,7 @@
                             <div class="mb-3">
                                 <label for="pricePerKg" class="form-label fw-semibold">Selling Price per Kg ($)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">€</span>
                                     <input type="number" step="0.01" id="pricePerKg" name="selling_price_per_kg" class="form-control">
                                 </div>
                             </div>
@@ -170,7 +170,7 @@
                         <div class="mb-3">
                             <label for="driverSalary" class="form-label fw-semibold">Driver Salary per Minute ($)</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">€</span>
                                 <input type="number" step="0.01" id="driverSalary" name="driver_salary" class="form-control">
                             </div>
                         </div>

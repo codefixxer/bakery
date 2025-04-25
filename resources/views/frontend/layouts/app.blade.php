@@ -57,6 +57,20 @@
   <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
 
+
+
+  <style>
+    .blink {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { background-color: transparent; }
+    50% { background-color: yellow; }
+    100% { background-color: transparent; }
+}
+
+  </style>
 </head>
 
 <body>

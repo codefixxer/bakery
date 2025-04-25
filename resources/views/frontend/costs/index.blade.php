@@ -1,75 +1,71 @@
-{{-- resources/views/costs/index.blade.php --}}
+{{-- resources/views/frontend/costs/index.blade.php --}}
 @extends('frontend.layouts.app')
-
-@section('title', 'All Costs')
+@section('title','All Costs')
 
 @section('content')
 <div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">All Costs</h4>
     <a href="{{ route('costs.create') }}" class="btn btn-success">
-      <i class="bi bi-plus-circle me-1"></i> Add New Cost
+      <i class="bi bi-plus-circle me-1"></i> Add Cost
     </a>
   </div>
 
-  <div class="card basic-data-table mb-4">
-    <div class="card-header">
-      <h5 class="card-title mb-0">All Costs</h5>
+  {{-- Month Filter --}}
+  <form method="GET" class="row g-2 align-items-end mb-4">
+    @php
+      [$year, $month] = explode('-', $filter);
+    @endphp
+    <div class="col-auto">
+      <label for="filterMonth" class="form-label">Show month</label>
+      <input type="month" id="filterMonth" name="filter_month"
+             class="form-control"
+             value="{{ old('filter_month',$filter) }}"
+             onchange="this.form.submit()">
     </div>
-    <div class="card-body">
-      <table
-        id="costTable"
-        class="table bordered-table mb-0"
-        data-page-length="10"
-      >
-        <thead>
+  </form>
+
+  <div class="card basic-data-table">
+    <div class="table-responsive">
+      <table id="costTable" class="table mb-0" data-page-length="10">
+        <thead class="table-light">
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Supplier</th>
-            <th scope="col">Amount</th>
-            <th scope="col">Due Date</th>
-            <th scope="col">Category</th>
-            <th scope="col" class="text-center">Actions</th>
+            <th>#</th>
+            <th>Identifier</th>       {{-- new --}}
+            <th>Supplier</th>
+            <th>Amount</th>
+            <th>Due Date</th>
+            <th>Category</th>
+            <th class="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           @forelse($costs as $cost)
-          <tr>
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ $cost->supplier }}</td>
-            <td>${{ number_format($cost->amount, 2) }}</td>
-            <td>{{ $cost->due_date }}</td>
-            <td>{{ $cost->category->name ?? 'N/A' }}</td>
-            <td class="text-center">
-              <a
-                href="{{ route('costs.edit', $cost->id) }}"
-                class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
-                title="Edit"
-              >
-                <iconify-icon icon="lucide:edit"></iconify-icon>
-              </a>
-              <form
-                action="{{ route('costs.destroy', $cost->id) }}"
-                method="POST"
-                class="d-inline"
-                onsubmit="return confirm('Are you sure you want to delete this cost?');"
-              >
-                @csrf
-                @method('DELETE')
-                <button
-                  type="submit"
-                  class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                  title="Delete"
-                >
-                  <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
-                </button>
-              </form>
-            </td>
-          </tr>
+            <tr>
+              <td>{{ $loop->iteration }}</td>
+              <td>{{ $cost->cost_identifier }}</td>  {{-- new --}}
+              <td>{{ $cost->supplier }}</td>
+              <td>${{ number_format($cost->amount,2) }}</td>
+              <td>{{ \Carbon\Carbon::parse($cost->due_date)->format('Y‑m‑d') }}</td>
+              <td>{{ $cost->category->name ?? '–' }}</td>
+              <td class="text-center">
+                <a href="{{ route('costs.edit',$cost) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form action="{{ route('costs.destroy',$cost) }}"
+                      method="POST"
+                      class="d-inline"
+                      onsubmit="return confirm('Delete this cost?')">
+                  @csrf @method('DELETE')
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
           @empty
-          <tr>
-            <td colspan="6" class="text-center text-muted">No costs found.</td>
-          </tr>
+            <tr><td colspan="7" class="text-center text-muted">No costs found.</td></tr>
           @endforelse
         </tbody>
       </table>
@@ -86,10 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
       pageLength: $('#costTable').data('page-length'),
       responsive: true,
       scrollX: true,
-   autoWidth: false,
-      columnDefs: [
-        { orderable: false, targets: 5 }
-      ]
+      autoWidth: false,
+      columnDefs: [{ orderable: false, targets: 6 }]
     });
   }
 });

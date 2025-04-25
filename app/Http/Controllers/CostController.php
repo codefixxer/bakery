@@ -28,6 +28,7 @@ class CostController extends Controller
     {
         $data = $request->validate([
             'supplier'       => 'required|string|max:255',
+            'cost_identifier' => 'nullable|string|max:255', 
             'amount'         => 'required|numeric|min:0',
             'due_date'       => 'required|date',
             'category_id'    => 'required|exists:cost_categories,id',
@@ -42,11 +43,23 @@ class CostController extends Controller
 
 
 
-    public function index()
-{
-    $costs = Cost::with('category')->latest()->get();
-    return view('frontend.costs.index', compact('costs'));
-}
+    public function index(Request $request)
+    {
+        // 1) Read filter_month like "2025-04", or default to current:
+        $filter = $request->query('filter_month', now()->format('Y-m'));
+
+        [$year, $month] = explode('-', $filter);
+
+        // 2) Fetch only this year/month:
+        $costs = Cost::with('category')
+            ->whereYear('due_date', $year)
+            ->whereMonth('due_date', $month)
+            ->orderBy('due_date','desc')
+            ->get();
+
+        return view('frontend.costs.index', compact('costs','filter'));
+    }
+    
 
 public function edit(Cost $cost)
 {
@@ -59,6 +72,7 @@ public function update(Request $request, Cost $cost)
 {
     $data = $request->validate([
         'supplier'     => 'required|string|max:255',
+        'cost_identifier' => 'nullable|string|max:255', 
         'amount'       => 'required|numeric|min:0',
         'due_date'     => 'required|date',
         'category_id'  => 'required|exists:categories,id',
