@@ -1,4 +1,5 @@
 <?php
+// app/Models/ExternalSupply.php
 
 namespace App\Models;
 
@@ -12,6 +13,10 @@ class ExternalSupply extends Model
         'total_amount',
     ];
 
+    protected $casts = [
+        'supply_date' => 'date',
+    ];
+
     public function client()
     {
         return $this->belongsTo(Client::class);
@@ -20,5 +25,11 @@ class ExternalSupply extends Model
     public function recipes()
     {
         return $this->hasMany(ExternalSupplyRecipe::class);
+    }
+
+    // ← add this:
+    public function returnedGoods()
+    {
+        return $this->hasMany(ReturnedGood::class);
     }
 }

@@ -3,240 +3,310 @@
 
 @section('title', 'All Production Records')
 
+@section('styles')
+<style>
+  /* Filter card */
+  .filter-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: .75rem;
+  }
+  .filter-card .dropdown-menu {
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: .5rem;
+  }
+  .filter-chip {
+    display: inline-block;
+    background: #0d6efd;
+    color: #fff;
+    padding: .25em .5em;
+    border-radius: .5rem;
+    margin: .15em .15em 0 0;
+    font-size: .875rem;
+  }
+  /* Revenue card */
+  .revenue-card {
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  }
+  /* Table styling */
+  #productionTable {
+    border-radius: .5rem;
+    overflow: hidden;
+  }
+  #productionTable thead {
+    background: #f8f9fa;
+  }
+  #productionTable tbody tr:hover {
+    background: rgba(13,110,253,.05);
+  }
+  #productionTable tbody tr.detail-row td {
+    background: #fafafa;
+  }
+  .toggle-btn i {
+    transition: transform .2s;
+  }
+  .toggle-btn.open i {
+    transform: rotate(90deg);
+  }
+</style>
+@endsection
+
 @section('content')
 @php
-    // Build unique, sorted lists for recipes and chefs
-    $allRecipes = $productions
-        ->flatMap(fn($p) => $p->details->pluck('recipe.recipe_name'))
-        ->unique()
-        ->sort();
-
-    $allChefs = $productions
-        ->flatMap(fn($p) => $p->details->pluck('chef.name'))
-        ->unique()
-        ->sort();
+  $allRecipes = $productions
+    ->flatMap(fn($p) => $p->details->pluck('recipe.recipe_name'))
+    ->unique()->sort();
+  $allChefs = $productions
+    ->flatMap(fn($p) => $p->details->pluck('chef.name'))
+    ->unique()->sort();
 @endphp
 
 <div class="container py-5">
 
-  {{-- 1) Search / Filter Card --}}
-  <div class="card mb-4 shadow-sm filter-card">
-    <div class="card-body">
-      <div class="row g-3 align-items-end">
-        
-        {{-- Recipe Multi‑Select --}}
-        <div class="col-6 col-md-3">
-          <label class="form-label small mb-1">Recipe</label>
-          <div class="dropdown">
-            <button class="btn btn-outline-primary w-100 text-start dropdown-toggle" data-bs-toggle="dropdown">
-              <i class="bi bi-journal-bookmark me-1"></i> Select Recipe(s)
-            </button>
-            <div class="dropdown-menu p-3">
-              @foreach($allRecipes as $recipeName)
-                @php $slug = strtolower(\Illuminate\Support\Str::slug($recipeName, '_')); @endphp
-                <div class="form-check mb-1">
-                  <input class="form-check-input recipe-checkbox" type="checkbox" value="{{ strtolower($recipeName) }}" id="recipeCheckbox_{{ $slug }}">
-                  <label class="form-check-label" for="recipeCheckbox_{{ $slug }}">{{ $recipeName }}</label>
-                </div>
-              @endforeach
-            </div>
-          </div>
-        </div>
-
-        {{-- Chef Multi‑Select --}}
-        <div class="col-6 col-md-3">
-          <label class="form-label small mb-1">Chef</label>
-          <div class="dropdown">
-            <button class="btn btn-outline-success w-100 text-start dropdown-toggle" data-bs-toggle="dropdown">
-              <i class="bi bi-person-lines-fill me-1"></i> Select Chef(s)
-            </button>
-            <div class="dropdown-menu p-3">
-              @foreach($allChefs as $chefName)
-                @php $slug = strtolower(\Illuminate\Support\Str::slug($chefName, '_')); @endphp
-                <div class="form-check mb-1">
-                  <input class="form-check-input chef-checkbox" type="checkbox" value="{{ strtolower($chefName) }}" id="chefCheckbox_{{ $slug }}">
-                  <label class="form-check-label" for="chefCheckbox_{{ $slug }}">{{ $chefName }}</label>
-                </div>
-              @endforeach
-            </div>
-          </div>
-        </div>
-
-        {{-- Equipment --}}
-        <div class="col-6 col-md-3">
-          <label class="form-label small mb-1">Equipment</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-tools"></i></span>
-            <input type="text" id="filterEquipment" class="form-control" placeholder="Equipment name…">
-          </div>
-        </div>
-
-        {{-- From Date --}}
-        <div class="col-6 col-md-3">
-          <label class="form-label small mb-1">From Date</label>
-          <input type="date" id="filterStartDate" class="form-control">
-        </div>
-
-        {{-- To Date --}}
-        <div class="col-6 col-md-3">
-          <label class="form-label small mb-1">To Date</label>
-          <input type="date" id="filterEndDate" class="form-control">
-        </div>
-
-      </div>
-
-      {{-- Total Potential Revenue Card --}}
-      <div class="row mt-4">
-        <div class="col-12">
-          <div class="card bg-info text-white shadow-sm rounded-3 revenue-card">
-            <div class="card-body d-flex justify-content-between align-items-center py-3 px-4">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-cash-stack fs-2 me-3"></i>
-                <div>
-                  <div class="small text-opacity-75">Total Potential</div>
-                  <div class="h5 fw-semibold mb-0">Revenue</div>
-                </div>
+  {{-- 1) Filters + Total --}}
+  <div class="card mb-4 shadow-sm filter-card p-3">
+    <div class="row g-3 align-items-end">
+      {{-- Recipe --}}
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Recipe</label>
+        <div class="dropdown">
+          <button class="btn btn-outline-primary w-100 text-start dropdown-toggle"
+                  data-bs-toggle="dropdown">
+            <i class="bi bi-journal-bookmark me-1"></i> Recipes
+          </button>
+          <div class="dropdown-menu p-3">
+            @foreach($allRecipes as $r)
+              @php $slug = Str::slug($r,'_') @endphp
+              <div class="form-check mb-1">
+                <input class="form-check-input recipe-checkbox" type="checkbox"
+                       value="{{ strtolower($r) }}" id="recipe_{{ $slug }}">
+                <label class="form-check-label" for="recipe_{{ $slug }}">{{ $r }}</label>
               </div>
-              <div id="totalRevenue" class="h3 fw-bold">$0.00</div>
+            @endforeach
+          </div>
+        </div>
+      </div>
+      {{-- Chef --}}
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Chef</label>
+        <div class="dropdown">
+          <button class="btn btn-outline-success w-100 text-start dropdown-toggle"
+                  data-bs-toggle="dropdown">
+            <i class="bi bi-person-lines-fill me-1"></i> Chefs
+          </button>
+          <div class="dropdown-menu p-3">
+            @foreach($allChefs as $c)
+              @php $slug = Str::slug($c,'_') @endphp
+              <div class="form-check mb-1">
+                <input class="form-check-input chef-checkbox" type="checkbox"
+                       value="{{ strtolower($c) }}" id="chef_{{ $slug }}">
+                <label class="form-check-label" for="chef_{{ $slug }}">{{ $c }}</label>
+              </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
+      {{-- Equipment --}}
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Equipment</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-tools"></i></span>
+          <input type="text" id="filterEquipment" class="form-control"
+                 placeholder="Type to filter…">
+        </div>
+      </div>
+      {{-- From Date --}}
+      <div class="col-6 col-md-3">
+        <label class="form-label small">From</label>
+        <input type="date" id="filterStartDate" class="form-control">
+      </div>
+      {{-- To Date --}}
+      <div class="col-6 col-md-3">
+        <label class="form-label small">To</label>
+        <input type="date" id="filterEndDate" class="form-control">
+      </div>
+    </div>
+
+    {{-- Active filter chips --}}
+    <div id="activeFilters" class="mt-3"></div>
+
+    {{-- Total card --}}
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card revenue-card shadow-sm">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-cash-stack fs-2 me-3"></i>
+              <div>
+                <div class="small text-opacity-75">Total Potential</div>
+                <div class="h5 fw-semibold mb-0">Revenue</div>
+              </div>
             </div>
+            <div id="totalRevenue" class="h3 fw-bold">$0.00</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  {{-- 2) Production Cards --}}
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4" id="productionsContainer">
-    @foreach($productions as $production)
-      @php
-        $recipeNames   = $production->details->pluck('recipe.recipe_name')->implode(', ');
-        $chefNames     = $production->details->pluck('chef.name')->implode(', ');
-        $equipmentList = $production->details
-                            ->flatMap(fn($d) => is_array($d->equipment_ids) ? $d->equipment_ids : [])
-                            ->unique()
-                            ->map(fn($id) => $equipmentMap[$id] ?? $id)
-                            ->implode(', ');
-      @endphp
-      <div class="col production-card"
-           data-recipes="{{ strtolower($recipeNames) }}"
-           data-chefs="{{ strtolower($chefNames) }}"
-           data-equipment="{{ strtolower($equipmentList) }}"
-           data-date="{{ $production->production_date }}"
-           data-potential="{{ $production->total_potential_revenue }}">
-        <div class="card h-100">
-          <div class="card-header bg-primary text-white d-flex justify-content-between">
-            <div>
-              <h6 class="mb-0">{{ $production->production_date }}</h6>
-              <small>{{ $production->details->count() }} item{{ $production->details->count() > 1 ? 's' : '' }}</small>
-            </div>
-            <span class="badge bg-light text-primary rounded-pill">
-              {{ $production->details->count() }}
-            </span>
-          </div>
-          <div class="card-body">
-            <p class="mb-2">
-              <strong>Potential:</strong>
-              ${{ number_format($production->total_potential_revenue, 2) }}
-            </p>
-            <ul class="list-unstyled small">
-              @foreach($production->details as $detail)
-                <li class="mb-2">
-                  <i class="bi bi-box-seam me-1"></i>
-                  {{ $detail->recipe->recipe_name }}
-                  <span class="float-end">{{ $detail->quantity }}</span>
-                  <br>
-                  <small class="text-muted">
-                    Chef: {{ $detail->chef->name }} &bull; Time: {{ $detail->execution_time }}m
-                  </small>
-                </li>
-              @endforeach
-            </ul>
-          </div>
-          <div class="card-footer bg-light small d-flex justify-content-between">
-            <span>Updated: {{ $production->updated_at->format('Y-m-d') }}</span>
-            <div>
-              <a href="{{ route('production.edit', $production) }}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <form action="{{ route('production.destroy', $production) }}" method="POST" class="d-inline">
-                @csrf @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this record?')">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    @endforeach
+  {{-- 2) Table --}}
+  <div class="table-responsive">
+    <table class="table table-striped" id="productionTable">
+      <thead class="table-light">
+        <tr>
+          <th style="width:48px"></th>
+          <th>Date</th>
+          <th>Items</th>
+          <th>Potential</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($productions as $i => $p)
+          @php
+            $equipmentList = $p->details
+              ->flatMap(fn($d) => (array)$d->equipment_ids)
+              ->unique()
+              ->map(fn($id) => $equipmentMap[$id] ?? '')
+              ->filter()
+              ->implode(' ');
+          @endphp
+          <tr class="prod-row"
+              data-recipes  ="{{ strtolower($p->details->pluck('recipe.recipe_name')->implode(' ')) }}"
+              data-chefs    ="{{ strtolower($p->details->pluck('chef.name')->implode(' ')) }}"
+              data-equipment="{{ strtolower($equipmentList) }}"
+              data-date     ="{{ $p->production_date }}"
+              data-potential="{{ $p->total_potential_revenue }}">
+            <td>
+              <button class="btn btn-sm btn-outline-secondary toggle-btn">
+                <i class="bi bi-caret-right-fill"></i>
+              </button>
+            </td>
+            <td>{{ $p->production_date }}</td>
+            <td>{{ $p->details->count() }}</td>
+            <td>${{ number_format($p->total_potential_revenue,2) }}</td>
+          </tr>
+          <tr class="detail-row" style="display:none">
+            <td colspan="4" class="p-3">
+              <ul class="mb-0">
+                @foreach($p->details as $d)
+                  @php
+                    $ids       = is_array($d->equipment_ids)
+                                ? $d->equipment_ids
+                                : (strlen($d->equipment_ids)
+                                   ? explode(',',$d->equipment_ids)
+                                   : []);
+                    $names     = array_map(fn($id) => $equipmentMap[$id] ?? $id, $ids);
+                    $equipDisp = $names ? implode(', ',$names) : '—';
+                  @endphp
+                  <li class="mb-1"
+                      data-recipe    ="{{ strtolower($d->recipe->recipe_name) }}"
+                      data-chef      ="{{ strtolower($d->chef->name) }}"
+                      data-potential ="{{ $d->potential_revenue }}">
+                    <strong>{{ $d->recipe->recipe_name }}</strong> &times; {{ $d->quantity }}
+                    — Chef: {{ $d->chef->name }}, {{ $d->execution_time }}m,
+                    <span class="text-primary"><i class="bi bi-tools"></i> {{ $equipDisp }}</span>
+                  </li>
+                @endforeach
+              </ul>
+            </td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
   </div>
-
 </div>
-@endsection
-
-@section('styles')
-<style>
-  .filter-card { background: #fff; border: 1px solid #e0e0e0; border-radius: .75rem; }
-  .filter-card .dropdown-menu { border-radius: .5rem; }
-  .production-card .card { transition: transform .2s, box-shadow .2s; border-radius: .75rem; }
-  .production-card .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,.12); }
-  .revenue-card { background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); }
-  .revenue-card:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
-  .form-check-input:checked + .form-check-label { font-weight: 600; color: #2c3e50; }
-</style>
 @endsection
 
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const recipeCBs = document.querySelectorAll('.recipe-checkbox');
-  const chefCBs   = document.querySelectorAll('.chef-checkbox');
-  const equipIn   = document.getElementById('filterEquipment');
-  const startIn   = document.getElementById('filterStartDate');
-  const endIn     = document.getElementById('filterEndDate');
-  const cards     = document.querySelectorAll('.production-card');
-  const totalRev  = document.getElementById('totalRevenue');
+  const recipeCBs  = document.querySelectorAll('.recipe-checkbox');
+  const chefCBs    = document.querySelectorAll('.chef-checkbox');
+  const equipIn    = document.getElementById('filterEquipment');
+  const startIn    = document.getElementById('filterStartDate');
+  const endIn      = document.getElementById('filterEndDate');
+  const rows       = document.querySelectorAll('#productionTable .prod-row');
+  const details    = document.querySelectorAll('#productionTable .detail-row');
+  const totalRev   = document.getElementById('totalRevenue');
+  const activeTags = document.getElementById('activeFilters');
 
-  function filterCards() {
-    const selRec = [...recipeCBs].filter(cb => cb.checked).map(cb => cb.value);
-    const selCh  = [...chefCBs].filter(cb => cb.checked).map(cb => cb.value);
-    const eq     = equipIn.value.trim().toLowerCase();
-    const from   = startIn.value;
-    const to     = endIn.value;
+  // toggle detail rows
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tr   = btn.closest('tr');
+      const det  = tr.nextElementSibling;
+      btn.classList.toggle('open');
+      det.style.display = det.style.display === 'none' ? '' : 'none';
+    });
+  });
 
-    let sum = 0;
+  function updateActiveFilters(selR, selC, eqF, from, to) {
+    activeTags.innerHTML = '';
+    // recipes
+    if (selR.length) selR.forEach(r => activeTags.insertAdjacentHTML('beforeend',
+      `<span class="filter-chip">${r}</span>`));
+    else activeTags.insertAdjacentHTML('beforeend', `<span class="filter-chip">All Recipes</span>`);
+    // chefs
+    if (selC.length) selC.forEach(c => activeTags.insertAdjacentHTML('beforeend',
+      `<span class="filter-chip">${c}</span>`));
+    else activeTags.insertAdjacentHTML('beforeend', `<span class="filter-chip">All Chefs</span>`);
+    // equipment
+    activeTags.insertAdjacentHTML('beforeend',
+      `<span class="filter-chip">${eqF||'All Equipment'}</span>`);
+    // dates
+    activeTags.insertAdjacentHTML('beforeend',
+      `<span class="filter-chip">${from||'Any'}→${to||'Any'}</span>`);
+  }
 
-    cards.forEach(card => {
-      card.style.display = '';
-      const recs  = card.dataset.recipes;
-      const chefs = card.dataset.chefs;
-      const eqs   = card.dataset.equipment;
-      const date  = card.dataset.date;
-      const pot   = parseFloat(card.dataset.potential) || 0;
+  function filterTable() {
+    const selR = [...recipeCBs].filter(cb => cb.checked).map(cb => cb.value);
+    const selC = [...chefCBs]  .filter(cb => cb.checked).map(cb => cb.value);
+    const eqF  = equipIn.value.trim().toLowerCase();
+    const from = startIn.value, to = endIn.value;
+    let sum    = 0;
 
-      const okR = selRec.length === 0 || selRec.some(r => recs.includes(r));
-      const okC = selCh.length  === 0 || selCh.some(c => chefs.includes(c));
-      const okE = !eq || eqs.includes(eq);
-      let   okD = true;
-      if (from) okD = okD && (date >= from);
-      if (to)   okD = okD && (date <= to);
+    updateActiveFilters(selR, selC, eqF, from, to);
 
-      if (okR && okC && okE && okD) sum += pot;
-      else card.style.display = 'none';
+    rows.forEach((row,i) => {
+      const recs = row.dataset.recipes;
+      const chfs = row.dataset.chefs;
+      const eqs  = (row.dataset.equipment||'').toLowerCase();
+      const date = row.dataset.date;
+
+      const okDate = (!from||date>=from) && (!to||date<=to);
+      const okEq   = !eqF || eqs.includes(eqF);
+      const okR    = !selR.length || selR.some(r => recs.includes(r));
+      const okC    = !selC.length || selC.some(c => chfs.includes(c));
+      const show   = okDate && okEq && okR && okC;
+
+      row.style.display        = show ? '' : 'none';
+      details[i].style.display = 'none';
+
+      if (show) {
+        // sum only matching detail-items
+        details[i].querySelectorAll('li').forEach(li => {
+          const r = li.dataset.recipe,
+                c = li.dataset.chef,
+                p = parseFloat(li.dataset.potential) || 0;
+          if ((!selR.length||selR.includes(r)) && (!selC.length||selC.includes(c))) {
+            sum += p;
+          }
+        });
+      }
     });
 
     totalRev.textContent = `$${sum.toFixed(2)}`;
   }
 
-  recipeCBs.forEach(cb => cb.addEventListener('change', filterCards));
-  chefCBs.forEach(cb   => cb.addEventListener('change', filterCards));
-  equipIn.addEventListener('input', filterCards);
-  startIn.addEventListener('change', filterCards);
-  endIn.addEventListener('change', filterCards);
+  // wire up
+  recipeCBs.forEach(cb => cb.addEventListener('change', filterTable));
+  chefCBs  .forEach(cb => cb.addEventListener('change', filterTable));
+  equipIn  .addEventListener('input',   filterTable);
+  startIn  .addEventListener('change',  filterTable);
+  endIn    .addEventListener('change',  filterTable);
 
-  // show all & calculate on load
-  cards.forEach(c => c.style.display = '');
-  filterCards();
+  filterTable();
 });
 </script>
 @endsection

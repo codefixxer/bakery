@@ -1,22 +1,22 @@
 <?php
-// app/Models/Production.php
+    // app/Models/Production.php
 
-namespace App\Models;
+    namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Factories\HasFactory;
+    use Illuminate\Database\Eloquent\Model;
 
-class Production extends Model
-{
-    use HasFactory;
-
-    protected $fillable = [
-        'production_date',
-        'total_potential_revenue',
-    ];
-
-    public function details()
+    class Production extends Model
     {
-        return $this->hasMany(ProductionDetail::class);
+        use HasFactory;
+
+        protected $fillable = [
+            'production_date',
+            'total_potential_revenue',
+        ];
+
+        public function details()
+        {
+            return $this->hasMany(ProductionDetail::class);
+        }
     }
-}

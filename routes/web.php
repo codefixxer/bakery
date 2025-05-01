@@ -18,24 +18,26 @@ use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\CostCategoryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RecordFilterController;
+use App\Http\Controllers\ReturnedGoodController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\ExternalSuppliesController;
 
 
 
-Route::get('/', function () {
-    return view('frontend.ingredients.create');
-})->name('register');
 
 
-Route::get('/', function () {
-    return view('frontend.ingredients.create');
-});
+
+Route::get('/', [IngredientController::class, 'index'])->name('ingredients.index');
+
 
 
 Route::get('/login', function () {
     return view('Auth.login');
 })->name('login');
+
+Route::get('/register', function () {
+    return view('Auth.register');
+})->name('register');
 
 
 
@@ -44,8 +46,14 @@ Route::resource('recipes', RecipeController::class);
 Route::resource('recipe-categories', RecipeCategoryController   ::class);
 
 Route::resource('external-supplies', ExternalSuppliesController::class);
+Route::resource('returned-goods', ReturnedGoodController::class);
+
+
 Route::resource('break-even', ExternalSuppliesController::class);
+Route::get('showcase/recipe-sales', [ShowcaseController::class,'recipeSales'])
+     ->name('showcase.recipeSales');
 Route::resource('showcase', ShowcaseController::class);
+
 Route::get('showcases/{showcase}/manage', [ShowcaseController::class, 'manage'])->name('showcase.manage');
 
 
@@ -70,7 +78,11 @@ Route::post('notifications/{id}/mark-as-read', [NotificationController::class, '
 Route::resource('notifications', NotificationController::class);
 
 
+
+
 Route::resource('comparison', RecordFilterController::class);
+Route::post('records/add-income', [RecordFilterController::class, 'addFiltered'])
+     ->name('income.addFiltered');
 
 
 Route::resource('incomes', IncomeController::class);

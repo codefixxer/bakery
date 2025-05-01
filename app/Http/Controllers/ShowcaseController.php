@@ -2,32 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Showcase;
-use App\Models\ShowcaseRecipe;
-use App\Models\Department;
 use App\Models\Recipe;
+use App\Models\Showcase;
+use App\Models\LaborCost;
+use App\Models\Department;
 use Illuminate\Http\Request;
+use App\Models\RecipeCategory;
+use App\Models\ShowcaseRecipe;
+use App\Http\Controllers\Controller;
 
 class ShowcaseController extends Controller
 {
+
+
+    public function recipeSales(Request $request)
+    {
+        $recipeId     = $request->query('recipe_id');
+        $categoryId   = $request->query('category_id');
+        $departmentId = $request->query('department_id');
+        $startDate    = $request->query('start_date', now()->subMonth()->toDateString());
+        $endDate      = $request->query('end_date', now()->toDateString());
+    
+        // Get the filters
+        $recipes     = Recipe::pluck('recipe_name','id');
+        $categories  = RecipeCategory::orderBy('name')->get();
+        $departments = Department::orderBy('name')->get();
+    
+        // Get records and group by recipe and then by date
+        $records = ShowcaseRecipe::with(['recipe.category','recipe.department','showcase'])
+            ->when($recipeId,     fn($q) => $q->where('recipe_id', $recipeId))
+            ->when($categoryId,   fn($q) => $q->whereHas('recipe', fn($q) => $q->where('category_id', $categoryId)))
+            ->when($departmentId, fn($q) => $q->whereHas('recipe', fn($q) => $q->where('department_id', $departmentId)))
+            ->whereHas('showcase', fn($q) =>
+                $q->whereBetween('showcase_date', [$startDate, $endDate])
+            )
+            ->get();
+    
+        // Group records by recipe, then by date
+        $recordsByRecipe = $records->groupBy('recipe_id')->map(function ($rows) {
+            return $rows->groupBy(fn($r) => $r->showcase->showcase_date->format('Y-m-d'));
+        });
+    
+        // Return to view with grouped data
+        return view('frontend.showcase.recipe-sales', compact(
+            'recipes', 'categories', 'departments', 
+            'recordsByRecipe', 'recipeId', 'categoryId', 'departmentId', 
+            'startDate', 'endDate'
+        ));
+    }
+    
+    
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        // Retrieve the first LaborCost record
+        $laborCost = LaborCost::first();
+    
+        // Retrieve all showcases along with their related recipes
         $showcases = Showcase::with('recipes')->latest()->get();
-        return view('frontend.showcase.index', compact('showcases'));
+    
+        // Pass the daily_bep value from the LaborCost table to the view
+        return view('frontend.showcase.index', compact('showcases', 'laborCost'));
     }
+    
 
     /**
      * Show the form for creating a new showcase.
      */
     public function create()
-    {
+    {        $laborCost = LaborCost::first();
+
         $departments = Department::all();
         $isEdit      = false;
         $recipes = Recipe::where('labor_cost_mode', 'shop')->get();
-        return view('frontend.showcase.create', compact('departments', 'recipes', 'isEdit'));
+        return view('frontend.showcase.create', compact('departments', 'recipes', 'isEdit','laborCost'));
     }
 
     /**
@@ -37,7 +88,6 @@ class ShowcaseController extends Controller
     {
         // Validate the main fields and the items array.
         $data = $request->validate([
-            'department_id'   => 'required|exists:departments,id',
             'showcase_date'   => 'required|date',
             'template_action' => 'nullable|string',
             'break_even'      => 'nullable|numeric',
@@ -107,8 +157,9 @@ class ShowcaseController extends Controller
      */
     public function show(Showcase $showcase)
     {
-        $showcase->load('recipes');
-        return view('showcase.show', compact('showcase'));
+        // eager-load recipe → department
+        $showcase->load('recipes.recipe.department');
+        return view('frontend.showcase.show', compact('showcase'));
     }
 
     /**
@@ -132,7 +183,6 @@ class ShowcaseController extends Controller
     public function update(Request $request, Showcase $showcase)
     {
         $data = $request->validate([
-            'department_id'   => 'required|exists:departments,id',
             'showcase_date'   => 'required|date',
             'template_action' => 'nullable|string',
             'break_even'      => 'nullable|numeric',
@@ -185,12 +235,15 @@ class ShowcaseController extends Controller
         return redirect()->route('showcase.index')->with('success', 'Showcase deleted successfully.');
     }
 
+
+    
     /**
      * Custom method to manage a showcase.
      */
     public function manage(Showcase $showcase)
     {
         $showcase->load('recipes');
+        
         return view('frontend.showcase.create', compact('showcase'));
     }
 }

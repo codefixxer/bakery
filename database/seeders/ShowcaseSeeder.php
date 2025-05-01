@@ -17,7 +17,7 @@ class ShowcaseSeeder extends Seeder
 
         DB::table('showcases')->insert([
             [
-                'department_id' => $dept1,
+               
                 'showcase_date' => Carbon::now()->subDays(1)->format('Y-m-d'),
                 'template_action' => 'daily',
                 'break_even' => 500.00,
@@ -29,7 +29,6 @@ class ShowcaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'department_id' => $dept2,
                 'showcase_date' => Carbon::now()->format('Y-m-d'),
                 'template_action' => 'none',
                 'break_even' => 400.00,

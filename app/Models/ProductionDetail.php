@@ -23,6 +23,7 @@ class ProductionDetail extends Model
     // Cast equipment_ids from JSON to array automatically
     protected $casts = [
         'equipment_ids' => 'array',
+
     ];
 
     public function production()
@@ -39,4 +40,5 @@ class ProductionDetail extends Model
     {
         return $this->belongsTo(PastryChef::class, 'pastry_chef_id');
     }
+
 }

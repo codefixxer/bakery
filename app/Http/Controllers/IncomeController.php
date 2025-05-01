@@ -31,6 +31,28 @@ class IncomeController extends Controller
                          ->with('success','Income recorded!');
     }
 
+
+    public function storeRange(Request $request)
+    {
+        // range‐sum income
+        $data = $request->validate([
+            'from'   => 'required|date',
+            'to'     => 'required|date|after_or_equal:from',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        // create one Income entry with date = from
+        $inc = Income::create([
+            'date'   => $data['from'],
+            'amount' => $data['amount'],
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success'=>true,'income'=>$inc],201);
+        }
+        return back()->with('success','Range added to income!');
+    }
+
     public function edit(Income $income)
     {
         return view('frontend.incomes.create', compact('income'));

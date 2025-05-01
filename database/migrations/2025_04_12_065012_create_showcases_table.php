@@ -10,7 +10,6 @@ class CreateShowcasesTable extends Migration
     {
         Schema::create('showcases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('department_id')->constrained()->onDelete('cascade');
             $table->date('showcase_date');
             $table->string('template_action')->default('none');
             $table->decimal('break_even', 10, 2)->default(0);

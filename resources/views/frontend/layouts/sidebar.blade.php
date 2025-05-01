@@ -42,28 +42,41 @@
               <span>Sale Comparison</span>
             </a>
           </li>
+          {{-- <li>
+            <a href="{{ route('incomes.index') }}">
+              <iconify-icon icon="mdi:currency-usd" class="menu-icon"></iconify-icon>
+                            <span>Income</span>
+            </a>
+          </li> --}}
     
           {{-- Income --}}
-          <li class="dropdown">
+          {{-- <li class="dropdown">
             <a href="javascript:void(0)">
               <iconify-icon icon="mdi:currency-usd" class="menu-icon"></iconify-icon>
-              <span>Income</span>
+              <span>Finentials</span>
             </a>
             <ul class="sidebar-submenu">
               <li>
-                <a href="{{ route('incomes.create') }}">
+                <a href="{{ route('incomes.index') }}">
                   <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600"></iconify-icon>
-                  Create
+                  Cost
                 </a>
               </li>
               <li>
                 <a href="{{ route('incomes.index') }}">
-                  <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main"></iconify-icon>
-                  List
+                  <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600"></iconify-icon>
+                  Income
                 </a>
               </li>
+              <li>
+                <a href="{{ route('incomes.index') }}">
+                  <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600"></iconify-icon>
+                  Cost Comparison
+                </a>
+              </li>
+           
             </ul>
-          </li>
+          </li> --}}
     
           {{-- Recipes --}}
           <li class="dropdown">
@@ -106,6 +119,26 @@
                 <a href="{{ route('external-supplies.index') }}">
                   <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main"></iconify-icon>
                   List
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="javascript:void(0)">
+              <iconify-icon icon="mdi:truck-delivery" class="menu-icon"></iconify-icon>
+              <span>Returned Goods</span>
+            </a>
+            <ul class="sidebar-submenu">
+              {{-- <li>
+                <a href="{{ route('returned-goods.create') }}">
+                  <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600"></iconify-icon>
+                  Create
+                </a>
+              </li> --}}
+              <li>
+                <a href="{{ route('returned-goods.index') }}">
+                  <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main"></iconify-icon>
+                  Sale/Return Comparision 
                 </a>
               </li>
             </ul>
@@ -183,19 +216,25 @@
           <li class="dropdown">
             <a href="javascript:void(0)">
               <iconify-icon icon="mdi:folder-cog-outline" class="menu-icon"></iconify-icon>
-              <span>Cost Management</span>
+              <span>Finentials</span>
             </a>
             <ul class="sidebar-submenu">
-              <li>
+              {{-- <li>
                 <a href="{{ route('costs.create') }}">
                   <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600"></iconify-icon>
                   Create
                 </a>
-              </li>
+              </li> --}}
               <li>
                 <a href="{{ route('costs.index') }}">
                   <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main"></iconify-icon>
-                  List
+                  Costs
+                </a>
+              </li>
+              <li>
+                <a href="{{ route('incomes.index') }}">
+                  <iconify-icon icon="mdi:currency-usd" class="menu-icon"></iconify-icon>
+                  Income
                 </a>
               </li>
               <li>
@@ -208,8 +247,7 @@
           </li>
 
 
-
-
+     
     
           {{-- News --}}
           <li class="dropdown">
@@ -262,6 +300,67 @@
               <a href="{{ route('labor-cost.index') }}">
                 <iconify-icon icon="mdi:clock-outline" class="menu-icon"></iconify-icon>
                 <span>Labor Cost</span>
+              </a>
+            </li>
+
+
+<style>
+  /* 1) make the UL stretch and push last item down */
+.sidebar-menu-area {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.sidebar-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+/* normal li’s keep their default spacing */
+.sidebar-menu li {
+  margin: 0;
+}
+/* push .sidebar-academy all the way to the bottom */
+.sidebar-menu li.sidebar-academy {
+  margin-top: auto;
+  padding: 5vw 1vw ;
+  text-align: center;
+}
+/* style the link like a big button */
+.sidebar-menu li.sidebar-academy a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  background-color: #f06292;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: .5rem;
+  padding: .75rem 1.25rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  transition: background-color .2s, transform .1s;
+}
+.sidebar-menu li.sidebar-academy a:hover {
+  background-color: #ec407a;
+  transform: translateY(-2px);
+}
+/* optional: make the icon a bit larger */
+.sidebar-menu li.sidebar-academy .academy-icon {
+  font-size: 1.25rem;
+}
+
+</style>
+
+
+
+            <li class="sidebar-academy">
+              <a href="https://www.accademiadelpasticcereimprenditore.com/" target="_blank" rel="noopener">
+                <iconify-icon icon="mdi:school" class="academy-icon"></iconify-icon>
+                <span>Accedi all’Accademia</span>
               </a>
             </li>
     

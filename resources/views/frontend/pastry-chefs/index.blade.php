@@ -92,7 +92,6 @@
       >
         <thead>
           <tr>
-            <th scope="col">ID</th>
             <th scope="col">Name</th>
             <th scope="col">Email</th>
             <th scope="col">Phone</th>
@@ -101,9 +100,14 @@
           </tr>
         </thead>
         <tbody>
+          @if($pastryChefs->isEmpty())
+  <tr>
+    <td colspan="5" class="text-center text-muted">No chefs found.</td>
+  </tr>
+@endif
           @foreach($pastryChefs as $chef)
+          
           <tr>
-            <td>{{ $chef->id }}</td>
             <td>{{ $chef->name }}</td>
             <td>{{ $chef->email ?? '-' }}</td>
             <td>{{ $chef->phone ?? '-' }}</td>
@@ -152,8 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
       scrollX: true,
    autoWidth: false,
       columnDefs: [
-        { orderable: false, targets: 5 }
-      ]
+        { orderable: false, targets: 4 }      ]
     });
   }
 });

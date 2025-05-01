@@ -13,6 +13,7 @@
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
 />
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 
 <!-- Select2 CSS -->
@@ -57,6 +58,10 @@
   <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
 
+  <link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+/>
 
 
   <style>
@@ -68,6 +73,28 @@
     0% { background-color: transparent; }
     50% { background-color: yellow; }
     100% { background-color: transparent; }
+}
+
+
+
+
+  /* Remove number‐input spinners globally */
+
+/* Chrome, Safari, Edge, Opera */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Newer browsers */
+input[type=number] {
+  appearance: none;
 }
 
   </style>
@@ -115,8 +142,18 @@
   <!-- End wrapper -->
   @yield('scripts')
 
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script
+    src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"
+  ></script>
+  <script
+    src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"
+  ></script>
+  
 
 
   <script src="{{ asset('assets/js/lib/jquery-3.7.1.min.js') }}"></script>  

@@ -60,7 +60,6 @@
       >
         <thead>
           <tr>
-            <th scope="col">#</th>
             <th scope="col">Department Name</th>
             <th scope="col" class="text-center">Actions</th>
           </tr>
@@ -68,7 +67,6 @@
         <tbody>
           @forelse($departments as $department)
           <tr>
-            <td>{{ $loop->iteration }}</td>
             <td>{{ $department->name }}</td>
             <td class="text-center">
               <a
@@ -98,7 +96,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="3" class="text-center text-muted">No departments found.</td>
+            <td colspan="2" class="text-center text-muted">No departments found.</td>
           </tr>
           @endforelse
         </tbody>
@@ -118,8 +116,8 @@ document.addEventListener('DOMContentLoaded', function() {
       scrollX: true,
    autoWidth: false,
       columnDefs: [
-        { orderable: false, targets: 2 }
-      ]
+        { orderable: false, targets: 1 }
+        ]
     });
   }
 });

@@ -58,7 +58,6 @@
              data-page-length="10">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Last&nbsp;Updated</th>
             <th class="text-center">Actions</th>
@@ -67,7 +66,6 @@
         <tbody>
           @foreach($categories as $cat)
             <tr>
-              <td>{{ $cat->id }}</td>
               <td>{{ $cat->name }}</td>
               <td>{{ $cat->updated_at->format('Y-m-d H:i') }}</td>
               <td class="text-center">

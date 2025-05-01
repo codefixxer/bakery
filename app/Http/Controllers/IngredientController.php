@@ -17,17 +17,38 @@ class IngredientController extends Controller
         return view('frontend.ingredients.create');
     }
 
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'ingredient_name' => 'required|string|max:255',
+    //         'price_per_kg' => 'required|numeric|min:0',
+    //     ]);
+
+    //     Ingredient::create($request->all());
+
+    //     return redirect()->route('ingredients.index')->with('success', 'Ingredient added successfully!');
+    // }
     public function store(Request $request)
     {
-        $request->validate([
-            'ingredient_name' => 'required|string|max:255',
-            'price_per_kg' => 'required|numeric|min:0',
+        $data = $request->validate([
+            'ingredient_name' => 'required|string|max:255|unique:ingredients,ingredient_name',
+            'price_per_kg'    => 'required|numeric|min:0',
         ]);
+    
+        $ingredient = Ingredient::updateOrCreate(
+            ['ingredient_name' => $data['ingredient_name']],
+            $data
+        );
+    
 
-        Ingredient::create($request->all());
-
-        return redirect()->route('ingredients.index')->with('success', 'Ingredient added successfully!');
+        if ($request->expectsJson()) {
+            return response()->json($ingredient, 201);
+        }
+        return back()
+            ->with('success', 'Ingredient saved successfully.');
     }
+    
+
 
     public function edit(Ingredient $ingredient)
     {

@@ -48,7 +48,6 @@
       >
         <thead>
           <tr>
-            <th>ID</th>
             <th>Name</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -56,7 +55,6 @@
         <tbody>
           @foreach($equipments as $equ)
             <tr>
-              <td>{{ $equ->id }}</td>
               <td>{{ $equ->name }}</td>
               <td class="text-center">
                 <!-- Edit Button -->
@@ -106,7 +104,7 @@
         scrollX: true,
         autoWidth: false,
         columnDefs: [
-          { orderable: false, targets: 2 }
+          { orderable: false, targets: 1 }
         ]
       });
     }

@@ -19,7 +19,6 @@
             <table class="table bordered-table mb-0">
                 <thead>
                     <tr>
-                        <th>#</th>
                         <th>Title</th>
                         <th>Event Date</th>
                         <th>Status</th>
@@ -29,7 +28,6 @@
                 <tbody>
                     @foreach($news as $item)
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $item->title }}</td>
                         <td>{{ $item->event_date }}</td>
                         <td>{{ $item->is_active ? 'Active' : 'Inactive' }}</td>

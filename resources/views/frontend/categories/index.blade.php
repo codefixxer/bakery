@@ -55,7 +55,6 @@
       <table id="categoriesTable" class="table table-bordered table-hover align-middle">
         <thead class="table-light">
           <tr>
-            <th>#</th>
             <th>Category Name</th>
             <th>Actions</th>
           </tr>
@@ -63,7 +62,6 @@
         <tbody>
           @forelse($categories as $category)
             <tr>
-              <td>{{ $loop->iteration }}</td>
               <td>{{ $category->name }}</td>
               <td>
                 <a href="{{ route('cost_categories.edit', $category->id) }}" class="btn btn-sm btn-primary">

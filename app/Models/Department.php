@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Models;
+    namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Model;
 
-class Department extends Model
-{
-    protected $fillable = ['name'];
-
-
+    class Department extends Model
+    {
+        protected $fillable = ['name'];
 
 
-    public function recipes()
-{
-    return $this->hasMany(Recipe::class);
-}
-}
+
+
+        public function recipes()
+    {
+        return $this->hasMany(Recipe::class);
+    }
+    }
 
 

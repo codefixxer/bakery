@@ -1,225 +1,135 @@
-{{-- resources/views/frontend/recipe/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title','All Recipes')
 
 @section('content')
 <div class="container py-5">
-
-  {{-- 1) Search / Filter Card --}}
   <div class="card mb-4 shadow-sm">
     <div class="card-body">
-      <div class="row g-3 align-items-end">
-        {{-- Recipe Name --}}
-        <div class="col-6 col-md-2">
-          <label for="searchName" class="form-label small mb-1">Name</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchName" class="form-control" placeholder="Recipe name…">
-          </div>
-        </div>
-
-        <div class="col-6 col-md-2">
-          <label for="filterDept" class="form-label small mb-1">Department</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-building"></i></span>
-            <select id="filterDept" class="form-select">
-              <option value="">All depts</option>
-              @foreach($departments as $dept)
-                <option value="{{ strtolower($dept->name) }}">{{ $dept->name }}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
-        {{-- Sell Mode --}}
-        <div class="col-6 col-md-2">
-          <label for="filterMode" class="form-label small mb-1">Mode</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-filter"></i></span>
-            <select id="filterMode" class="form-select">
-              <option value="">All modes</option>
-              <option value="piece">Piece</option>
-              <option value="kg">Kg</option>
-            </select>
-          </div>
-        </div>
-
-        {{-- Ingredient --}}
-          <div class="col-6 col-md-2">
-            <label for="searchIngredient" class="form-label small mb-1">Ingredient</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-list"></i></span>
-              <input type="text" id="searchIngredient" class="form-control" placeholder="Ingredient…">
-            </div>
-          </div>
-
-        {{-- From Date --}}
-        <div class="col-6 col-md-3">
-          <label for="filterStartDate" class="form-label small mb-1">From Date</label>
-          <input type="date" id="filterStartDate" class="form-control">
-        </div>
-
-        {{-- To Date --}}
-        <div class="col-6 col-md-3">
-          <label for="filterEndDate" class="form-label small mb-1">To Date</label>
-          <input type="date" id="filterEndDate" class="form-control">
-        </div>
-      </div>
+      <h5 class="card-title">Recipes</h5>
+      <p class="card-text">Quickly search, sort, and filter all your recipes below.</p>
     </div>
   </div>
 
-  {{-- 2) Recipe Cards --}}
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-4 mt-3" id="recipesContainer">
-    @foreach($recipes as $r)
-      @php
-        $ingNames = $r->ingredients->pluck('ingredient.ingredient_name')->implode(',');
-      @endphp
-      <div class="col recipe-card"
-           data-name="{{ strtolower($r->recipe_name) }}"
-           data-mode="{{ $r->sell_mode }}"
-           data-ingredients="{{ strtolower($ingNames) }}"
-           data-created="{{ $r->created_at->format('Y-m-d') }}">
-        <div class="card h-100 shadow-sm">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table
+          id="recipesTable"
+          class="table table-striped table-hover table-bordered mb-0"
+          style="width:100%;"
+        >
+        <thead class="table-light">
+          <tr>
+            <th style="width:1%"></th>          {{-- ← control column --}}
+            <th>Name</th>
+            <th>Category</th>
+            <!-- …etc… -->
+            <th>Actions</th>
+          </tr>
+        </thead>
+        
+          <tbody>
+            @foreach($recipes as $r)
+              @php
+                $sell = $r->sell_mode === 'piece'
+                  ? $r->selling_price_per_piece
+                  : $r->selling_price_per_kg;
 
-          {{-- header --}}
-         {{-- header --}}
-{{-- resources/views/frontend/recipe/index.blade.php --}}
-{{-- … inside your @foreach($recipes as $r) … --}}
-<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-  <div>
-    <h5 class="mb-0">{{ $r->recipe_name }}</h5>
-    <div class="mt-1">
-      <span class="badge bg-info me-1 text-uppercase">
-        {{ $r->category->name ?? 'Uncategorized' }}
-      </span>
-      <span class="badge bg-success text-uppercase">
-        {{ $r->department->name ?? 'No Dept' }}
-      </span>
-    </div>
-  </div>
-  <span class="badge bg-light text-primary text-uppercase">{{ $r->sell_mode }}</span>
-</div>
+                $ingCost = $r->ingredients_total_cost;
+                $labCost = $r->labour_cost;
+                $totalCosts = $ingCost + $labCost;
 
+                $ingInc = $sell > 0
+                  ? round($ingCost * 100 / $sell, 2)
+                  : 0;
+                $labInc = $sell > 0
+                  ? round($labCost * 100 / $sell, 2)
+                  : 0;
+                $costInc = $sell > 0
+                  ? round($totalCosts * 100 / $sell, 2)
+                  : 0;
 
-
-          {{-- body --}}
-          <div class="card-body">
-            <dl class="row small mb-3">
-              @if($r->sell_mode === 'piece')
-                <dt class="col-6">Price/piece</dt>
-                <dd class="col-6 text-end">${{ number_format($r->selling_price_per_piece,2) }}</dd>
-              @else
-                <dt class="col-6">Price/kg</dt>
-                <dd class="col-6 text-end">${{ number_format($r->selling_price_per_kg,2) }}</dd>
-              @endif
-
-              <dt class="col-6">Labour (min)</dt>
-              <dd class="col-6 text-end">{{ $r->labour_time_min }}</dd>
-
-              <dt class="col-6">Labour cost</dt>
-              <dd class="col-6 text-end">${{ number_format($r->labour_cost,2) }}</dd>
-
-              <dt class="col-6">Ingr. cost</dt>
-              <dd class="col-6 text-end">${{ number_format($r->ingredients_total_cost,2) }}</dd>
-
-              <dt class="col-6">Total exp</dt>
-              <dd class="col-6 text-end">${{ number_format($r->total_expense,2) }}</dd>
-
-              <dt class="col-6">Margin</dt>
-              <dd class="col-6 text-end">
-                @if($r->potential_margin >= 0)
-                  <span class="text-success">${{ number_format($r->potential_margin,2) }}</span>
-                @else
-                  <span class="text-danger">${{ number_format($r->potential_margin,2) }}</span>
-                @endif
-              </dd>
-            </dl>
-
-            <h6 class="fw-semibold">Ingredients</h6>
-            <ul class="list-group list-group-flush small">
-              @foreach($r->ingredients as $ri)
-                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                  {{ $ri->ingredient->ingredient_name }} ({{ $ri->quantity_g }}g)
-                  <span class="badge bg-secondary">${{ number_format($ri->cost,2) }}</span>
-                </li>
-              @endforeach
-            </ul>
-          </div>
-
-          {{-- footer --}}
-          <div class="card-footer text-muted small d-flex justify-content-between align-items-center">
-            <div>
-              <span>Created: {{ $r->created_at->format('Y-m-d') }}</span><br>
-              <span>Updated: {{ $r->updated_at->format('Y-m-d') }}</span>
-            </div>
-            <div class="btn-group btn-group-sm">
-              <a href="{{ route('recipes.edit', $r->id) }}" class="btn btn-outline-primary" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <form action="{{ route('recipes.destroy', $r->id) }}" method="POST" onsubmit="return confirm('Delete this recipe?');">
-                @csrf @method('DELETE')
-                <button type="submit" class="btn btn-outline-danger" title="Delete">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-            </div>
-          </div>
-
-        </div>
+                $marVal = $r->potential_margin;
+                $marPct = $sell > 0
+                  ? round($marVal * 100 / $sell, 2)
+                  : 0;
+              @endphp
+     <tr
+     data-ingredients='@json($r->ingredients->map(fn($i)=>[
+       "name"=>$i->name,
+       "qty"=>$i->pivot->quantity,
+       "unit"=>$i->unit
+     ]))'
+   >
+     <td class="dt-control"></td>
+     <td>{{ $r->recipe_name }}</td>
+                <td>{{ $r->category->name ?? '—' }}</td>
+                <td>{{ $r->department->name ?? '—' }}</td>
+                <td>{{ strtoupper($r->sell_mode) }}</td>
+                <td class="text-end">€{{ number_format($sell,2) }}</td>
+                <td class="text-end">
+                  €{{ number_format($ingCost,2) }}
+                  <small class="text-muted">({{ $ingInc }}%)</small>
+                </td>
+                <td class="text-end">
+                  €{{ number_format($labCost,2) }}
+                  <small class="text-muted">({{ $labInc }}%)</small>
+                </td>
+                <td class="text-end">
+                  €{{ number_format($totalCosts,2) }}
+                  <small class="text-muted">({{ $costInc }}%)</small>
+                </td>
+                <td class="text-end">
+                  @if($marVal >= 0)
+                    <span class="text-success">
+                      €{{ number_format($marVal,2) }}
+                      <small>({{ $marPct }}%)</small>
+                    </span>
+                  @else
+                    <span class="text-danger">
+                      €{{ number_format($marVal,2) }}
+                      <small>({{ $marPct }}%)</small>
+                    </span>
+                  @endif
+                </td>
+                <td class="text-center">
+                  <a href="{{ route('recipes.edit', $r->id) }}"
+                     class="btn btn-sm btn-outline-primary me-1"
+                     title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <form action="{{ route('recipes.destroy', $r->id) }}"
+                        method="POST"
+                        class="d-inline"
+                        onsubmit="return confirm('Delete this recipe?');">
+                    @csrf @method('DELETE')
+                    <button class="btn btn-sm btn-outline-danger" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
-    @endforeach
+    </div>
   </div>
 </div>
 @endsection
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const nameInput      = document.getElementById('searchName');
-  const modeSelect     = document.getElementById('filterMode');
-  const ingInput       = document.getElementById('searchIngredient');
-  const startDateInput = document.getElementById('filterStartDate');
-  const endDateInput   = document.getElementById('filterEndDate');
-  const cards          = document.querySelectorAll('.recipe-card');
-
-  function filterRecipes() {
-    const nameVal  = nameInput.value.trim().toLowerCase();
-    const modeVal  = modeSelect.value;
-    const ingVal   = ingInput.value.trim().toLowerCase();
-    const startVal = startDateInput.value;
-    const endVal   = endDateInput.value;
-
-    cards.forEach(card => {
-      const name        = card.dataset.name;
-      const mode        = card.dataset.mode;
-      const ingredients = card.dataset.ingredients;
-      const created     = card.dataset.created;
-
-      const matchName = !nameVal  || name.includes(nameVal);
-      const matchMode = !modeVal  || mode === modeVal;
-      const matchIng  = !ingVal   || ingredients.includes(ingVal);
-
-      let matchDate = true;
-      if (startVal) matchDate = matchDate && (created >= startVal);
-      if (endVal)   matchDate = matchDate && (created <= endVal);
-
-      card.style.display = (matchName && matchMode && matchIng && matchDate) ? '' : 'none';
+  $(document).ready(function() {
+    $('#recipesTable').DataTable({
+      paging:      true,
+      ordering:    true,
+      order:       [[0, 'asc']],
+      responsive:  true,
+      pageLength:  10,
+      lengthMenu:  [[10, 25, 50], [10, 25, 50]]
     });
-  }
-
-  // never allow To < From
-  startDateInput.addEventListener('change', () => {
-    endDateInput.min = startDateInput.value;
-    if (endDateInput.value && endDateInput.value < startDateInput.value) {
-      endDateInput.value = startDateInput.value;
-    }
-    filterRecipes();
   });
-  endDateInput.addEventListener('change', filterRecipes);
-  nameInput.addEventListener('input', filterRecipes);
-  modeSelect.addEventListener('change', filterRecipes);
-  ingInput.addEventListener('input', filterRecipes);
-});
 </script>
 @endsection

@@ -67,7 +67,7 @@
 
         <hr>
 
-        {{-- 3) Calculated fields --}}
+        {{-- 3) BEP outputs --}}
         <div class="row g-3 mb-3">
           <div class="col-md-4">
             <label class="form-label">Monthly BEP (Total Costs)</label>
@@ -79,19 +79,36 @@
           </div>
         </div>
 
+        {{-- 4) Scaled labor costs --}}
         <div class="row g-3 mb-3">
           <div class="col-md-6">
-            <label class="form-label">Labor Cost / Minute (Shop)</label>
-            <input type="text" id="shopCostPerMin" name="shop_cost_per_min" class="form-control" readonly>
+            <label class="form-label">Labor Cost / Minute (Shop) × 4/3</label>
+            <input type="text"
+                   id="shopCostPerMin"
+                   name="shop_cost_per_min"
+                   class="form-control"
+                   readonly>
             <div class="form-text">
-              Official: <code>((Total − Ingredients − Van Rental − Driver Salary) ÷ (Days × Hours × 60)) ÷ Chefs</code>
+              <code>(
+                (Total − Ingredients − Van Rental − Driver Salary)
+                ÷ (Days × Hours × 60)
+                ÷ Chefs
+              ) ÷ 3 × 4</code>
             </div>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Labor Cost / Minute (External)</label>
-            <input type="text" id="externalCostPerMin" name="external_cost_per_min" class="form-control" readonly>
+            <label class="form-label">Labor Cost / Minute (External) × 4/3</label>
+            <input type="text"
+                   id="externalCostPerMin"
+                   name="external_cost_per_min"
+                   class="form-control"
+                   readonly>
             <div class="form-text">
-              Official: <code>((Total − Ingredients − Shop Assistants) ÷ (Days × Hours × 60)) ÷ Chefs</code>
+              <code>(
+                (Total − Ingredients − Shop Assistants)
+                ÷ (Days × Hours × 60)
+                ÷ Chefs
+              ) ÷ 3 × 4</code>
             </div>
           </div>
         </div>
@@ -116,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function(){
         openDays    = byId('openDays'),
         hoursPerDay = byId('hoursPerDay');
 
-  // 2) All cost‑category inputs
+  // 2) Cost inputs
   const costs = Array.from(document.querySelectorAll('.cost-input'));
 
   // 3) Outputs
@@ -126,50 +143,48 @@ document.addEventListener('DOMContentLoaded', function(){
         externalEl = byId('externalCostPerMin');
 
   function recalc(){
-    // a) Sum of all costs
+    // Total costs
     const total = costs.reduce((sum, el) => sum + (parseFloat(el.value)||0), 0);
     monthlyEl.value = total.toFixed(2);
 
-    // b) Daily BEP
+    // Daily BEP
     const days = Math.max(1, parseInt(openDays.value)||1);
     dailyEl.value = (total / days).toFixed(2);
 
-    // c) Minutes × chefs
+    // Minutes & chefs
     const mins  = days * (parseFloat(hoursPerDay.value)||0) * 60,
           chefs = Math.max(1, parseInt(numChefs.value)||1);
 
-    // Helper: pick a cost by data-cat
+    // Helper
     const getCost = key => {
       const el = document.querySelector(`.cost-input[data-cat="${key}"]`);
       return el ? (parseFloat(el.value)||0) : 0;
     };
-
     const ing = getCost('ingredients'),
           van = getCost('van_rental'),
           drv = getCost('driver_salary'),
           sa  = getCost('shop_assistants');
 
-    // d) Shop labor/min/chef
-    shopEl.value = mins > 0
-      ? ((total - ing - van - drv) / mins / chefs).toFixed(4)
-      : '0.0000';
+    // Official values
+    const shopOfficial = mins > 0
+      ? (total - ing - van - drv) / mins / chefs
+      : 0;
+    const externalOfficial = mins > 0
+      ? (total - ing - sa) / mins / chefs
+      : 0;
 
-    // e) External labor/min/chef
-    externalEl.value = mins > 0
-      ? ((total - ing - sa) / mins / chefs).toFixed(4)
-      : '0.0000';
+    // Scaled: (Official ÷ 3) × 4
+    shopEl.value     = (shopOfficial / 3 * 4).toFixed(4);
+    externalEl.value = (externalOfficial / 3 * 4).toFixed(4);
   }
 
-  // Re‑calc on any input change
+  // Wire inputs → recalc
   [ numChefs, openDays, hoursPerDay, ...costs ].forEach(el =>
     el.addEventListener('input', recalc)
   );
+  document.querySelector('form').addEventListener('submit', recalc);
 
-  // Ensure fresh values just before submit
-  document.querySelector('form')
-          .addEventListener('submit', recalc);
-
-  // Initial run
+  // Initial calculation
   recalc();
 });
 </script>

@@ -6,6 +6,7 @@ use App\Models\Recipe;
 use App\Models\LaborCost;
 use App\Models\Department;
 use App\Models\Ingredient;
+use App\Models\CostCategory;
 use Illuminate\Http\Request;
 use App\Models\RecipeCategory;
 use App\Models\IngredientRecipe;
@@ -20,10 +21,13 @@ class RecipeController extends Controller
 
     public function index()
     {
-        // eager‑load category, department & ingredients
+        // eager-load category, department & ingredients
         $recipes     = Recipe::with(['category:id,name', 'department:id,name', 'ingredients.ingredient'])->get();
         $departments = Department::orderBy('name')->get();
-        return view('frontend.recipe.index', compact('recipes', 'departments'));
+        $categories  = RecipeCategory::orderBy('name')->get(); // Eager-load categories for the filter
+
+        // Pass categories to the view
+        return view('frontend.recipe.index', compact('recipes', 'departments', 'categories'));
     }
 
     public function destroy($id)
@@ -106,32 +110,28 @@ class RecipeController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'recipe_name'            => 'required|string|max:255',
-            'recipe_category_id'     => 'required|exists:recipe_categories,id',   // ← FK
-            'department_id' => 'required|exists:departments,id',
-
-            'sell_mode'              => 'required|in:piece,kg',
-            'selling_price_per_piece' => 'nullable|numeric|min:0',
-            'selling_price_per_kg'   => 'nullable|numeric|min:0',
-
-            'labor_time_input'       => 'required|integer|min:0',
-            'labor_cost'             => 'required|numeric|min:0',
-            'packing_cost'           => 'required|numeric|min:0',
-
-            'production_cost_per_kg' => 'required|numeric|min:0',
-            'ingredients_total_cost' => 'required|numeric|min:0',
-            'total_expense'          => 'required|numeric|min:0',
-            'potential_margin'       => 'required|numeric',
-
-            'ingredients'            => 'required|array|min:1',
-            'ingredients.*.id'       => 'required|exists:ingredients,id',
-            'ingredients.*.quantity' => 'required|numeric|min:0',
-            'ingredients.*.cost'     => 'required|numeric|min:0',
-
-            'total_pieces'           => 'nullable|integer|min:0',
-            'recipe_weight'          => 'nullable|numeric|min:0',
-            'add_as_ingredient'      => 'sometimes|boolean',
-            'labor_cost_mode' => 'required|in:shop,external',
+            'recipe_name'              => 'required|string|max:255',
+            'recipe_category_id'       => 'required|exists:recipe_categories,id',
+            'department_id'            => 'required|exists:departments,id',
+            'sell_mode'                => 'required|in:piece,kg',
+            'selling_price_per_piece'  => 'nullable|numeric|min:0',
+            'selling_price_per_kg'     => 'nullable|numeric|min:0',
+            'labor_time_input'         => 'required|integer|min:0',
+            'labor_cost'               => 'required|numeric|min:0',
+            'packing_cost'             => 'nullable|numeric|min:0',
+            'production_cost_per_kg'   => 'required|numeric|min:0',
+            'ingredients_total_cost'   => 'required|numeric|min:0',
+            'total_expense'            => 'required|numeric|min:0',
+            'potential_margin'         => 'required|numeric',
+            'ingredients'              => 'required|array|min:1',
+            'ingredients.*.id'         => 'required|exists:ingredients,id',
+            'ingredients.*.quantity'   => 'required|numeric|min:0',
+            'ingredients.*.cost'       => 'required|numeric|min:0',
+            'total_pieces'             => 'nullable|integer|min:0',
+            'recipe_weight'            => 'nullable|numeric|min:0',
+            'add_as_ingredient'        => 'sometimes|boolean',
+            'labor_cost_mode'          => 'required|in:shop,external',
+            'production_cost_per_kg'          => 'nullable',
         ]);
 
         DB::beginTransaction();
@@ -140,25 +140,21 @@ class RecipeController extends Controller
                 'recipe_name'            => $data['recipe_name'],
                 'recipe_category_id'     => $data['recipe_category_id'],
                 'department_id'          => $data['department_id'],
-            
                 'sell_mode'              => $data['sell_mode'],
-                'selling_price_per_piece'=> $data['selling_price_per_piece'] ?? 0,
-                'selling_price_per_kg'   => $data['selling_price_per_kg'] ?? 0,
+                'selling_price_per_piece' => $data['selling_price_per_piece']  ?? 0,
+                'selling_price_per_kg'   => $data['selling_price_per_kg']    ?? 0,
                 'labour_time_min'        => $data['labor_time_input'],
                 'labour_cost'            => $data['labor_cost'],
                 'packing_cost'           => $data['packing_cost'],
-            
                 'production_cost_per_kg' => $data['production_cost_per_kg'],
                 'ingredients_total_cost' => $data['ingredients_total_cost'],
                 'total_expense'          => $data['total_expense'],
                 'potential_margin'       => $data['potential_margin'],
-                'total_pieces'           => $data['total_pieces'] ?? 0,
-                'recipe_weight'          => $data['recipe_weight'] ?? 0,
-            
-                // ✅ Store the selected labor cost mode
+                'total_pieces'           => $data['total_pieces']           ?? 0,
+                'recipe_weight'          => $data['recipe_weight']          ?? 0,
                 'labor_cost_mode'        => $data['labor_cost_mode'],
+                'production_cost_per_kg'        => $data['production_cost_per_kg'],
             ]);
-            
 
             foreach ($data['ingredients'] as $line) {
                 $recipe->ingredients()->create([
@@ -176,11 +172,14 @@ class RecipeController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('recipes.index')
+
+            return redirect()
+                ->route('recipes.create')
                 ->with('success', 'Recipe saved successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withInput()
+            return back()
+                ->withInput()
                 ->withErrors(['error' => 'Failed to save recipe: ' . $e->getMessage()]);
         }
     }
@@ -188,32 +187,28 @@ class RecipeController extends Controller
     public function update(Request $request, Recipe $recipe)
     {
         $data = $request->validate([
-            'recipe_name'            => 'required|string|max:255',
-            'recipe_category_id'     => 'required|exists:recipe_categories,id', // ← FK
-            'department_id' => 'required|exists:departments,id',
-
-            'sell_mode'              => 'required|in:piece,kg',
-            'selling_price_per_piece' => 'nullable|numeric|min:0',
-            'selling_price_per_kg'   => 'nullable|numeric|min:0',
-
-            'labor_time_input'       => 'required|integer|min:0',
-            'labor_cost'             => 'required|numeric|min:0',
-            'packing_cost'           => 'required|numeric|min:0',
-
-            'production_cost_per_kg' => 'required|numeric|min:0',
-            'ingredients_total_cost' => 'required|numeric|min:0',
-            'total_expense'          => 'required|numeric|min:0',
-            'potential_margin'       => 'required|numeric',
-
-            'ingredients'            => 'required|array|min:1',
-            'ingredients.*.id'       => 'required|exists:ingredients,id',
-            'ingredients.*.quantity' => 'required|numeric|min:0',
-            'ingredients.*.cost'     => 'required|numeric|min:0',
-
-            'total_pieces'           => 'nullable|integer|min:0',
-            'recipe_weight'          => 'nullable|numeric|min:0',
-            'add_as_ingredient'      => 'sometimes|boolean',
-
+            'recipe_name'              => 'required|string|max:255',
+            'recipe_category_id'       => 'required|exists:recipe_categories,id',
+            'department_id'            => 'required|exists:departments,id',
+            'sell_mode'                => 'required|in:piece,kg',
+            'selling_price_per_piece'  => 'nullable|numeric|min:0',
+            'selling_price_per_kg'     => 'nullable|numeric|min:0',
+            'labor_time_input'         => 'required|integer|min:0',
+            'labor_cost'               => 'required|numeric|min:0',
+            'packing_cost'             => 'nullable|numeric|min:0',
+            'production_cost_per_kg'   => 'required|numeric|min:0',
+            'ingredients_total_cost'   => 'required|numeric|min:0',
+            'total_expense'            => 'required|numeric|min:0',
+            'potential_margin'         => 'required|numeric',
+            'ingredients'              => 'required|array|min:1',
+            'ingredients.*.id'         => 'required|exists:ingredients,id',
+            'ingredients.*.quantity'   => 'required|numeric|min:0',
+            'ingredients.*.cost'       => 'required|numeric|min:0',
+            'total_pieces'             => 'nullable|integer|min:0',
+            'recipe_weight'            => 'nullable|numeric|min:0',
+            'add_as_ingredient'        => 'sometimes|boolean',
+            'labor_cost_mode'          => 'required|in:shop,external',
+            'production_cost_per_kg'          => 'required',
         ]);
 
         DB::beginTransaction();
@@ -221,24 +216,24 @@ class RecipeController extends Controller
             $recipe->update([
                 'recipe_name'            => $data['recipe_name'],
                 'recipe_category_id'     => $data['recipe_category_id'],
-                'department_id' => $data['department_id'],
-
+                'department_id'          => $data['department_id'],
                 'sell_mode'              => $data['sell_mode'],
-                'selling_price_per_piece' => $data['selling_price_per_piece'] ?? 0,
+                'selling_price_per_piece' => $data['selling_price_per_piece']  ?? 0,
                 'selling_price_per_kg'   => $data['selling_price_per_kg']    ?? 0,
                 'labour_time_min'        => $data['labor_time_input'],
                 'labour_cost'            => $data['labor_cost'],
                 'packing_cost'           => $data['packing_cost'],
-
                 'production_cost_per_kg' => $data['production_cost_per_kg'],
                 'ingredients_total_cost' => $data['ingredients_total_cost'],
                 'total_expense'          => $data['total_expense'],
                 'potential_margin'       => $data['potential_margin'],
-                'total_pieces'           => $data['total_pieces'] ?? 0,
-                'recipe_weight'          => $data['recipe_weight'] ?? 0,
+                'total_pieces'           => $data['total_pieces']           ?? 0,
+                'recipe_weight'          => $data['recipe_weight']          ?? 0,
                 'labor_cost_mode'        => $data['labor_cost_mode'],
+                'production_cost_per_kg'        => $data['production_cost_per_kg'],
             ]);
 
+            // remove old lines and re-insert
             $recipe->ingredients()->delete();
             foreach ($data['ingredients'] as $line) {
                 $recipe->ingredients()->create([
@@ -256,11 +251,14 @@ class RecipeController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('recipes.index')
+
+            return redirect()
+                ->route('recipes.index')
                 ->with('success', 'Recipe updated successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withInput()
+            return back()
+                ->withInput()
                 ->withErrors(['error' => 'Failed to update recipe: ' . $e->getMessage()]);
         }
     }

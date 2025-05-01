@@ -1,3 +1,4 @@
+{{-- resources/views/frontend/production/form.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', isset($production) ? 'Edit Production' : 'Create Production Entry')
@@ -10,20 +11,21 @@
       <h5 class="mb-0">{{ isset($production) ? 'Edit' : 'Create' }} Production Entry</h5>
     </div>
     <div class="card-body">
-      <form method="POST" action="{{ isset($production) ? route('production.update', $production->id) : route('production.store') }}" id="productionForm">
+      <form method="POST"
+            action="{{ isset($production) ? route('production.update', $production->id) : route('production.store') }}"
+            id="productionForm">
         @csrf
-        @if(isset($production))
-          @method('PUT')
-        @endif
+        @if(isset($production)) @method('PUT') @endif
 
-        <!-- Production Date -->
+        {{-- Production Date --}}
         <div class="mb-4">
           <label for="production_date" class="form-label fw-semibold">Production Date</label>
-          <input type="date" id="production_date" name="production_date" class="form-control" 
-                 value="{{ old('production_date', isset($production) ? $production->production_date : date('Y-m-d')) }}" required>
+          <input type="date" id="production_date" name="production_date" class="form-control"
+                 value="{{ old('production_date', isset($production) ? $production->production_date : date('Y-m-d')) }}"
+                 required>
         </div>
 
-        <!-- Table -->
+        {{-- Table --}}
         <table class="table table-bordered align-middle" id="recipeTable">
           <thead class="table-light">
             <tr>
@@ -39,66 +41,82 @@
           <tbody>
             @if(isset($production))
               @foreach($production->details as $index => $detail)
-              <tr>
-                <td>
-                  <select name="recipe_id[]" class="form-select recipe-select" required>
-                    <option value="">Select Recipe</option>
-                    @foreach($recipes as $recipe)
-                      <option value="{{ $recipe->id }}"
-                              data-price-kg="{{ $recipe->selling_price_per_kg }}"
-                              data-price-piece="{{ $recipe->selling_price_per_piece }}"
-                              {{ $recipe->id == $detail->recipe_id ? 'selected' : '' }}>
-                        {{ $recipe->recipe_name }}
-                      </option>
-                    @endforeach
-                  </select>
-                </td>
-                <td>
-                  <select name="pastry_chef_id[]" class="form-select" required>
-                    <option value="">Select Chef</option>
-                    @foreach($chefs as $chef)
-                      <option value="{{ $chef->id }}" {{ $chef->id == $detail->pastry_chef_id ? 'selected' : '' }}>
-                        {{ $chef->name }}
-                      </option>
-                    @endforeach
-                  </select>
-                </td>
-                <td>
-                  <input type="number" name="quantity[]" class="form-control quantity-input"
-                         value="{{ $detail->quantity }}" min="1" required>
-                </td>
-                <td>
-                  <input type="number" name="execution_time[]" class="form-control"
-                         value="{{ $detail->execution_time }}" min="1" required>
-                </td>
-                <td>
-                  <div class="multi-equipment">
-                    <div class="selected-equipment d-flex flex-wrap mb-2"></div>
-                    <div class="input-group">
-                      <select class="form-select equipment-select">
-                        <option value="">Select Equipment</option>
-                        @foreach($equipments as $equipment)
-                          <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
-                        @endforeach
-                      </select>
-                      <button type="button" class="btn btn-outline-secondary add-equipment-btn">Add</button>
+                <tr>
+                  {{-- Recipe --}}
+                  <td>
+                    <select name="recipe_id[]" class="form-select recipe-select" required>
+                      <option value="">Select Recipe</option>
+                      @foreach($recipes as $recipe)
+                        <option value="{{ $recipe->id }}"
+                                data-price-kg="{{ $recipe->selling_price_per_kg }}"
+                                data-price-piece="{{ $recipe->selling_price_per_piece }}"
+                                {{ $recipe->id == $detail->recipe_id ? 'selected' : '' }}>
+                          {{ $recipe->recipe_name }}
+                        </option>
+                      @endforeach
+                    </select>
+                  </td>
+
+                  {{-- Chef --}}
+                  <td>
+                    <select name="pastry_chef_id[]" class="form-select" required>
+                      <option value="">Select Chef</option>
+                      @foreach($chefs as $chef)
+                        <option value="{{ $chef->id }}"
+                                {{ $chef->id == $detail->pastry_chef_id ? 'selected' : '' }}>
+                          {{ $chef->name }}
+                        </option>
+                      @endforeach
+                    </select>
+                  </td>
+
+                  {{-- Quantity --}}
+                  <td>
+                    <input type="number" name="quantity[]" class="form-control quantity-input"
+                           value="{{ $detail->quantity }}" min="1" required>
+                  </td>
+
+                  {{-- Time --}}
+                  <td>
+                    <input type="number" name="execution_time[]" class="form-control"
+                           value="{{ $detail->execution_time }}" min="1" required>
+                  </td>
+
+                  {{-- Equipment --}}
+                  <td>
+                    <div class="multi-equipment">
+                      <div class="selected-equipment d-flex flex-wrap mb-2"></div>
+                      <div class="input-group">
+                        <select class="form-select equipment-select">
+                          <option value="">Select Equipment</option>
+                          @foreach($equipments as $equipment)
+                            <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
+                          @endforeach
+                        </select>
+                        <button type="button" class="btn btn-outline-secondary add-equipment-btn">Add</button>
+                      </div>
+                      <input type="hidden"
+                             name="equipment_ids[{{ $index }}][]"
+                             class="equipment-hidden"
+                             value="{{ is_array($detail->equipment_ids) ? implode(',', $detail->equipment_ids) : $detail->equipment_ids }}">
                     </div>
-                    <input type="hidden" name="equipment_ids[{{ $index }}][]" 
-                           class="equipment-hidden" 
-                           value="{{ is_array($detail->equipment_ids) ? implode(',', $detail->equipment_ids) : $detail->equipment_ids }}">
-                  </div>
-                </td>
-                <td>
-                  <input type="text" name="potential_revenue[]" 
-                         class="form-control revenue-field" 
-                         value="{{ $detail->potential_revenue }}" readonly>
-                </td>
-                <td class="text-center">
-                  <button type="button" class="btn btn-danger btn-sm remove-row">&times;</button>
-                </td>
-              </tr>
+                  </td>
+
+                  {{-- Revenue --}}
+                  <td>
+                    <input type="text" name="potential_revenue[]"
+                           class="form-control revenue-field"
+                           value="{{ $detail->potential_revenue }}" readonly>
+                  </td>
+
+                  {{-- Remove Row --}}
+                  <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-row">&times;</button>
+                  </td>
+                </tr>
               @endforeach
             @else
+              {{-- empty state: one blank row --}}
               <tr>
                 <td>
                   <select name="recipe_id[]" class="form-select recipe-select" required>
@@ -121,10 +139,12 @@
                   </select>
                 </td>
                 <td>
-                  <input type="number" name="quantity[]" class="form-control quantity-input" value="1" min="1" required>
+                  <input type="number" name="quantity[]" class="form-control quantity-input"
+                         value="1" min="1" required>
                 </td>
                 <td>
-                  <input type="number" name="execution_time[]" class="form-control" min="1" required>
+                  <input type="number" name="execution_time[]" class="form-control"
+                         min="1" required>
                 </td>
                 <td>
                   <div class="multi-equipment">
@@ -136,13 +156,14 @@
                           <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
                         @endforeach
                       </select>
-                      <button type="button" class="btn btn-outline-secondary add-equipment-btn">Add</button>
+                      {{-- <button type="button" class="btn btn-outline-secondary add-equipment-btn">Add</button> --}}
                     </div>
                     <input type="hidden" name="equipment_ids[0][]" class="equipment-hidden">
                   </div>
                 </td>
                 <td>
-                  <input type="text" name="potential_revenue[]" class="form-control revenue-field" value="0.00" readonly>
+                  <input type="text" name="potential_revenue[]" class="form-control revenue-field"
+                         value="0.00" readonly>
                 </td>
                 <td class="text-center">
                   <button type="button" class="btn btn-danger btn-sm remove-row">&times;</button>
@@ -156,11 +177,12 @@
           <button type="button" class="btn btn-outline-primary" id="addRowBtn">+ Add Row</button>
         </div>
 
-        <!-- Total Revenue -->
+        {{-- Total Revenue --}}
         <div class="mb-4">
           <label class="form-label fw-semibold">Total Potential Revenue (€)</label>
           <input type="text" id="totalRevenue" name="total_revenue" class="form-control"
-                 value="{{ old('total_revenue', isset($production) ? $production->total_potential_revenue : '0.00') }}" readonly>
+                 value="{{ old('total_revenue', isset($production) ? $production->total_potential_revenue : '0.00') }}"
+                 readonly>
         </div>
 
         <div class="text-end">
@@ -181,9 +203,8 @@
   margin-right: 5px;
   margin-bottom: 5px;
   font-size: 0.875rem;
-  position: relative;
 }
-.selected-equipment span .remove-tag {
+.selected-equipment .remove-tag {
   color: #888;
   margin-left: 6px;
   cursor: pointer;
@@ -194,119 +215,110 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const tableBody = document.querySelector('#recipeTable tbody');
-  const addRowBtn = document.getElementById('addRowBtn');
+  const tableBody         = document.querySelector('#recipeTable tbody');
+  const addRowBtn         = document.getElementById('addRowBtn');
   const totalRevenueField = document.getElementById('totalRevenue');
 
+  // Recalc revenue for one row
   function calculateRowRevenue(row) {
-    const recipe = row.querySelector('.recipe-select');
-    const qty = parseFloat(row.querySelector('.quantity-input')?.value || 0);
-    const priceKg = parseFloat(recipe.selectedOptions[0]?.dataset.priceKg || 0);
-    const pricePiece = parseFloat(recipe.selectedOptions[0]?.dataset.pricePiece || 0);
-    const price = priceKg > 0 ? priceKg : pricePiece;
-    const revenue = (qty * price).toFixed(2);
-    row.querySelector('.revenue-field').value = revenue;
+    const recipe  = row.querySelector('.recipe-select');
+    const qty     = +row.querySelector('.quantity-input').value || 0;
+    const priceKg    = +recipe.selectedOptions[0].dataset.priceKg  || 0;
+    const pricePiece = +recipe.selectedOptions[0].dataset.pricePiece|| 0;
+    const price      = priceKg > 0 ? priceKg : pricePiece;
+    row.querySelector('.revenue-field').value = (qty * price).toFixed(2);
     calculateTotalRevenue();
   }
 
+  // Sum all row revenues
   function calculateTotalRevenue() {
-    let total = 0;
-    document.querySelectorAll('.revenue-field').forEach(input => {
-      total += parseFloat(input.value) || 0;
+    let sum = 0;
+    document.querySelectorAll('.revenue-field').forEach(i => sum += +i.value || 0);
+    totalRevenueField.value = sum.toFixed(2);
+  }
+
+  // Wire up one row
+  function attachRowEvents(row, idx) {
+    const recipeSelect   = row.querySelector('.recipe-select');
+    const qtyInput       = row.querySelector('.quantity-input');
+    const removeBtn      = row.querySelector('.remove-row');
+    const equipmentSel   = row.querySelector('.equipment-select');
+    const equipmentBtn   = row.querySelector('.add-equipment-btn');
+    const selectedCont   = row.querySelector('.selected-equipment');
+    const hiddenInput    = row.querySelector('.equipment-hidden');
+
+    // unified add logic
+    function addEquipment() {
+      const id = equipmentSel.value;
+      if (!id) return;
+      const list = hiddenInput.value ? hiddenInput.value.split(',') : [];
+      if (!list.includes(id)) {
+        list.push(id);
+        hiddenInput.value = list.join(',');
+        renderTags();
+      }
+      equipmentSel.selectedIndex = 0;
+    }
+
+    // render tags from hiddenInput
+    function renderTags() {
+      selectedCont.innerHTML = '';
+      (hiddenInput.value ? hiddenInput.value.split(',') : []).forEach(id => {
+        const opt   = equipmentSel.querySelector(`option[value="${id}"]`);
+        const label = opt ? opt.text : 'Unknown';
+        const span  = document.createElement('span');
+        span.innerHTML = `${label} <span class="remove-tag" data-id="${id}">&times;</span>`;
+        selectedCont.append(span);
+      });
+    }
+
+    // events
+    recipeSelect.addEventListener('change', () => calculateRowRevenue(row));
+    qtyInput.addEventListener('input',   () => calculateRowRevenue(row));
+    removeBtn.addEventListener('click',  () => {
+      if (tableBody.rows.length > 1) { row.remove(); calculateTotalRevenue(); }
     });
-    totalRevenueField.value = total.toFixed(2);
+
+    // both select-change and button click add equipment
+    equipmentSel.addEventListener('change', addEquipment);
+    equipmentBtn.addEventListener('click',  addEquipment);
+
+    // remove a tag
+    selectedCont.addEventListener('click', e => {
+      if (e.target.classList.contains('remove-tag')) {
+        const keep = hiddenInput.value.split(',').filter(v => v!== e.target.dataset.id);
+        hiddenInput.value = keep.join(',');
+        renderTags();
+      }
+    });
+
+    // init
+    renderTags();
+    calculateRowRevenue(row);
   }
 
-  function attachRowEvents(row) {
-    const recipe = row.querySelector('.recipe-select');
-    const qty = row.querySelector('.quantity-input');
-    const removeBtn = row.querySelector('.remove-row');
-    const equipmentSelect = row.querySelector('.equipment-select');
-    const addBtn = row.querySelector('.add-equipment-btn');
-    const selectedContainer = row.querySelector('.selected-equipment');
-    const hiddenInput = row.querySelector('.equipment-hidden');
-
-    // Attach events
-    if (recipe) recipe.addEventListener('change', () => calculateRowRevenue(row));
-    if (qty) qty.addEventListener('input', () => calculateRowRevenue(row));
-
-    if (removeBtn) {
-      removeBtn.addEventListener('click', () => {
-        if (tableBody.rows.length > 1) {
-          row.remove();
-          calculateTotalRevenue();
-        }
-      });
-    }
-
-    if (addBtn && equipmentSelect && hiddenInput) {
-      addBtn.addEventListener('click', () => {
-        const id = equipmentSelect.value;
-        const label = equipmentSelect.options[equipmentSelect.selectedIndex]?.text;
-        if (!id) return;
-        let current = hiddenInput.value ? hiddenInput.value.split(',') : [];
-        if (!current.includes(id)) {
-          current.push(id);
-          hiddenInput.value = current.join(',');
-          updateEquipmentTags();
-        }
-        equipmentSelect.selectedIndex = 0;
-      });
-    }
-
-    if (selectedContainer) {
-      selectedContainer.addEventListener('click', e => {
-        if (e.target.classList.contains('remove-tag')) {
-          const id = e.target.dataset.id;
-          let current = hiddenInput.value.split(',').filter(val => val !== id);
-          hiddenInput.value = current.join(',');
-          updateEquipmentTags();
-        }
-      });
-    }
-
-    function updateEquipmentTags() {
-      selectedContainer.innerHTML = '';
-      const ids = hiddenInput.value ? hiddenInput.value.split(',') : [];
-      ids.forEach(id => {
-        const label = equipmentSelect.querySelector(`option[value="${id}"]`)?.text || 'Unknown';
-        const tag = document.createElement('span');
-        tag.innerHTML = `${label} <span class="remove-tag" data-id="${id}">&times;</span>`;
-        selectedContainer.appendChild(tag);
-      });
-    }
-
-    updateEquipmentTags(); // show equipment tags initially
-    calculateRowRevenue(row); // force revenue calc on edit
-  }
-
-  // ✅ FOR EDIT MODE — Attach to existing rows after DOM ready
+  // attach to existing
   setTimeout(() => {
-    document.querySelectorAll('#recipeTable tbody tr').forEach(row => {
-      attachRowEvents(row);
-      calculateRowRevenue(row);
-    });
-  }, 100); // slight delay to ensure DOM loaded
+    tableBody.querySelectorAll('tr').forEach((r,i) => attachRowEvents(r, i));
+  }, 50);
 
-  // ✅ For dynamically added row
+  // Add new row
   addRowBtn.addEventListener('click', () => {
-    const newRow = tableBody.rows[0].cloneNode(true);
-    const index = tableBody.rows.length;
-
-    newRow.querySelectorAll('input, select').forEach(el => {
-      if (el.tagName === 'SELECT') el.selectedIndex = 0;
-      else el.value = el.classList.contains('quantity-input') ? 1 : '';
+    const clone = tableBody.rows[0].cloneNode(true);
+    const idx   = tableBody.rows.length;
+    // reset selects/inputs
+    clone.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    clone.querySelectorAll('input').forEach(i => {
+      if (i.classList.contains('quantity-input')) i.value = 1;
+      else if (i.classList.contains('revenue-field')) i.value = '0.00';
+      else if (i.classList.contains('equipment-hidden')) {
+        i.value = ''; i.name = `equipment_ids[${idx}][]`;
+      } else i.value = '';
     });
-
-    newRow.querySelector('.revenue-field').value = '0.00';
-    newRow.querySelector('.equipment-hidden').value = '';
-    newRow.querySelector('.equipment-hidden').setAttribute('name', `equipment_ids[${index}][]`);
-    newRow.querySelector('.selected-equipment').innerHTML = '';
-
-    tableBody.appendChild(newRow);
-    attachRowEvents(newRow);
+    clone.querySelector('.selected-equipment').innerHTML = '';
+    tableBody.appendChild(clone);
+    attachRowEvents(clone, idx);
   });
 });
 </script>
 @endsection
-

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Recipe;
 use App\Models\LaborCost;
+use App\Models\ReturnedGood;
 use Illuminate\Http\Request;
 use App\Models\ExternalSupply;
 use App\Http\Controllers\Controller;
@@ -13,13 +14,54 @@ class ExternalSuppliesController extends Controller
 {
     public function index()
     {
-        $externalSupplies = ExternalSupply::with(['client', 'recipes.recipe'])
-                                          ->latest()
-                                          ->get();
+        // 1) Load all supplies
+        $supplies = ExternalSupply::with('client', 'recipes.recipe')->get();
 
-        return view('frontend.external-supplies.index', compact('externalSupplies'));
+        // 2) Load all returns
+        $returns = ReturnedGood::with('client', 'recipes.recipe')->get();
+
+        // 3) Build a single flat collection of “entries”
+        $all = collect();
+
+        foreach ($supplies as $supply) {
+            $all->push([
+                'type'                => 'supply',
+                'client'              => $supply->client->name,
+                'date'                => $supply->supply_date->toDateString(),
+                'external_supply_id'  => $supply->id,
+                'lines'               => $supply->recipes,
+                'revenue'             => $supply->total_amount,
+            ]);
+        }
+
+        foreach ($returns as $return) {
+            // pull the actual supply‐line models out of the returnedGoodRecipe pivot
+            $returnedLines = $return->recipes->map(fn($r) => $r->supplyLine);
+        
+            $all->push([
+                'type'               => 'return',
+                'client'             => $return->client->name,
+                'date'               => $return->return_date->toDateString(),
+                'external_supply_id' => $return->external_supply_id,
+                'lines'              => $returnedLines,           // normalized
+                'revenue'            => -1 * $return->total_amount,
+            ]);
+        }
+        
+
+        // 4) Sort most recent first, then group by client → date
+        $grouped = $all
+            ->sortByDesc('date')
+            ->groupBy('client')
+            ->map(fn($byClient) => $byClient->groupBy('date'));
+
+        // 5) Send to view
+        return view('frontend.external-supplies.index', [
+            'all' => $grouped,
+        ]);
     }
-
+    
+    
     public function create()
     {
         $laborCost = LaborCost::first();
