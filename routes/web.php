@@ -99,7 +99,16 @@ Route::resource('equipment', EquipmentController::class);
 Route::resource('production', ProductionController::class);
 
 
+Route::get('production/template/{id}', [ProductionController::class, 'getTemplate'])
+     ->name('production.template');
+    
+    
+     Route::get('showcase/template/{id}', [\App\Http\Controllers\ShowcaseController::class, 'getTemplate'])
+     ->name('showcase.template');
 
+     Route::get('external-supplies/template/{id}', 
+     [ExternalSuppliesController::class, 'getTemplate']);
+ 
 
  
 

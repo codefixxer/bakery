@@ -171,21 +171,51 @@
               ->filter()
               ->implode(' ');
           @endphp
-          <tr class="prod-row"
-              data-recipes  ="{{ strtolower($p->details->pluck('recipe.recipe_name')->implode(' ')) }}"
-              data-chefs    ="{{ strtolower($p->details->pluck('chef.name')->implode(' ')) }}"
-              data-equipment="{{ strtolower($equipmentList) }}"
-              data-date     ="{{ $p->production_date }}"
-              data-potential="{{ $p->total_potential_revenue }}">
-            <td>
-              <button class="btn btn-sm btn-outline-secondary toggle-btn">
-                <i class="bi bi-caret-right-fill"></i>
-              </button>
-            </td>
-            <td>{{ $p->production_date }}</td>
-            <td>{{ $p->details->count() }}</td>
-            <td>${{ number_format($p->total_potential_revenue,2) }}</td>
-          </tr>
+       <tr class="prod-row"
+       data-recipes  ="{{ strtolower($p->details->pluck('recipe.recipe_name')->implode(' ')) }}"
+       data-chefs    ="{{ strtolower($p->details->pluck('chef.name')->implode(' ')) }}"
+       data-equipment="{{ strtolower($equipmentList) }}"
+       data-date     ="{{ $p->production_date }}"
+       data-potential="{{ $p->total_potential_revenue }}">
+     <!-- toggle detail -->
+     <td>
+       <button class="btn btn-sm btn-outline-secondary toggle-btn">
+         <i class="bi bi-caret-right-fill"></i>
+       </button>
+     </td>
+   
+     <!-- date -->
+     <td>{{ $p->production_date }}</td>
+   
+     <!-- item count -->
+     <td>{{ $p->details->count() }}</td>
+   
+     <!-- total potential -->
+     <td>${{ number_format($p->total_potential_revenue, 2) }}</td>
+   
+     <!-- actions: edit & delete -->
+     <td class="text-center">
+       <!-- Edit button -->
+       <a href="{{ route('production.edit', $p->id) }}"
+          class="btn btn-sm btn-outline-primary"
+          title="Edit">
+         <i class="bi bi-pencil"></i>
+       </a>
+   
+       <!-- Delete form -->
+       <form action="{{ route('production.destroy', $p->id) }}"
+             method="POST"
+             class="d-inline"
+             onsubmit="return confirm('Are you sure you want to delete this record?');">
+         @csrf
+         @method('DELETE')
+         <button class="btn btn-sm btn-outline-danger" title="Delete">
+           <i class="bi bi-trash"></i>
+         </button>
+       </form>
+     </td>
+   </tr>
+   
           <tr class="detail-row" style="display:none">
             <td colspan="4" class="p-3">
               <ul class="mb-0">

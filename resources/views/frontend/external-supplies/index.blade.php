@@ -13,7 +13,6 @@
       <a href="{{ route('external-supplies.create') }}" class="btn btn-primary me-2">
         <i class="bi bi-truck me-1"></i> Add Supply
       </a>
- 
     </div>
   </div>
 
@@ -71,7 +70,7 @@
                       $pct = $revenue>0 ? ($profit/$revenue)*100 : 0;
                       $bar = min(max($pct,0),100);
                     @endphp
-                    <div class="progress-bar {{ $profit>=0?'bg-success':'bg-danger' }}"
+                    <div class="progress-bar {{ $profit>=0 ? 'bg-success' : 'bg-danger' }}"
                          role="progressbar"
                          style="width:{{ abs($bar) }}%;"></div>
                   </div>
@@ -93,36 +92,49 @@
                 </thead>
                 <tbody>
                   @foreach($entries as $entry)
-                  <tr>
-                    <td colspan="5">
-                      {{-- Client Information --}}
-                      <strong>{{ $entry['client'] }}</strong> — {{ $entry['date'] }}
-                    </td>
-                    <td class="text-end">
-                      {{-- Return Button for Each Client's Supply --}}
-                      <a href="{{ route('returned-goods.create', ['external_supply_id' => $entry['external_supply_id']]) }}" 
-                         class="btn btn-sm btn-outline-warning">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i> Return
-                      </a>
-                    </td>
-                  </tr>
-                  @foreach($entry['lines'] as $line)
-                  @php
-                    $lineRev  = ($entry['type'] === 'supply' ? 1 : -1) * $line->total_amount;
-                    $lineCost = ($line->recipe->production_cost_per_kg ?? 0) / 1000 * $line->qty;
-                  @endphp
-                  <tr>
-                    <td>{{ optional($line->recipe)->recipe_name ?? '—' }}</td>
-                    <td>{{ $line->qty }}</td>
-                    <td class="text-end">{{ number_format($lineRev, 2) }}</td>
-                    <td class="text-end">{{ number_format($lineCost, 2) }}</td>
-                    <td></td>
-                  </tr>
-                @endforeach
-                
-                @endforeach
-                
-                
+                    <tr>
+                      <td colspan="4">
+                        <strong>{{ $entry['client'] }}</strong> — {{ $entry['date'] }}
+                      </td>
+                      <td class="text-end">
+                        {{-- Return --}}
+                        <a href="{{ route('returned-goods.create', ['external_supply_id' => $entry['external_supply_id']]) }}"
+                           class="btn btn-sm btn-outline-warning me-1"
+                           title="Return">
+                          <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                        {{-- Edit --}}
+                        <a href="{{ route('external-supplies.edit', $entry['external_supply_id']) }}"
+                           class="btn btn-sm btn-outline-primary me-1"
+                           title="Edit">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        {{-- Delete --}}
+                        <form action="{{ route('external-supplies.destroy', $entry['external_supply_id']) }}"
+                              method="POST"
+                              class="d-inline"
+                              onsubmit="return confirm('Delete this supply?');">
+                          @csrf
+                          @method('DELETE')
+                          <button class="btn btn-sm btn-outline-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                    @foreach($entry['lines'] as $line)
+                      @php
+                        $lineRev  = ($entry['type'] === 'supply' ? 1 : -1) * $line->total_amount;
+                        $lineCost = ($line->recipe->production_cost_per_kg ?? 0) / 1000 * $line->qty;
+                      @endphp
+                      <tr>
+                        <td>{{ optional($line->recipe)->recipe_name ?? '—' }}</td>
+                        <td>{{ $line->qty }}</td>
+                        <td class="text-end">{{ number_format($lineRev, 2) }}</td>
+                        <td class="text-end">{{ number_format($lineCost, 2) }}</td>
+                      </tr>
+                    @endforeach
+                  @endforeach
                 </tbody>
               </table>
             </div>
@@ -138,22 +150,23 @@
 
 @section('scripts')
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     const clientFilter = document.getElementById('filterClient');
     const dateFilter   = document.getElementById('filterDate');
     const items        = document.querySelectorAll('.client-accordion');
 
     function applyFilters() {
-      const clientVal = clientFilter.value.trim().toLowerCase();
-      const dateVal   = dateFilter.value;
+      const c = clientFilter.value.trim().toLowerCase();
+      const d = dateFilter.value;
       items.forEach(item => {
-        const matchClient = !clientVal || item.dataset.client.includes(clientVal);
-        const matchDate   = !dateVal   || item.dataset.date === dateVal;
+        const matchClient = !c || item.dataset.client.includes(c);
+        const matchDate   = !d || item.dataset.date === d;
         item.style.display = (matchClient && matchDate) ? '' : 'none';
       });
     }
 
-    [clientFilter, dateFilter].forEach(el => el.addEventListener('input', applyFilters));
+    clientFilter.addEventListener('input', applyFilters);
+    dateFilter.addEventListener('input', applyFilters);
   });
 </script>
 @endsection

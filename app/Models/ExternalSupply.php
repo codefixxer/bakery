@@ -9,7 +9,9 @@ class ExternalSupply extends Model
 {
     protected $fillable = [
         'client_id',
+        'supply_name',
         'supply_date',
+        'save_template',
         'total_amount',
     ];
 

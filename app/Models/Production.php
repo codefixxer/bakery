@@ -11,6 +11,8 @@
         use HasFactory;
 
         protected $fillable = [
+            'production_name',
+            'save_template',
             'production_date',
             'total_potential_revenue',
         ];

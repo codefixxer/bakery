@@ -7,9 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Showcase extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'showcase_date','template_action',
-        'break_even','total_revenue','plus','real_margin','potential_income_average'
+        'showcase_name',
+        'showcase_date',
+        'template_action',
+        'save_template',
+        'break_even',
+        'total_revenue',
+        'plus',
+        'real_margin',
+        'potential_income_average',
     ];
 
     public function department()
@@ -22,9 +31,7 @@ class Showcase extends Model
         return $this->hasMany(ShowcaseRecipe::class);
     }
 
-
     protected $casts = [
-        'showcase_date' => 'date',    // ← this makes →$this->showcase_date a Carbon
+        'showcase_date' => 'date',
     ];
-
 }

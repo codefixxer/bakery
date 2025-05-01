@@ -22,6 +22,34 @@
     @csrf
     @if($isEdit) @method('PUT') @endif
 
+    {{-- Showcase Name --}}
+    <div class="mb-4">
+      <label for="showcase_name" class="form-label fw-semibold" id="showcaseNameLabel">
+        Showcase Name
+      </label>
+      <input type="text"
+             id="showcase_name"
+             name="showcase_name"
+             class="form-control"
+             value="{{ old('showcase_name', $isEdit ? $showcase->showcase_name : '') }}"
+             required>
+    </div>
+
+    @if(! $isEdit)
+      {{-- Choose Template --}}
+      <div class="mb-4">
+        <label for="template_select" class="form-label fw-semibold">Choose Template</label>
+        <select id="template_select"
+                name="template_id"
+                class="form-select">
+          <option value="">-- Select Template --</option>
+          @foreach($templates as $id => $name)
+            <option value="{{ $id }}">{{ $name }}</option>
+          @endforeach
+        </select>
+      </div>
+    @endif
+
     {{-- Date & Template Action --}}
     <div class="row mb-4 g-3 align-items-end">
       <div class="col-md-4">
@@ -38,9 +66,9 @@
         <select id="template_action"
                 name="template_action"
                 class="form-select">
-          <option value="none"     @selected(old('template_action', $isEdit?$showcase->template_action:'')==='none')>Just Save</option>
-          <option value="template" @selected(old('template_action', $isEdit?$showcase->template_action:'')==='template')>Save as Template</option>
-          <option value="both"     @selected(old('template_action', $isEdit?$showcase->template_action:'')==='both')>Save &amp; Template</option>
+          <option value="none"     @selected(old('template_action', $isEdit ? $showcase->template_action : 'none')==='none')>Just Save</option>
+          <option value="template" @selected(old('template_action', $isEdit ? $showcase->template_action : '')==='template')>Save as Template</option>
+          <option value="both"     @selected(old('template_action', $isEdit ? $showcase->template_action : '')==='both')>Save &amp; Template</option>
         </select>
       </div>
     </div>
@@ -225,113 +253,159 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  let idx    = document.querySelectorAll('.showcase-row').length;
-  const tbody = document.querySelector('#showcaseTable tbody'),
-        bepIn = document.getElementById('break_even');
+  const actionSelect  = document.getElementById('template_action');
+  const nameLabel     = document.getElementById('showcaseNameLabel');
+  // 1) initial label on page load
+  (function() {
+    const v = actionSelect.value;
+    nameLabel.textContent =
+      (v === 'template' || v === 'both')
+        ? 'Template Name'
+        : 'Showcase Name';
+  })();
+  // 2) live toggle
+  actionSelect.addEventListener('change', () => {
+    const v = actionSelect.value;
+    nameLabel.textContent =
+      (v === 'template' || v === 'both')
+        ? 'Template Name'
+        : 'Showcase Name';
+  });
 
-  // Add new row
-  document.getElementById('addRowBtn').addEventListener('click', () => {
-    const first = tbody.querySelector('.showcase-row'),
-          clone = first.cloneNode(true);
+  let idx             = document.querySelectorAll('.showcase-row').length;
+  const tbody         = document.querySelector('#showcaseTable tbody');
+  const addBtn        = document.getElementById('addRowBtn');
+  const bepIn         = document.getElementById('break_even');
+  const templateSel   = document.getElementById('template_select');
+  const nameInput     = document.getElementById('showcase_name');
+  const dateInput     = document.getElementById('showcase_date');
+
+  // grab blank row
+  let blankRow;
+  setTimeout(() => {
+    blankRow = tbody.querySelector('.showcase-row').cloneNode(true);
+  }, 50);
+
+  // add row
+  addBtn.addEventListener('click', () => {
+    const clone = blankRow.cloneNode(true);
     clone.querySelectorAll('input, select').forEach(el => {
       el.name = el.name.replace(/\[\d+\]/, `[${idx}]`);
-      if(el.tagName==='SELECT') el.selectedIndex = 0;
-      else el.value = el.type==='number' ? '0' : '';
+      if (el.tagName==='SELECT') el.selectedIndex = 0;
+      else el.value = (el.type==='number') ? '0' : '';
     });
     tbody.appendChild(clone);
+    recalcRow(clone);
     idx++;
   });
 
-  // Recalc one row
+  // recalc row
   function recalcRow(row) {
-    const opt     = row.querySelector('.recipe-select').selectedOptions[0],
-          priceF  = row.querySelector('.price-field'),
-          unitSp  = row.querySelector('.unit-field'),
-          dept    = row.querySelector('.dept-field'),
-          qty     = +row.querySelector('.qty-field').value  || 0,
-          sold    = +row.querySelector('.sold-field').value || 0,
-          reuse   = +row.querySelector('.reuse-field').value|| 0,
-          waste   = +row.querySelector('.waste-field').value|| 0,
-          potIn   = row.querySelector('.potential-field'),
-          revIn   = row.querySelector('.revenue-field');
-
+    const opt   = row.querySelector('.recipe-select').selectedOptions[0];
     const price = parseFloat(opt.dataset.price||0).toFixed(2);
-    priceF.value       = price;
-    unitSp.textContent = opt.dataset.sellMode==='kg' ? '/kg':'/pc';
-    dept.textContent   = opt.dataset.deptName || '';
-
-    potIn.value = (price * qty).toFixed(2);
-    revIn.value = (price * sold).toFixed(2);
-
+    row.querySelector('.price-field').value   = price;
+    row.querySelector('.unit-field').textContent = opt.dataset.sellMode==='kg' ? '/kg':'/pc';
+    row.querySelector('.dept-field').textContent = opt.dataset.deptName||'';
+    const qty  = +row.querySelector('.qty-field').value   || 0;
+    const sold = +row.querySelector('.sold-field').value  || 0;
+    row.querySelector('.potential-field').value = (price*qty).toFixed(2);
+    row.querySelector('.revenue-field').value   = (price*sold).toFixed(2);
     recalcSummary();
   }
 
-  // Recalc summary & real margin
+  // recalc summary
   function recalcSummary() {
-    let totRev = 0, totPot = 0, rawSum = 0;
-
-    // Sum actual & potential
-    document.querySelectorAll('.revenue-field').forEach(e => totRev += +e.value||0);
-    document.querySelectorAll('.potential-field').forEach(e => totPot += +e.value||0);
-
-    // Build rawSum from ingredient-cost incidence
-    document.querySelectorAll('.showcase-row').forEach(r => {
-      const opt             = r.querySelector('.recipe-select').selectedOptions[0],
-            ingCost         = parseFloat(opt.dataset.ingredientsCost   || 0),
-            recipeWeightKg  = parseFloat(opt.dataset.recipeWeight      || 1),
-            sold            = +r.querySelector('.sold-field').value  || 0,
-            waste           = +r.querySelector('.waste-field').value || 0;
-
-      // cost per kg of finished product
-      const costPerKg = recipeWeightKg>0 ? ingCost/recipeWeightKg : 0;
-
-      // determine total kgs out (sold+waste)
-      const unit     = opt.dataset.sellMode,
-            qtyKgs   = unit === 'kg'
-                      ? (sold + waste)
-                      : ((sold + waste) * recipeWeightKg);
-
-      rawSum += costPerKg * qtyKgs;
+    let totRev=0, totPot=0, rawCost=0;
+    document.querySelectorAll('.revenue-field').forEach(e=> totRev+= +e.value||0);
+    document.querySelectorAll('.potential-field').forEach(e=> totPot+= +e.value||0);
+    document.querySelectorAll('.showcase-row').forEach(r=>{
+      const opt   = r.querySelector('.recipe-select').selectedOptions[0];
+      const ing   = +opt.dataset.ingredientsCost||0;
+      const wt    = +opt.dataset.recipeWeight||1;
+      const sold  = +r.querySelector('.sold-field').value||0;
+      const waste = +r.querySelector('.waste-field').value||0;
+      const costKg= wt>0 ? ing/wt : 0;
+      const out   = opt.dataset.sellMode==='kg' ? (sold+waste) : (sold+waste)*wt;
+      rawCost += costKg*out;
     });
-
-    // Plus & incidence%
-    const bep          = +bepIn.value || 0,
-          plus         = totRev - bep,
-          incidencePct = totRev>0 ? (rawSum / totRev)*100 : 0,
-          realMargin   = plus - (plus * incidencePct/100),
-          plusPct      = totRev>0 ? plus/totRev*100 : 0,
-          marginPct    = plus>0 ? realMargin/plus*100 : 0;
-
-    // Write‐back
-    document.getElementById('totalRevenue'  ).value = totRev.toFixed(2);
-    document.getElementById('plusAmount'    ).value = plus.toFixed(2);
+    const bep        = +bepIn.value||0;
+    const plus       = totRev - bep;
+    const incPct     = totRev>0 ? rawCost/totRev*100 : 0;
+    const realMargin = plus - (plus*incPct/100);
+    const plusPct    = totRev>0 ? plus/totRev*100 : 0;
+    const marPct     = plus>0 ? realMargin/plus*100 : 0;
+    document.getElementById('totalRevenue').value   = totRev.toFixed(2);
+    document.getElementById('plusAmount').value     = plus.toFixed(2);
     document.getElementById('totalPotential').value = totPot.toFixed(2);
-    document.getElementById('realMargin'    ).value = realMargin.toFixed(2);
-
-    // Captions
-    document.querySelector('.fm-plus-pct').textContent  =
-      `Plus is ${plusPct.toFixed(1)}% of revenue`;
-    document.querySelector('.fm-cost-pct').textContent =
-      `Incidence: ${incidencePct.toFixed(1)}% • Margin on Plus: ${marginPct.toFixed(1)}%`;
+    document.getElementById('realMargin').value     = realMargin.toFixed(2);
+    document.querySelector('.fm-plus-pct').textContent = `Plus is ${plusPct.toFixed(1)}% of revenue`;
+    document.querySelector('.fm-cost-pct').textContent = `Incidence: ${incPct.toFixed(1)}% • Margin on Plus: ${marPct.toFixed(1)}%`;
   }
 
-  // Delegate events
-  tbody.addEventListener('change', e => {
+  // delegate events
+  tbody.addEventListener('change', e=>{
     if(e.target.matches('.recipe-select')) recalcRow(e.target.closest('tr'));
   });
-  tbody.addEventListener('input', e => {
-    if(e.target.matches('.qty-field, .sold-field, .waste-field'))
+  tbody.addEventListener('input', e=>{
+    if(e.target.matches('.qty-field, .sold-field, .reuse-field, .waste-field'))
       recalcRow(e.target.closest('tr'));
   });
-  tbody.addEventListener('click', e => {
-    if(e.target.closest('.remove-row') && tbody.children.length>1) {
+  tbody.addEventListener('click', e=>{
+    if(e.target.closest('.remove-row') && tbody.children.length>1){
       e.target.closest('tr').remove();
       recalcSummary();
     }
   });
 
-  // Initial
-  document.querySelectorAll('.showcase-row').forEach(r => recalcRow(r));
+  // initial
+  tbody.querySelectorAll('.showcase-row').forEach(r=> recalcRow(r));
+
+  // load template
+  templateSel?.addEventListener('change', function(){
+    const id = this.value;
+    if(!id){
+      dateInput.value    = '';
+      actionSelect.value = 'none';
+      actionSelect.dispatchEvent(new Event('change'));
+      tbody.innerHTML='';
+      const r = blankRow.cloneNode(true);
+      r.querySelectorAll('input,select').forEach(el=>{
+        el.name = el.name.replace(/\[\d+\]/, `[0]`);
+        if(el.tagName==='SELECT') el.selectedIndex=0;
+        else el.value = el.type==='number'?'0':'';
+      });
+      tbody.appendChild(r);
+      recalcRow(r);
+      idx=1;
+      return;
+    }
+    fetch(`/showcase/template/${id}`)
+      .then(res=>res.json())
+      .then(data=>{
+        dateInput.value    = data.showcase_date;
+        actionSelect.value = data.template_action;
+        actionSelect.dispatchEvent(new Event('change'));
+        tbody.innerHTML='';
+        idx=0;
+        data.rows.forEach(rowData=>{
+          const r = blankRow.cloneNode(true);
+          r.querySelectorAll('input,select').forEach(el=>{
+            el.name = el.name.replace(/\[\d+\]/, `[${idx}]`);
+          });
+          r.querySelector('.recipe-select').value   = rowData.recipe_id;
+          r.querySelector('.qty-field').value       = rowData.quantity;
+          r.querySelector('.sold-field').value      = rowData.sold;
+          r.querySelector('.reuse-field').value     = rowData.reuse;
+          r.querySelector('.waste-field').value     = rowData.waste;
+          r.querySelector('.potential-field').value = parseFloat(rowData.potential_income).toFixed(2);
+          r.querySelector('.revenue-field').value   = parseFloat(rowData.actual_revenue).toFixed(2);
+          tbody.appendChild(r);
+          recalcRow(r);
+          idx++;
+        });
+      })
+      .catch(console.error);
+  });
 });
 </script>
 @endsection

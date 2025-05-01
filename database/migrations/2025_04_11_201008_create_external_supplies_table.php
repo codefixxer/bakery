@@ -12,6 +12,9 @@ return new class extends Migration {
             $table->foreignId('client_id')
                   ->constrained()
                   ->onDelete('cascade');
+                  $table->string('supply_name');
+            
+            $table->boolean('save_template')->default(false);
             $table->date('supply_date');
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->timestamps();

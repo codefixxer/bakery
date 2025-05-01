@@ -10,6 +10,9 @@ class CreateShowcasesTable extends Migration
     {
         Schema::create('showcases', function (Blueprint $table) {
             $table->id();
+            $table->string('showcase_name');
+            
+            $table->boolean('save_template')->default(false);
             $table->date('showcase_date');
             $table->string('template_action')->default('none');
             $table->decimal('break_even', 10, 2)->default(0);
@@ -17,6 +20,8 @@ class CreateShowcasesTable extends Migration
             $table->decimal('plus', 10, 2)->nullable();
             $table->decimal('real_margin', 5, 2)->nullable();
             $table->decimal('potential_income_average', 10, 2)->nullable();
+            
+          
             $table->timestamps();
         });
     }
