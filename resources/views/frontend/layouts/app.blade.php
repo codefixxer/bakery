@@ -63,6 +63,61 @@
   href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
 />
 
+<style>
+  /* 1) make the UL stretch and push last item down */
+  .sidebar-menu-area {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+  }
+
+  .sidebar-menu {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+  }
+
+  /* normal li’s keep their default spacing */
+  .sidebar-menu li {
+      margin: 0;
+  }
+
+  /* push .sidebar-academy all the way to the bottom */
+  .sidebar-menu li.sidebar-academy {
+      margin-top: auto;
+      padding: 5vw 1vw;
+      text-align: center;
+  }
+
+  /* style the link like a big button */
+  .sidebar-menu li.sidebar-academy a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      background-color: #f06292;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: .5rem;
+      padding: .75rem 1.25rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+      transition: background-color .2s, transform .1s;
+  }
+
+  .sidebar-menu li.sidebar-academy a:hover {
+      background-color: #ec407a;
+      transform: translateY(-2px);
+  }
+
+  /* optional: make the icon a bit larger */
+  .sidebar-menu li.sidebar-academy .academy-icon {
+      font-size: 1.25rem;
+  }
+</style>
 
   <style>
     .blink {

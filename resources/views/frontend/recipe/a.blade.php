@@ -1,3 +1,4 @@
+{{-- resources/views/frontend/recipe/create.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'Create Recipe')
@@ -15,19 +16,25 @@
                 @method('PUT')
             @endif
 
+            {{-- 1) Recipe Details --}}
             <div class="card mb-4 border-primary shadow-sm">
                 <div class="card-header bg-primary text-white d-flex align-items-center">
                     <i class="bi bi-journal-text fs-4 me-2"></i>
                     <h5 class="mb-0">Recipe Details</h5>
                 </div>
+
                 <div class="card-body">
                     <div class="row g-3">
+
+                        {{-- Recipe name --}}
                         <div class="col-md-4">
                             <label for="recipeName" class="form-label fw-semibold">Name</label>
                             <input type="text" id="recipeName" name="recipe_name" class="form-control"
                                 placeholder="Chocolate Cake"
                                 value="{{ old('recipe_name', $isEdit ? $recipe->recipe_name : '') }}" required>
                         </div>
+
+                        {{-- Category dropdown --}}
                         <div class="col-md-4">
                             <label for="recipeCategory" class="form-label fw-semibold">Category</label>
                             <select id="recipeCategory" name="recipe_category_id" class="form-select" required>
@@ -40,6 +47,8 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        {{-- Department dropdown --}}
                         <div class="col-md-4">
                             <label for="recipeDept" class="form-label fw-semibold">Department</label>
                             <select id="recipeDept" name="department_id" class="form-select" required>
@@ -52,19 +61,33 @@
                                 @endforeach
                             </select>
                         </div>
+
                     </div>
                 </div>
             </div>
 
+            {{-- 2) Ingredients --}}
             <div class="card mb-4 border-info shadow-sm">
                 <div class="card-header bg-info text-white d-flex align-items-center">
                     <i class="bi bi-list-ul fs-4 me-2"></i>
                     <h5 class="mb-0">Ingredients</h5>
+
+
+                    {{-- Add New Ingredient Button --}}
                     <button type="button" class="btn btn-outline-light ms-auto" data-bs-toggle="modal"
                         data-bs-target="#addIngredientModal">
                         <i class="bi bi-plus-lg"></i> New Ingredient
                     </button>
+
+                    {{-- Modal to Add Ingredient --}}
+
+
+
                 </div>
+
+
+
+
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
@@ -73,38 +96,38 @@
                                     <th>Ingredient</th>
                                     <th class="text-center">Qty&nbsp;(g)</th>
                                     <th class="text-center">Cost&nbsp;($)</th>
-                                    <th class="text-center">Incidence&nbsp;(%)</th>
+                                    <th class="text-center">Incidence</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="ingredientsTable">
-                                @if ($isEdit && $recipe->ingredients->isNotEmpty())
-                                    @foreach ($recipe->ingredients as $i => $line)
+                                @if ($isEdit && isset($recipe->ingredients) && $recipe->ingredients->isNotEmpty())
+                                    @foreach ($recipe->ingredients as $index => $line)
                                         <tr class="ingredient-row">
                                             <td>
-                                                <select name="ingredients[{{ $i }}][id]"
+                                                <select name="ingredients[{{ $index }}][id]"
                                                     class="form-select ingredient-select" required>
                                                     <option value="">Select ingredient…</option>
                                                     @foreach ($ingredients as $ing)
                                                         <option value="{{ $ing->id }}"
                                                             data-price="{{ $ing->price_per_kg }}"
                                                             {{ $ing->id == $line->ingredient_id ? 'selected' : '' }}>
-                                                            {{ $ing->ingredient_name }} (€{{ $ing->price_per_kg }}/kg)
+                                                            {{ $ing->ingredient_name }} (${{ $ing->price_per_kg }}/kg)
                                                         </option>
                                                     @endforeach
                                                 </select>
                                             </td>
                                             <td>
                                                 <input type="number" step="0.01"
-                                                    name="ingredients[{{ $i }}][quantity]"
+                                                    name="ingredients[{{ $index }}][quantity]"
                                                     class="form-control text-center ingredient-quantity"
-                                                    value="{{ old("ingredients.$i.quantity", $line->quantity_g) }}"
+                                                    value="{{ old("ingredients.$index.quantity", $line->quantity_g) }}"
                                                     required>
                                             </td>
                                             <td>
-                                                <input type="text" name="ingredients[{{ $i }}][cost]"
+                                                <input type="text" name="ingredients[{{ $index }}][cost]"
                                                     class="form-control text-center ingredient-cost" readonly
-                                                    value="{{ old("ingredients.$i.cost", $line->cost) }}">
+                                                    value="{{ old("ingredients.$index.cost", $line->cost) }}">
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control text-center ingredient-incidence"
@@ -127,27 +150,21 @@
                                                 @foreach ($ingredients as $ing)
                                                     <option value="{{ $ing->id }}"
                                                         data-price="{{ $ing->price_per_kg }}">
-                                                        {{ $ing->ingredient_name }} (€{{ $ing->price_per_kg }}/kg)
+                                                        {{ $ing->ingredient_name }} (${{ $ing->price_per_kg }}/kg)
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </td>
-                                        <td>
-                                            <input type="number" step="0.01" name="ingredients[0][quantity]"
-                                                class="form-control text-center ingredient-quantity" required>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="ingredients[0][cost]"
-                                                class="form-control text-center ingredient-cost" readonly>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control text-center ingredient-incidence"
-                                                readonly>
-                                        </td>
+                                        <td><input type="number" step="0.01" name="ingredients[0][quantity]"
+                                                class="form-control text-center ingredient-quantity" required></td>
+                                        <td><input type="text" name="ingredients[0][cost]"
+                                                class="form-control text-center ingredient-cost" readonly></td>
+                                        <td><input type="text" class="form-control text-center ingredient-incidence"
+                                                readonly></td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                                            <button type="button"
+                                                class="btn btn-outline-danger btn-sm remove-ingredient"><i
+                                                    class="bi bi-trash"></i></button>
                                         </td>
                                     </tr>
                                 @endif
@@ -156,18 +173,25 @@
                                 <tr>
                                     <td class="fw-semibold">Total Weight (g)</td>
                                     <td>
-                                        <input type="number" id="totalWeightFooter" class="form-control text-center"
-                                            readonly>
-                                        <input type="hidden" name="ingredients_total_weight"
-                                            id="ingredientsTotalWeightHidden">
+                                        <input
+                                        type="number"
+                                        id="totalWeightFooter"
+                                        class="form-control text-center"
+                                        readonly>
+                                      <!-- and post it via this hidden -->
+                                      <input
+                                        type="hidden"
+                                        name="ingredients_total_weight"
+                                        id="ingredientsTotalWeightHidden">
+                                    </td>
                                     </td>
                                     <td>
                                         <input type="text" id="totalCostFooter" name="ingredients_total_cost"
                                             class="form-control text-center" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" id="totalIncidenceFooter"
-                                            class="form-control text-center fw-bold" readonly>
+                                        <input type="text" id="totalIngredientsIncidence"
+                                            class="form-control text-center" readonly>
                                     </td>
                                     <td class="text-center">
                                         <button id="addIngredientBtn" class="btn btn-outline-success btn-sm">
@@ -184,19 +208,26 @@
                                     <td colspan="3"></td>
                                 </tr>
                             </tfoot>
+
+
+
+
                         </table>
                     </div>
                 </div>
             </div>
 
+            {{-- 3) Labor --}}
             <div class="card mb-4 border-warning shadow-sm">
                 <input type="hidden" id="shopRate" value="{{ optional($laborCost)->shop_cost_per_min ?? 0 }}">
                 <input type="hidden" id="externalRate" value="{{ optional($laborCost)->external_cost_per_min ?? 0 }}">
+
                 <div class="card-header bg-warning text-dark d-flex align-items-center">
                     <i class="bi bi-clock-history fs-4 me-2"></i>
                     <h5 class="mb-0">Labor</h5>
                 </div>
                 <div class="card-body">
+
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="labor_cost_mode" id="costModeShop"
                             value="shop"
@@ -209,6 +240,7 @@
                             {{ old('labor_cost_mode', $isEdit ? $recipe->labor_cost_mode : 'shop') == 'external' ? 'checked' : '' }}>
                         <label class="form-check-label" for="costModeExternal">Use External Cost / Min</label>
                     </div>
+
                     <div class="row g-3 mt-3">
                         <div class="col-md-3">
                             <label for="laborTimeInput" class="form-label fw-semibold">Labor Time (min)</label>
@@ -216,6 +248,7 @@
                                 min="0"
                                 value="{{ old('labor_time_input', $isEdit ? $recipe->labour_time_min : 0) }}">
                         </div>
+
                         <div class="col-md-3">
                             <label for="costPerMin" class="form-label fw-semibold">Cost per Minute (€)</label>
                             <div class="input-group">
@@ -223,6 +256,7 @@
                                 <input type="text" id="costPerMin" class="form-control" readonly>
                             </div>
                         </div>
+
                         <div class="col-md-3">
                             <label for="laborCost" class="form-label fw-semibold">Labor Cost (€)</label>
                             <div class="input-group">
@@ -231,15 +265,27 @@
                                     value="{{ old('labor_cost', $isEdit ? $recipe->labour_cost : '') }}">
                             </div>
                         </div>
+
                         <div class="col-md-3">
-                            <label for="laborIncidence" class="form-label fw-semibold">Labor Incidence (%)</label>
-                            <input type="text" id="laborIncidence" class="form-control text-center" readonly>
+                            <label for="laborIncidence" class="form-label fw-semibold">Incidence (%)</label>
+                            <input type="text" id="laborIncidence" name="labor_incidence" class="form-control"
+                                readonly value="{{ old('labor_incidence', $isEdit ? $recipe->labor_incidence : '') }}">
+                            <div class="form-text small">= (Labor Cost × 100) / Selling Price</div>
                         </div>
                     </div>
+
+
+
+
+
                 </div>
             </div>
 
+
+
+            {{-- 4) Totals & Selling Mode --}}
             <div class="row gx-4 mb-4">
+                {{-- Total Expense & Packing --}}
                 <div class="col-md-6">
                     <div class="card border-success shadow-sm h-100">
                         <div class="card-header bg-success text-white d-flex align-items-center">
@@ -247,32 +293,46 @@
                             <h5 class="mb-0">Total Expense</h5>
                         </div>
                         <div class="card-body d-flex flex-column align-items-center">
+
+                            {{-- Cost per kg before packing --}}
                             <div class="input-group w-75 mb-3">
                                 <span class="input-group-text">Cost / kg Before Packing</span>
                                 <span class="input-group-text">€</span>
                                 <input type="text" id="prodCostKg" name="production_cost_per_kg"
-                                    class="form-control text-end" readonly>
+                                    class="form-control text-end" readonly
+                                    value="{{ old('production_cost_per_kg', $isEdit ? $recipe->production_cost_per_kg : '') }}">
                             </div>
+
+
+                            {{-- Packing Cost --}}
                             <div class="input-group w-75 mb-3">
-                                <span class="input-group-text">Packing</span>
-                                <span class="input-group-text">€</span>
+                                <span class="input-group-text">Packing</span><span class="input-group-text">€</span>
                                 <input type="number" step="0.01" id="packingCost" name="packing_cost"
-                                    class="form-control text-end" value="0">
+                                    class="form-control text-end"
+                                    value="{{ old('packing_cost', $isEdit ? $recipe->packing_cost : '0.00') }}">
                             </div>
+
+                            {{-- Cost after packing (total expense) --}}
                             <div class="input-group input-group-lg w-75 mb-3">
-                                <span class="input-group-text">Cost / kg After Packing</span>
+                                <span class="input-group-text">Cost&nbsp;/&nbsp;kg&nbsp;After&nbsp;Packing</span>
                                 <span class="input-group-text">€</span>
                                 <input type="text" id="totalExpense" name="total_expense"
-                                    class="form-control fw-bold text-center" readonly>
+                                    class="form-control fw-bold text-center" readonly required
+                                    value="{{ old('total_expense', $isEdit ? $recipe->total_expense : '') }}">
                             </div>
+
+                            {{-- Potential Margin --}}
                             <div class="w-75 text-center">
                                 <span class="fw-semibold">Potential Margin:</span>
                                 <span id="potentialMargin" class="fw-bold ms-2"></span>
-                                <input type="hidden" name="potential_margin" id="potentialMarginInput">
+                                <input type="hidden" name="potential_margin" id="potentialMarginInput"
+                                    value="{{ old('potential_margin', $isEdit ? $recipe->potential_margin : '') }}">
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {{-- Selling Mode --}}
                 <div class="col-md-6">
                     <div class="card border-secondary shadow-sm h-100">
                         <div class="card-header bg-secondary text-white d-flex align-items-center">
@@ -294,12 +354,15 @@
                                     <label class="form-check-label" for="modeKg">Sell by Kg</label>
                                 </div>
                             </div>
+
+                            {{-- Piece Inputs --}}
                             <div id="pieceInputs">
                                 <div class="mb-3">
                                     <label for="totalPieces" class="form-label fw-semibold">Pieces / kg</label>
                                     <input type="number" id="totalPieces" name="total_pieces" class="form-control"
                                         value="{{ old('total_pieces', $isEdit ? $recipe->total_pieces : '') }}">
                                 </div>
+
                                 <div class="mb-3">
                                     <label for="weightPerPiece" class="form-label fw-semibold">
                                         Weight per Piece&nbsp;(g)
@@ -309,10 +372,9 @@
                                             'weight_per_piece',
                                             $isEdit && $recipe->total_pieces > 0 ? number_format(1000 / $recipe->total_pieces, 2) : '',
                                         ) }}">
-                                    <div class="form-text text-muted">
-                                        Weight per piece = 1 000 g ÷ Pieces / kg
-                                    </div>
                                 </div>
+
+
                                 <div class="mb-3">
                                     <label for="pricePerPiece" class="form-label fw-semibold">Selling Price per Piece
                                         (€)</label>
@@ -324,11 +386,23 @@
                                                 ? old('selling_price_per_piece')
                                                 : ($isEdit
                                                     ? $recipe->selling_price_per_piece
-                                                    : '0') }}">
+                                                    : '') }}">
                                     </div>
                                 </div>
                             </div>
+
+
+
+
+
+                            {{-- Kg Inputs --}}
                             <div id="kgInputs" class="d-none">
+                                <div class="mb-3">
+                                    <label for="totalWeightKg" class="form-label fw-semibold">Total
+                                        Weight&nbsp;(g)</label>
+                                    <input type="number" id="totalWeightKg" name="recipe_weight" class="form-control"
+                                        value="{{ old('recipe_weight', $isEdit ? $recipe->recipe_weight : '') }}">
+                                </div>
                                 <div class="mb-3">
                                     <label for="pricePerKg" class="form-label fw-semibold">Selling Price per
                                         Kg&nbsp;($)</label>
@@ -336,10 +410,14 @@
                                         <span class="input-group-text">€</span>
                                         <input type="number" step="0.01" id="pricePerKg" name="selling_price_per_kg"
                                             class="form-control"
-                                            value="{{ old('selling_price_per_kg', $isEdit ? $recipe->selling_price_per_kg : '0') }}">
+                                            value="{{ old('selling_price_per_kg', $isEdit ? $recipe->selling_price_per_kg : '') }}">
                                     </div>
                                 </div>
                             </div>
+
+
+
+                            <!-- … inside your Selling Mode card, before the piece/kg radios … -->
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
                                     <label for="vatRate" class="form-label fw-semibold">VAT Rate</label>
@@ -351,9 +429,15 @@
                                     </select>
                                 </div>
                             </div>
+
                         </div>
                     </div>
+
+
                 </div>
+
+
+
             </div>
 
             <div class="card mb-4 border-info shadow-sm">
@@ -365,6 +449,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="addAsIngredient" name="add_as_ingredient"
                             value="1" {{ old('add_as_ingredient', $isEdit ? 1 : 0) ? 'checked' : '' }}>
+
                         <label class="form-check-label fw-semibold" for="addAsIngredient">
                             Add this recipe as an <em>ingredient</em>
                         </label>
@@ -376,6 +461,7 @@
                 </div>
             </div>
 
+            {{-- Submit --}}
             <div class="text-end">
                 <button type="submit" class="btn btn-lg btn-primary"><i
                         class="bi bi-save2 me-2"></i>{{ $isEdit ? 'Update' : 'Save' }} Recipe</button>
@@ -383,6 +469,8 @@
         </form>
     </div>
 
+
+    {{-- … your modal markup stays the same … --}}
     <div class="modal fade" id="addIngredientModal" tabindex="-1" aria-labelledby="addIngredientModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -410,264 +498,317 @@
             </div>
         </div>
     </div>
+
 @endsection
 
 @section('scripts')
 
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shopRateEl = document.getElementById('shopRate');
+            const externalRateEl = document.getElementById('externalRate');
+            const costModeShop = document.getElementById('costModeShop');
+            const costModeExt = document.getElementById('costModeExternal');
+            const laborMinInput = document.getElementById('laborTimeInput');
+            const costPerMin = document.getElementById('costPerMin');
+            const laborCost = document.getElementById('laborCost');
+            const laborIncidence = document.getElementById('laborIncidence');
+
+            function updateCostPerMin() {
+                const rate = costModeShop.checked ?
+                    parseFloat(shopRateEl.value) || 0 :
+                    parseFloat(externalRateEl.value) || 0;
+                costPerMin.value = rate.toFixed(4);
+                updateLaborCost();
+            }
+
+            function updateLaborCost() {
+                const mins = parseFloat(laborMinInput.value) || 0;
+                const rate = parseFloat(costPerMin.value) || 0;
+                const total = mins * rate;
+                laborCost.value = total.toFixed(2);
+                updateLaborIncidence();
+            }
+
+            function updateLaborIncidence() {
+                // if you have a selling price field, replace below:
+                const sellingPrice = parseFloat(document.getElementById('pricePerKg')?.value || document
+                    .getElementById('pricePerPiece')?.value || 0);
+                if (sellingPrice > 0) {
+                    laborIncidence.value = ((parseFloat(laborCost.value) * 100) / sellingPrice).toFixed(2) + '%';
+                } else {
+                    laborIncidence.value = '';
+                }
+            }
+
+            // wire up events
+            [costModeShop, costModeExt].forEach(radio => radio.addEventListener('change', updateCostPerMin));
+            laborMinInput.addEventListener('input', updateLaborCost);
+
+            // init
+            updateCostPerMin();
+        });
+    </script>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const addForm = document.getElementById('addIngredientForm');
-        const modalEl = document.getElementById('addIngredientModal');
-        addForm.addEventListener('submit', async e => {
-            e.preventDefault();
-            const fd = new FormData(addForm);
-            try {
-                const res = await fetch(addForm.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    },
-                    body: fd
-                });
-                const json = await res.json();
-                if (!res.ok) {
-                    const msg = json.errors ?
-                        Object.values(json.errors).flat().join('\n') :
-                        'Failed to save ingredient.';
-                    return alert(msg);
-                }
-                const opt = document.createElement('option');
-                opt.value = json.id;
-                opt.textContent = `${json.ingredient_name} (€${json.price_per_kg}/kg)`;
-                opt.dataset.price = json.price_per_kg;
-                document.querySelectorAll('.ingredient-select').forEach(sel => {
-                    const newOpt = opt.cloneNode(true);
-                    const label = newOpt.textContent.toLowerCase();
-                    let inserted = false;
-                    Array.from(sel.options).some(existing => {
-                        if (existing.textContent.toLowerCase() > label) {
-                            sel.insertBefore(newOpt, existing);
-                            inserted = true;
-                            return true;
-                        }
-                        return false;
-                    });
-                    if (!inserted) sel.appendChild(newOpt);
-                });
-                bootstrap.Modal.getInstance(modalEl).hide();
-                addForm.reset();
-            } catch (err) {
-                console.error(err);
-                alert('Unexpected error while saving ingredient.');
-            }
+      const addIngredientForm = document.getElementById('addIngredientForm');
+      const ingredientSelects = document.querySelectorAll('.ingredient-select');
+      const modalEl           = document.getElementById('addIngredientModal');
+    
+      addIngredientForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(addIngredientForm);
+    
+        try {
+          const response = await fetch(addIngredientForm.action, {
+            method: 'POST',
+            headers: {
+              // Tell Laravel this is an AJAX/JSON request
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json'
+            },
+            body: formData
+          });
+    
+          const result = await response.json();
+    
+          if (response.ok) {
+            // 1) append to every ingredient dropdown
+            ingredientSelects.forEach(select => {
+              const opt = document.createElement('option');
+              opt.value = result.id;
+              opt.textContent = `${result.ingredient_name} (€${result.price_per_kg}/kg)`;
+              select.appendChild(opt);
+            });
+    
+            // 2) select the newly created ingredient in the first row
+            ingredientSelects[0].value = result.id;
+    
+            // 3) close the modal
+            const bsModal = bootstrap.Modal.getInstance(modalEl);
+            bsModal.hide();
+          } else {
+            // If validation failed, Laravel returns a 422 with JSON.errors
+            const msg = result.errors
+              ? Object.values(result.errors).flat().join('\n')
+              : 'Failed to add ingredient';
+            alert(msg);
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Error occurred while adding ingredient');
+        }
+      });
+    });
+    </script>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // cache all your elements
+        const tableBody        = document.getElementById('ingredientsTable');
+        const totalCostIn      = document.getElementById('totalCostFooter');
+        const totalWeightFt    = document.getElementById('totalWeightFooter');
+        const totalWeightKg    = document.getElementById('totalWeightKg');
+        const weightWithLossIn = document.getElementById('weightWithLoss');
+        const hiddenTotalWt    = document.getElementById('ingredientsTotalWeightHidden'); // the hidden input you added
+        const laborTimeInput   = document.getElementById('laborTimeInput');
+        const costPerMinIn     = document.getElementById('costPerMin');
+        const laborCostIn      = document.getElementById('laborCost');
+        const laborIncidence   = document.getElementById('laborIncidence');
+        const packingCostIn    = document.getElementById('packingCost');
+        const prodCostKgIn     = document.getElementById('prodCostKg');
+        const totalExpenseIn   = document.getElementById('totalExpense');
+        const potentialIn      = document.getElementById('potentialMargin');
+        const potentialInput   = document.getElementById('potentialMarginInput');
+        const modePiece        = document.getElementById('modePiece');
+        const modeKg           = document.getElementById('modeKg');
+        const totalPiecesIn    = document.getElementById('totalPieces');
+        const weightPerPiece   = document.getElementById('weightPerPiece');
+        const pricePerPiece    = document.getElementById('pricePerPiece');
+        const pricePerKg       = document.getElementById('pricePerKg');
+        const costModeShop     = document.getElementById('costModeShop');
+        const costModeExternal = document.getElementById('costModeExternal');
+        const shopPM           = document.getElementById('shopRate');
+        const extPM            = document.getElementById('externalRate');
+        const vatRate          = document.getElementById('vatRate');
+        let weightLossTouched  = false;
+        let idx                = {{ isset($recipe) ? $recipe->ingredients->count() : 1 }};
+    
+        // if user edits weight-with-loss manually
+        weightWithLossIn.addEventListener('input', () => {
+            weightLossTouched = true;
+            recalcExpense();
+            calculateIncidence();
         });
     
-        const vatRateEl         = document.getElementById('vatRate');
-        const shopRateEl        = document.getElementById('shopRate');
-        const externalRateEl    = document.getElementById('externalRate');
-        const costModeShop      = document.getElementById('costModeShop');
-        const costModeExternal  = document.getElementById('costModeExternal');
-        const laborTimeInput    = document.getElementById('laborTimeInput');
-        const costPerMinIn      = document.getElementById('costPerMin');
-        const laborCostIn       = document.getElementById('laborCost');
-        const laborIncidenceIn  = document.getElementById('laborIncidence');
-        const pricePerPiece     = document.getElementById('pricePerPiece');
-        const pricePerKg        = document.getElementById('pricePerKg');
-        const modePiece         = document.getElementById('modePiece');
-        const modeKg            = document.getElementById('modeKg');
-        const totalPiecesIn     = document.getElementById('totalPieces');
-        const weightPerPieceIn  = document.getElementById('weightPerPiece');
-        const weightWithLossIn  = document.getElementById('weightWithLoss');
-        const tableBody         = document.getElementById('ingredientsTable');
-        const totalCostIn       = document.getElementById('totalCostFooter');
-        const totalIncidenceIn  = document.getElementById('totalIncidenceFooter');
-        const totalWeightFt     = document.getElementById('totalWeightFooter');
-        const hiddenTotalWt     = document.getElementById('ingredientsTotalWeightHidden');
-        const packingCostIn     = document.getElementById('packingCost');
-        const prodCostKgIn      = document.getElementById('prodCostKg');
-        const totalExpenseIn    = document.getElementById('totalExpense');
-        const potentialMargin   = document.getElementById('potentialMargin');
-        const potentialInput    = document.getElementById('potentialMarginInput');
-        let weightLossTouched   = false;
-        let idx = {{ isset($recipe) ? $recipe->ingredients->count() : 1 }};
-    
-        // Convert a gross (VAT-inclusive) price into net price
-        function netPrice(gross) {
-            const vat = parseFloat(vatRateEl.value) || 0;
-            return gross / (1 + vat / 100);
+        function netPrice() {
+            const gross = modePiece.checked
+                ? parseFloat(pricePerPiece.value) || 0
+                : parseFloat(pricePerKg.value)   || 0;
+            const v = (parseFloat(vatRate.value) || 0) / 100;
+            return v ? gross / (1 + v) : gross;
         }
-    
-        function calcWeightPerPiece() {
-            const pcs = parseFloat(totalPiecesIn.value) || 0;
-            weightPerPieceIn.value = pcs > 0 ? (1000 / pcs).toFixed(2) : '';
-        }
-    
-        function updateCostPerMin() {
-            const rate = costModeShop.checked
-                ? parseFloat(shopRateEl.value) || 0
-                : parseFloat(externalRateEl.value) || 0;
-            costPerMinIn.value = rate.toFixed(4);
-            updateLaborCost();
-        }
-    
-        function updateLaborCost() {
-            const mins = parseFloat(laborTimeInput.value) || 0;
-            const rate = parseFloat(costPerMinIn.value) || 0;
-            laborCostIn.value = (mins * rate).toFixed(2);
-            calculateLaborIncidence();
-            recalcMargin();
-        }
-    
-        function calculateLaborIncidence() {
-            const laborCost      = parseFloat(laborCostIn.value) || 0;
-            const weightWithLoss = parseFloat(weightWithLossIn.value) || parseFloat(totalWeightFt.value) || 0;
-            let grossSell = modePiece.checked
-                ? (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0)
-                : parseFloat(pricePerKg.value) || 0;
-    
-            if (weightWithLoss > 0 && grossSell > 0) {
-                const laborCostPerKg = (laborCost / weightWithLoss) * 1000;
-                const incidence = (laborCostPerKg / netPrice(grossSell)) * 100;
-                laborIncidenceIn.value = incidence.toFixed(2);
-            } else {
-                laborIncidenceIn.value = '0.00';
-            }
-        }
+        
     
         function recalcRow(row) {
             const price = parseFloat(row.querySelector('.ingredient-select')
-                .selectedOptions[0]?.dataset.price) || 0;
+                                   .selectedOptions[0]?.dataset.price) || 0;
             const qty   = parseFloat(row.querySelector('.ingredient-quantity').value) || 0;
             const cost  = (price / 1000) * qty;
             row.querySelector('.ingredient-cost').value = cost.toFixed(2);
+        }
     
-            const weightWithLoss = parseFloat(weightWithLossIn.value) || parseFloat(totalWeightFt.value) || 0;
-            let grossSell = modePiece.checked
-                ? (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0)
-                : parseFloat(pricePerKg.value) || 0;
+        function calculateIncidence() {
+            const n = netPrice();
+            if (!n) return;
+            let sumCost = 0;
+            document.querySelectorAll('.ingredient-row').forEach(r => {
+                const c = parseFloat(r.querySelector('.ingredient-cost').value) || 0;
+                sumCost += c;
+                r.querySelector('.ingredient-incidence').value =
+                    ((c * 100) / n).toFixed(2) + '%';
+            });
+            document.getElementById('totalIngredientsIncidence').value =
+                ((sumCost * 100) / n).toFixed(2) + '%';
     
-            if (weightWithLoss > 0 && grossSell > 0) {
-                const costPerKg = (cost / weightWithLoss) * 1000;
-                const incidence = (costPerKg / netPrice(grossSell)) * 100;
-                row.querySelector('.ingredient-incidence').value = incidence.toFixed(2);
-            } else {
-                row.querySelector('.ingredient-incidence').value = '0.00';
-            }
+            const lc = parseFloat(laborCostIn.value) || 0;
+            laborIncidence.value = ((lc * 100) / n).toFixed(2) + '%';
         }
     
         function recalcTotals() {
-            let sumCost = 0, sumW = 0, sumIncidence = 0;
+            let sC = 0, sW = 0;
             document.querySelectorAll('.ingredient-row').forEach(r => {
-                sumW          += parseFloat(r.querySelector('.ingredient-quantity').value) || 0;
-                sumCost       += parseFloat(r.querySelector('.ingredient-cost').value) || 0;
-                sumIncidence  += parseFloat(r.querySelector('.ingredient-incidence').value) || 0;
+                sC += parseFloat(r.querySelector('.ingredient-cost').value)    || 0;
+                sW += parseFloat(r.querySelector('.ingredient-quantity').value) || 0;
             });
-            totalCostIn.value      = sumCost.toFixed(2);
-            totalWeightFt.value    = sumW;
-            totalIncidenceIn.value = sumIncidence.toFixed(2);
+            totalCostIn.value  = sC.toFixed(2);
+            totalWeightFt.value = totalWeightKg.value = sW;
     
-            if (!weightLossTouched) weightWithLossIn.value = sumW;
+            if (!weightLossTouched) {
+                weightWithLossIn.value = sW;
+            }
+            // keep hidden field in sync with the actual yield
             hiddenTotalWt.value = weightWithLossIn.value;
-            updateLaborCost();
+    
+            recalcLabor();
+            calculateIncidence();
+        }
+    
+        function recalcLabor() {
+            const rate = parseFloat(costModeExternal.checked ? extPM.value : shopPM.value) || 0;
+            costPerMinIn.value = rate.toFixed(4);
+            const mins = parseFloat(laborTimeInput.value) || 0;
+            laborCostIn.value = (mins * rate).toFixed(2);
+    
             recalcExpense();
+            calculateIncidence();
+        }
+    
+        // recalc based on actual cooked yield (weightWithLossIn)
+        function recalcExpense() {
+            const ingredientCost = parseFloat(totalCostIn.value) || 0;
+            const laborVal       = parseFloat(laborCostIn.value)  || 0;
+            const rawCost        = ingredientCost + laborVal;
+    
+            const yieldG = parseFloat(weightWithLossIn.value) || 0;
+            hiddenTotalWt.value = yieldG;
+    
+            // Cost/kg before packing = (rawCost * 1000g) / yieldG
+            prodCostKgIn.value = yieldG
+                ? ((rawCost * 1000) / yieldG).toFixed(2)
+                : '0.00';
+    
+            // Cost/kg after packing
+            const packingVal      = parseFloat(packingCostIn.value) || 0;
+            totalExpenseIn.value = yieldG
+                ? (((rawCost + packingVal) * 1000) / yieldG).toFixed(2)
+                : '0.00';
+    
+            updatePieceWeight();
             recalcMargin();
         }
     
-        function recalcExpense() {
-            const ingCost = parseFloat(totalCostIn.value) || 0;
-            const labCost = parseFloat(laborCostIn.value) || 0;
-            const rawCost = ingCost + labCost;
-            const pack    = parseFloat(packingCostIn.value) || 0;
-            prodCostKgIn.value = rawCost.toFixed(2);
-            totalExpenseIn.value = (rawCost + pack).toFixed(2);
-            recalcMargin();
-            calculateLaborIncidence();
+        function updatePieceWeight() {
+            const pcs = parseFloat(totalPiecesIn.value) || 0;
+            weightPerPiece.value = pcs ? (1000 / pcs).toFixed(2) : '';
         }
     
         function recalcMargin() {
-            // compute gross selling revenue
-            const grossSell = modePiece.checked
-                ? (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0)
-                : parseFloat(pricePerKg.value) || 0;
-    
-            // convert to net price
-            const sellP = netPrice(grossSell);
-    
-            const ingCost = parseFloat(totalCostIn.value) || 0;
-            const labCost = parseFloat(laborCostIn.value) || 0;
-            const marginVal = sellP - ingCost - labCost;
-            const marginPct = sellP > 0 ? (marginVal * 100 / sellP) : 0;
-            const unit = modePiece.checked ? ' / piece' : ' / kg';
-    
-            potentialMargin.innerText = `€${marginVal.toFixed(2)} (${marginPct.toFixed(2)}%)${unit}`;
-            potentialInput.value = marginVal.toFixed(2);
+            const exp = parseFloat(totalExpenseIn.value) || 0;
+            const np  = netPrice();
+            let mText;
+            if (modePiece.checked) {
+                const pcs = parseFloat(totalPiecesIn.value) || 0;
+                const c   = pcs ? exp / pcs : 0;
+                mText     = (np - c).toFixed(2) + ' / piece';
+            } else {
+                mText     = (np - exp).toFixed(2) + ' / kg';
+            }
+            potentialIn.innerText = `$${mText}`;
+            potentialInput.value  = parseFloat(mText) || 0;
         }
     
         function updateMode() {
-            document.getElementById('pieceInputs').classList.toggle('d-none', !modePiece.checked);
-            document.getElementById('kgInputs').classList.toggle('d-none', modePiece.checked);
+            document.getElementById('pieceInputs')
+                    .classList.toggle('d-none', !modePiece.checked);
+            document.getElementById('kgInputs')
+                    .classList.toggle('d-none',  modePiece.checked);
             recalcMargin();
-            calculateLaborIncidence();
-            document.querySelectorAll('.ingredient-row').forEach(row => recalcRow(row));
-            recalcTotals();
+            calculateIncidence();
         }
     
-        // Event listeners
-        vatRateEl.addEventListener('change', recalcTotals);
-        costModeShop.addEventListener('change', updateCostPerMin);
-        costModeExternal.addEventListener('change', updateCostPerMin);
-        laborTimeInput.addEventListener('input', updateLaborCost);
+        // ── EVENTS ──
     
-        ['input', 'change'].forEach(evt => {
-            tableBody.addEventListener(evt, e => {
-                if (e.target.matches('.ingredient-select, .ingredient-quantity')) {
-                    const row = e.target.closest('.ingredient-row');
-                    recalcRow(row);
-                    recalcTotals();
-                }
-            });
+        tableBody.addEventListener('input', e => {
+            if (e.target.matches('.ingredient-quantity')) {
+                const row = e.target.closest('.ingredient-row');
+                recalcRow(row);
+                recalcTotals();
+            }
         });
-    
-        weightWithLossIn.addEventListener('input', () => {
-            weightLossTouched = true;
-            document.querySelectorAll('.ingredient-row').forEach(row => recalcRow(row));
-            recalcTotals();
+        tableBody.addEventListener('change', e => {
+            if (e.target.matches('.ingredient-select')) {
+                const row = e.target.closest('.ingredient-row');
+                recalcRow(row);
+                recalcTotals();
+            }
         });
     
         packingCostIn.addEventListener('input', recalcExpense);
-        pricePerPiece.addEventListener('input', () => {
+        laborTimeInput.addEventListener('input', recalcLabor);
+        costModeShop.addEventListener('change', recalcLabor);
+        costModeExternal.addEventListener('change', recalcLabor);
+        pricePerPiece.addEventListener('input', calculateIncidence);
+        pricePerKg.addEventListener('input',    calculateIncidence);
+        vatRate.addEventListener('change', () => {
+            recalcLabor();
+            calculateIncidence();
             recalcMargin();
-            document.querySelectorAll('.ingredient-row').forEach(row => recalcRow(row));
-            calculateLaborIncidence();
-            recalcTotals();
-        });
-        pricePerKg.addEventListener('input', () => {
-            recalcMargin();
-            document.querySelectorAll('.ingredient-row').forEach(row => recalcRow(row));
-            calculateLaborIncidence();
-            recalcTotals();
         });
         totalPiecesIn.addEventListener('input', () => {
-            calcWeightPerPiece();
-            updateMode();
+            updatePieceWeight();
+            recalcMargin();
         });
-        modePiece.addEventListener('change', () => {
-            calcWeightPerPiece();
-            updateMode();
-        });
-        modeKg.addEventListener('change', updateMode);
+        modePiece.addEventListener('change', updateMode);
+        modeKg.addEventListener('change',    updateMode);
     
-        document.getElementById('addIngredientBtn').addEventListener('click', e => {
-            e.preventDefault();
-            const first = tableBody.querySelector('.ingredient-row');
-            const clone = first.cloneNode(true);
+        document.getElementById('addIngredientBtn').addEventListener('click', () => {
+            const first  = tableBody.querySelector('.ingredient-row');
+            const clone  = first.cloneNode(true);
             const newIdx = idx++;
             clone.querySelectorAll('select[name], input[name]').forEach(el => {
                 el.name = el.name.replace(/\[\d+\]/, `[${newIdx}]`);
-                if (el.tagName === 'SELECT') el.selectedIndex = 0;
-                else el.value = (el.classList.contains('ingredient-quantity') ? '0' : '');
+                if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } else if (el.classList.contains('ingredient-quantity')) {
+                    el.value = '0';
+                } else {
+                    // clear cost/incidence
+                    el.value = '';
+                }
             });
             tableBody.appendChild(clone);
             recalcRow(clone);
@@ -681,13 +822,14 @@
             }
         });
     
-        // Initial calculations
+        // ── initial pass ──
         document.querySelectorAll('.ingredient-row').forEach(r => recalcRow(r));
-        calcWeightPerPiece();
         updateMode();
-        updateCostPerMin();
         recalcTotals();
     });
     </script>
     
+ 
+
+
 @endsection

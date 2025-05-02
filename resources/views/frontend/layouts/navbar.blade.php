@@ -9,10 +9,7 @@
                 <button type="button" class="sidebar-mobile-toggle">
                     <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                 </button>
-                <form class="navbar-search">
-                    <input type="text" name="search" placeholder="Search">
-                    <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                </form>
+           
             </div>
         </div>
         <div class="col-auto">
@@ -399,9 +396,17 @@
                             </li>
                             <li>
                                 <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3"
-                                    href="javascript:void(0)">
-                                    <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Log Out</a>
+                                    href="javascript:void(0)" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon>
+                                    Log Out
+                                </a>
                             </li>
+                            
+                            <!-- Hidden Logout Form -->
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+                            
                         </ul>
                     </div>
                 </div><!-- Profile dropdown end -->

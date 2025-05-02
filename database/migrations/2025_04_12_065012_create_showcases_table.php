@@ -10,9 +10,9 @@ class CreateShowcasesTable extends Migration
     {
         Schema::create('showcases', function (Blueprint $table) {
             $table->id();
-            $table->string('showcase_name');
+            $table->string('showcase_name')->nullable();
             
-            $table->boolean('save_template')->default(false);
+            $table->boolean('save_template')->default(false)->nullable();
             $table->date('showcase_date');
             $table->string('template_action')->default('none');
             $table->decimal('break_even', 10, 2)->default(0);

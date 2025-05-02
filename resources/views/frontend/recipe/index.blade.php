@@ -1,3 +1,4 @@
+{{-- resources/views/frontend/recipe/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title','All Recipes')
@@ -19,51 +20,55 @@
           class="table table-striped table-hover table-bordered mb-0"
           style="width:100%;"
         >
-        <thead class="table-light">
-          <tr>
-            <th style="width:1%"></th>          {{-- ← control column --}}
-            <th>Name</th>
-            <th>Category</th>
-            <!-- …etc… -->
-            <th>Actions</th>
-          </tr>
-        </thead>
-        
+          <thead class="table-light">
+            <tr>
+              <th style="width:1%"></th>          {{-- control column for expand/collapse --}}
+              <th>Name</th>
+              <th>Category</th>
+              <th>Department</th>
+              <th>Sell Mode</th>
+              <th class="text-end">Price</th>
+              <th class="text-end">Ing. Cost</th>
+              <th class="text-end">Lab. Cost</th>
+              <th class="text-end">Total Cost</th>
+              <th class="text-end">Margin</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+
           <tbody>
             @foreach($recipes as $r)
               @php
-                $sell = $r->sell_mode === 'piece'
-                  ? $r->selling_price_per_piece
-                  : $r->selling_price_per_kg;
+                // choose the correct selling price
+                $sell = $r->sell_mode==='piece'
+                        ? $r->selling_price_per_piece
+                        : $r->selling_price_per_kg;
 
-                $ingCost = $r->ingredients_total_cost;
-                $labCost = $r->labour_cost;
+                // your stored totals
+                $ingCost    = $r->ingredients_total_cost;
+                $labCost    = $r->labour_cost;
                 $totalCosts = $ingCost + $labCost;
+                $marVal     = $r->potential_margin;
 
-                $ingInc = $sell > 0
-                  ? round($ingCost * 100 / $sell, 2)
-                  : 0;
-                $labInc = $sell > 0
-                  ? round($labCost * 100 / $sell, 2)
-                  : 0;
-                $costInc = $sell > 0
-                  ? round($totalCosts * 100 / $sell, 2)
-                  : 0;
-
-                $marVal = $r->potential_margin;
-                $marPct = $sell > 0
-                  ? round($marVal * 100 / $sell, 2)
-                  : 0;
+                // percentages
+                $ingInc   = $sell>0 ? round($ingCost*100/$sell,2) : 0;
+                $labInc   = $sell>0 ? round($labCost*100/$sell,2) : 0;
+                $costInc  = $sell>0 ? round($totalCosts*100/$sell,2) : 0;
+                $marPct   = $sell>0 ? round($marVal*100/$sell,2) : 0;
               @endphp
-     <tr
-     data-ingredients='@json($r->ingredients->map(fn($i)=>[
-       "name"=>$i->name,
-       "qty"=>$i->pivot->quantity,
-       "unit"=>$i->unit
-     ]))'
-   >
-     <td class="dt-control"></td>
-     <td>{{ $r->recipe_name }}</td>
+
+              <tr
+                class="dt-control"
+                data-ingredients='@json(
+                  $r->ingredients->map(fn($ing) => [
+                    "name" => $ing->ingredient->ingredient_name,
+                    "qty_g" => $ing->quantity_g,
+                    "cost"  => $ing->cost
+                  ])
+                )'
+              >
+                <td></td>
+                <td>{{ $r->recipe_name }}</td>
                 <td>{{ $r->category->name ?? '—' }}</td>
                 <td>{{ $r->department->name ?? '—' }}</td>
                 <td>{{ strtoupper($r->sell_mode) }}</td>
@@ -81,7 +86,7 @@
                   <small class="text-muted">({{ $costInc }}%)</small>
                 </td>
                 <td class="text-end">
-                  @if($marVal >= 0)
+                  @if($marVal>=0)
                     <span class="text-success">
                       €{{ number_format($marVal,2) }}
                       <small>({{ $marPct }}%)</small>
@@ -94,14 +99,12 @@
                   @endif
                 </td>
                 <td class="text-center">
-                  <a href="{{ route('recipes.edit', $r->id) }}"
-                     class="btn btn-sm btn-outline-primary me-1"
-                     title="Edit">
+                  <a href="{{ route('recipes.edit',$r->id) }}"
+                     class="btn btn-sm btn-outline-primary me-1" title="Edit">
                     <i class="bi bi-pencil"></i>
                   </a>
-                  <form action="{{ route('recipes.destroy', $r->id) }}"
-                        method="POST"
-                        class="d-inline"
+                  <form action="{{ route('recipes.destroy',$r->id) }}"
+                        method="POST" class="d-inline"
                         onsubmit="return confirm('Delete this recipe?');">
                     @csrf @method('DELETE')
                     <button class="btn btn-sm btn-outline-danger" title="Delete">
@@ -112,6 +115,7 @@
               </tr>
             @endforeach
           </tbody>
+
         </table>
       </div>
     </div>
@@ -121,14 +125,40 @@
 
 @section('scripts')
 <script>
-  $(document).ready(function() {
-    $('#recipesTable').DataTable({
-      paging:      true,
-      ordering:    true,
-      order:       [[0, 'asc']],
-      responsive:  true,
-      pageLength:  10,
-      lengthMenu:  [[10, 25, 50], [10, 25, 50]]
+  $(function(){
+    const table = $('#recipesTable').DataTable({
+      paging:     true,
+      ordering:   true,
+      responsive: true,
+      pageLength: 10,
+      order:      [[1,'asc']],
+      columnDefs: [{ orderable:false, targets:0 }]
+    });
+
+    // add row expanding on “dt-control”
+    $('#recipesTable tbody').on('click', 'td.dt-control', function(){
+      const tr  = $(this).closest('tr');
+      const row = table.row(tr);
+      if(row.child.isShown()){
+        row.child.hide();
+        tr.removeClass('shown');
+      } else {
+        // build a small table for the ingredients
+        const data = tr.data('ingredients');
+        let html = '<table class="table mb-0"><thead><tr>'
+                 +'<th>Ingredient</th><th class="text-end">Qty (g)</th><th class="text-end">Cost</th>'
+                 +'</tr></thead><tbody>';
+        data.forEach(i=>{
+          html += `<tr>
+                     <td>${i.name}</td>
+                     <td class="text-end">${i.qty_g}</td>
+                     <td class="text-end">€${parseFloat(i.cost).toFixed(2)}</td>
+                   </tr>`;
+        });
+        html += '</tbody></table>';
+        row.child(html).show();
+        tr.addClass('shown');
+      }
     });
   });
 </script>

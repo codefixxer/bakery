@@ -11,8 +11,8 @@ class CreateProductionsTable extends Migration
     {
         Schema::create('productions', function (Blueprint $table) {
             $table->id();
-            $table->string('production_name');
-            $table->boolean('save_template')->default(false);
+            $table->string('production_name')->nullable();
+            $table->boolean('save_template')->default(false)->nullable();
             $table->date('production_date');
             $table->decimal('total_potential_revenue', 10, 2)->default(0);
             
