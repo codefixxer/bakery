@@ -56,11 +56,13 @@ class RolesAndPermissionsSeeder extends Seeder
         $super->syncPermissions($perms);
 
         // 5) ADMIN (all except “news”)
-        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+       // … after you’ve built $perms as a Collection of Permission models …
 
-        // only give admin all permissions **except** `news`
-        $adminPerms = $perms->where('name', '!=', 'news');
-        $admin->syncPermissions($adminPerms);
+$admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+$remove = ['news', 'view roles', 'view permissions'];
+$adminPerms = $perms->reject(fn($perm) => in_array($perm->name, $remove));
+$admin->syncPermissions($adminPerms);
+
 
         // 6) SHOP: only “showcase”
         $shop = Role::firstOrCreate(['name' => 'shop', 'guard_name' => 'web']);
@@ -79,7 +81,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // 8) MASTER (everything except sale comparison, costs, income)
         $master = Role::firstOrCreate(['name' => 'master', 'guard_name' => 'web']);
         $master->syncPermissions(
-            $perms->reject(fn($p) => in_array($p->name, ['sale comparison', 'costs', 'income','news' ,'manage-user']))
+            $perms->reject(fn($p) => in_array($p->name, ['sale comparison', 'costs', 'income','news' ,'manage-user','view roles','view permissions']))
         );
     }
 }

@@ -27,8 +27,8 @@ use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\RolesController;
 
 // Public landing
-Route::get('/', [IngredientController::class, 'index'])
-     ->name('ingredients.index');
+
+     Route::get('/',    [AuthController::class, 'showLoginForm'])->name('login');
 
 // Authentication
 Route::get('login',    [AuthController::class, 'showLoginForm'])->name('login');

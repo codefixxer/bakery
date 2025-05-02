@@ -6,34 +6,45 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->hasRole('superadmin')) {
-            $users = User::with('roles')->paginate(10);
-        } else {
-            $users = User::where('created_by', auth()->id())->with('roles')->paginate(10);
+        // start with the base query
+        $query = User::with('roles');
+    
+        // if the current user is _not_ a super‑admin, restrict to their own users
+        if (! auth()->user()->hasRole('super')) {
+            $query->where('created_by', auth()->id());
         }
-
+    
+        // paginate whatever the query returns
+        $users = $query->paginate(10);
+    
         return view('frontend.user-management.users.index', compact('users'));
     }
+    
 
     public function create()
     {
-        if (auth()->user()->hasRole('superadmin')) {
-            $roles = Role::all(); // Superadmin sees all roles
+        // all other roles are always shown
+        $query = Role::whereNotIn('name', ['admin', 'super']);
+    
+        // if the logged‑in user *can* add admins, include those too
+        if (auth()->user()->can('can add admin')) {
+            // remove the restriction
+            $roles = Role::all();
         } else {
-            $roles = Role::where('name', '!=', 'admin')->get(); // Regular admins can't assign admin
+            $roles = $query->get();
         }
-
+    
         $user   = new User();
         $isEdit = false;
-
+    
         return view('frontend.user-management.users.create', compact('roles', 'user', 'isEdit'));
     }
-
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -63,7 +74,11 @@ class UserController extends Controller
         if (auth()->user()->hasRole('superadmin')) {
             $roles = Role::all(); // Superadmin can edit any role
         } else {
-            $roles = Role::where('name', '!=', 'admin')->get(); // Regular admins can't assign admin
+            // Regular admins can't assign/edit to roles with admin/super in the name
+            $roles = Role::where(function ($query) {
+                $query->whereRaw("LOWER(name) NOT LIKE ?", ['%admin%'])
+                      ->whereRaw("LOWER(name) NOT LIKE ?", ['%super%']);
+            })->get();
         }
 
         $isEdit = true;

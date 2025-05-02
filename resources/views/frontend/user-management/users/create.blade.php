@@ -44,10 +44,7 @@
     {{-- Single‑select Role --}}
     <div class="mb-3">
       <label for="role" class="form-label">Role</label>
-      <select id="role"
-              name="role"
-              class="form-select"
-              required>
+      <select id="role" name="role" class="form-select" required>
         <option value="">— Select a role —</option>
         @foreach($roles as $role)
           <option value="{{ $role->id }}"
@@ -57,6 +54,7 @@
           </option>
         @endforeach
       </select>
+      
     </div>
 
     <button class="btn btn-success">
