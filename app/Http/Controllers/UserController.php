@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
@@ -16,8 +18,8 @@ class UserController extends Controller
         $query = User::with('roles');
     
         // if the current user is _not_ a super‑admin, restrict to their own users
-        if (! auth()->user()->hasRole('super')) {
-            $query->where('created_by', auth()->id());
+        if (! Auth::user()->hasRole('super')) {
+            $query->where('created_by', Auth::id());
         }
     
         // paginate whatever the query returns
@@ -33,7 +35,7 @@ class UserController extends Controller
         $query = Role::whereNotIn('name', ['admin', 'super']);
     
         // if the logged‑in user *can* add admins, include those too
-        if (auth()->user()->can('can add admin')) {
+        if (Auth::user()->can('can add admin')) {
             // remove the restriction
             $roles = Role::all();
         } else {
@@ -58,7 +60,7 @@ class UserController extends Controller
             'name'       => $data['name'],
             'email'      => $data['email'],
             'password'   => Hash::make($data['password']),
-            'created_by' => auth()->id(),
+            'created_by' => Auth::id(),
         ]);
 
         $role = Role::findOrFail($data['role']);
@@ -71,7 +73,7 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        if (auth()->user()->hasRole('superadmin')) {
+        if (Auth::user()->hasRole('superadmin')) {
             $roles = Role::all(); // Superadmin can edit any role
         } else {
             // Regular admins can't assign/edit to roles with admin/super in the name
