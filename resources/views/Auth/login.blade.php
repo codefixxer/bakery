@@ -59,6 +59,10 @@
     @csrf
     <div class="d-flex justify-content-around mb-16">
         <button type="button" class="btn btn-outline-primary quick-login-btn"
+            data-email="super@example.com" data-password="password123">
+            Super
+        </button>
+        <button type="button" class="btn btn-outline-primary quick-login-btn"
             data-email="admin@example.com" data-password="password123">
             Admin
         </button>

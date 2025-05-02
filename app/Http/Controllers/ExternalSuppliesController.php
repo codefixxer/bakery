@@ -87,8 +87,8 @@ public function create()
     public function store(Request $request)
     {
         $data = $request->validate([
-            'supply_name'            => 'required|string|max:255',
-            'template_action'        => 'required|in:none,template,both',
+            'supply_name'            => 'nullable|string|max:255',
+            'template_action'        => 'nullable|in:none,template,both',
             'client_id'              => 'required|exists:clients,id',
             'supply_date'            => 'required|date',
             'recipes'                => 'required|array|min:1',

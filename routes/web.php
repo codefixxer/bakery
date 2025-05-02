@@ -2,64 +2,62 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CostController;
-use App\Http\Controllers\NewsController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RolesController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\IncomeController;
-use App\Http\Controllers\RecipeController;
-use App\Http\Controllers\ShowcaseController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EquipmentController;
-use App\Http\Controllers\LaborCostController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\IngredientController;
-use App\Http\Controllers\PastryChefController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\ProductionController;
-use App\Http\Controllers\CostCategoryController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\RecordFilterController;
-use App\Http\Controllers\ReturnedGoodController;
+use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\ExternalSuppliesController;
+use App\Http\Controllers\ReturnedGoodController;
+use App\Http\Controllers\ShowcaseController;
+use App\Http\Controllers\LaborCostController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CostCategoryController;
+use App\Http\Controllers\CostController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\PastryChefController;
+use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\RolesController;
 
-// public landing
-Route::get('/', [IngredientController::class, 'index'])->name('ingredients.index');
+// Public landing
+Route::get('/', [IngredientController::class, 'index'])
+     ->name('ingredients.index');
 
 // Authentication
-Route::get('login',  [AuthController::class,'showLoginForm'])->name('login');
-Route::post('login', [AuthController::class,'login'])->name('login.submit');
-Route::get('register',  [AuthController::class,'showRegisterForm'])->name('register');
-Route::post('register', [AuthController::class,'register'])->name('register.submit');
-Route::post('logout',  [AuthController::class,'logout'])->name('logout');
+Route::get('login',    [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('login',   [AuthController::class, 'login'])->name('login.submit');
+Route::get('register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('register',[AuthController::class, 'register'])->name('register.submit');
+Route::post('logout',  [AuthController::class, 'logout'])->name('logout');
 
-
-// everything below requires login…
+// All routes below require authentication
 Route::middleware('auth')->group(function(){
-     Route::get('/dashboard', [DashboardController::class, 'index'])
-     ->name('dashboard');
 
-    // User Management (only users with "manage-users")
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+         ->name('dashboard');
+
+    // User Management (requires "manage-users" permission)
     Route::middleware('can:manage-users')->group(function(){
-        Route::resource('users', UserController::class);
-        Route::resource('roles', RolesController::class);
+        Route::resource('users',       UserController::class);
+      
         Route::resource('permissions', PermissionController::class);
     });
 
-    // Ingredients
+    // Ingredients (requires "ingredients" permission)
     Route::resource('ingredients', IngredientController::class)
          ->middleware('can:ingredients');
 
     // Sale Comparison
-    Route::get('comparison', [RecordFilterController::class,'index'])
+    Route::get('comparison', [RecordFilterController::class, 'index'])
          ->name('comparison.index')
          ->middleware('can:sale comparison');
-
-
-
-
     Route::post('records/add-income',[RecordFilterController::class,'addFiltered'])
          ->name('income.addFiltered')
          ->middleware('can:sale comparison');
@@ -72,10 +70,10 @@ Route::middleware('auth')->group(function(){
     Route::resource('recipe-categories', RecipeCategoryController::class)
          ->middleware('can:recipe categories');
 
-    // External Supplies
+    // External Supplies & Templates
     Route::resource('external-supplies', ExternalSuppliesController::class)
          ->middleware('can:external supplies');
-    Route::get('external-supplies/template/{id}', 
+    Route::get('external-supplies/template/{id}',
          [ExternalSuppliesController::class,'getTemplate'])
          ->name('external-supplies.template')
          ->middleware('can:external supplies');
@@ -84,7 +82,7 @@ Route::middleware('auth')->group(function(){
     Route::resource('returned-goods', ReturnedGoodController::class)
          ->middleware('can:returned goods');
 
-    // Showcase
+    // Daily Showcase & Templates
     Route::resource('showcase', ShowcaseController::class)
          ->middleware('can:showcase');
     Route::get('showcase/recipe-sales', [ShowcaseController::class,'recipeSales'])
@@ -109,7 +107,7 @@ Route::middleware('auth')->group(function(){
     Route::resource('cost_categories', CostCategoryController::class)
          ->middleware('can:cost categories');
 
-    // Costs & dashboard
+    // Costs & Comparison Dashboard
     Route::resource('costs', CostController::class)
          ->middleware('can:costs');
     Route::get('costs-comparison', [CostController::class,'dashboard'])
@@ -120,11 +118,9 @@ Route::middleware('auth')->group(function(){
     Route::resource('departments', DepartmentController::class)
          ->middleware('can:departments');
 
-    // News
+    // News & Notifications
     Route::resource('news', NewsController::class)
          ->middleware('can:news');
-
-    // Notifications
     Route::post('notifications/{id}/mark-as-read',
          [NotificationController::class,'markAsRead'])
          ->name('notifications.markAsRead')
@@ -133,7 +129,7 @@ Route::middleware('auth')->group(function(){
          ->only(['index','show'])
          ->middleware('can:news');
 
-    // Income (as standalone resource too)
+    // Standalone Income resource
     Route::resource('incomes', IncomeController::class)
          ->middleware('can:income');
 
@@ -145,10 +141,13 @@ Route::middleware('auth')->group(function(){
     Route::resource('equipment', EquipmentController::class)
          ->middleware('can:equipment');
 
-    // Production & template
+    // Production Entries & Templates
     Route::resource('production', ProductionController::class)
          ->middleware('can:production');
-    Route::get('production/template/{id}', [ProductionController::class,'getTemplate'])
+    Route::get('production/template/{id}',
+         [ProductionController::class,'getTemplate'])
          ->name('production.template')
          ->middleware('can:production');
 });
+
+Route::resource('roles', RolesController::class);

@@ -85,9 +85,9 @@ public function getTemplate($id)
     public function store(Request $request)
     {
         $data = $request->validate([
-            'showcase_name'           => 'required|string|max:255',
+            'showcase_name'           => 'nullable|string|max:255',
             'showcase_date'           => 'required|date',
-            'template_action'         => 'required|in:none,template,both',
+            'template_action'         => 'nullable|in:none,template,both',
             'break_even'              => 'nullable|numeric',
             'items'                   => 'required|array',
             'items.*.recipe_id'       => 'required|exists:recipes,id',

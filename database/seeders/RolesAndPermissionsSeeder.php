@@ -5,11 +5,15 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Artisan;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
     public function run()
     {
+        // clear the permission cache (so new roles/permissions take effect immediately)
+        Artisan::call('permission:cache-reset');
+
         // 1) Define all the permissions your app uses:
         $allPermissions = [
             'manage-users',
@@ -44,34 +48,38 @@ class RolesAndPermissionsSeeder extends Seeder
             ]);
         }
 
-        // 3) Fetch them back as a collection for easy slicing:
-        $perms = Permission::whereIn('name', $allPermissions)->get()->keyBy('name');
+        // 3) Fetch them back as a collection:
+        $perms = Permission::whereIn('name', $allPermissions)->get();
 
-        // 4) Create ADMIN (all except "news")
+        // 4) SUPER (super-admin) gets *all* permissions:
+        $super = Role::firstOrCreate(['name' => 'super', 'guard_name' => 'web']);
+        $super->syncPermissions($perms);
+
+        // 5) ADMIN (all except “news”)
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-        $adminPerms = $perms->except('news')->values();
+
+        // only give admin all permissions **except** `news`
+        $adminPerms = $perms->where('name', '!=', 'news');
         $admin->syncPermissions($adminPerms);
 
-        // 5) SHOP: only "showcase"
-// SHOP
-$shop = Role::firstOrCreate(['name'=>'shop','guard_name'=>'web']);
-$shop->syncPermissions(['showcase']);
+        // 6) SHOP: only “showcase”
+        $shop = Role::firstOrCreate(['name' => 'shop', 'guard_name' => 'web']);
+        $shop->syncPermissions(['showcase']);
 
-// LAB
-$lab = Role::firstOrCreate(['name'=>'lab','guard_name'=>'web']);
-$lab->syncPermissions([
-    'recipe',
-    'ingredients',
-    'production',
-    'showcase',
-    'external supplies',
-]);
+        // 7) LAB:
+        $lab = Role::firstOrCreate(['name' => 'lab', 'guard_name' => 'web']);
+        $lab->syncPermissions([
+            'recipe',
+            'ingredients',
+            'production',
+            'showcase',
+            'external supplies',
+        ]);
 
-        // 7) MASTER: everything except sale comparison, costs, income
+        // 8) MASTER (everything except sale comparison, costs, income)
         $master = Role::firstOrCreate(['name' => 'master', 'guard_name' => 'web']);
-        $masterPerms = $perms
-            ->except(['sale comparison', 'costs', 'income'])
-            ->values();
-        $master->syncPermissions($masterPerms);
+        $master->syncPermissions(
+            $perms->reject(fn($p) => in_array($p->name, ['sale comparison', 'costs', 'income','news' ,'manage-user']))
+        );
     }
 }

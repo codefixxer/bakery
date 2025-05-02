@@ -71,9 +71,9 @@ class ProductionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'production_name'      => 'required|string|max:255',
+            'production_name'      => 'nullable|string|max:255',
             'production_date'      => 'required|date',
-            'template_action'      => 'required|in:none,template,both',
+            'template_action'      => 'nullable|in:none,template,both',
             'recipe_id'            => 'required|array',
             'pastry_chef_id'       => 'required|array',
             'quantity'             => 'required|array',
