@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en" data-bs-theme="light">
 <head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap 5 CSS -->
@@ -24,7 +27,9 @@
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 
-
+<style>
+  *{font-family: "Libre Baskerville", "montserrat" !important; }
+</style>
 
 {{-- Select2 CDN --}}
 {{-- jQuery and Select2 --}}
