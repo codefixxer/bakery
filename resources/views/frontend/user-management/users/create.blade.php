@@ -42,20 +42,20 @@
     @endunless
 
     {{-- Single‑select Role --}}
-    <div class="mb-3">
-      <label for="role" class="form-label">Role</label>
-      <select id="role" name="role" class="form-select" required>
-        <option value="">— Select a role —</option>
-        @foreach($roles as $role)
-          <option value="{{ $role->id }}"
-            {{ (string) old('role', optional($user->roles->first())->id) === (string)$role->id
-                ? 'selected' : '' }}>
-            {{ ucfirst($role->name) }}
-          </option>
-        @endforeach
-      </select>
-      
-    </div>
+    {{-- Single‑select Role --}}
+<div class="mb-3">
+  <label for="role" class="form-label">Role</label>
+  <select id="role" name="role" class="form-select" required>
+    @foreach($roles as $role)
+  <option value="{{ $role->id }}"
+    {{ (string) old('role', optional($user->roles->first())->id) === (string)$role->id
+        ? 'selected' : '' }}>
+    {{ ucfirst($role->name) }}
+  </option>
+@endforeach
+  </select>
+</div>
+
 
     <button class="btn btn-success">
       {{ $isEdit ? 'Update' : 'Create' }}

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Recipe;
+use App\Models\Ingredient;
 
 class RecipeIngredient extends Model
 {
@@ -16,6 +19,7 @@ class RecipeIngredient extends Model
         'ingredient_id',
         'quantity_g',
         'cost',
+        'user_id', // ✅ Add user_id for ownership
     ];
 
     /**
@@ -32,5 +36,11 @@ class RecipeIngredient extends Model
     public function ingredient()
     {
         return $this->belongsTo(Ingredient::class);
+    }
+
+    // ✅ User who added this ingredient
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

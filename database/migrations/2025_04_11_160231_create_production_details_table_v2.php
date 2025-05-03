@@ -11,6 +11,7 @@ class CreateProductionDetailsTableV2 extends Migration
     {
         Schema::create('production_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->foreignId('production_id')->constrained('productions')->onDelete('cascade');
             $table->foreignId('recipe_id')->constrained('recipes')->onDelete('cascade');
             $table->foreignId('pastry_chef_id')->constrained('pastry_chefs')->onDelete('cascade');

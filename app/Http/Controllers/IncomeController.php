@@ -4,20 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Models\Income;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class IncomeController extends Controller
 {
+    /**
+     * Display a listing of the logged‑in user’s incomes.
+     */
     public function index()
     {
-        $incomes = Income::orderBy('date','desc')->paginate(15);
+        $incomes = Income::where('user_id', Auth::id())
+                         ->orderBy('date', 'desc')
+                         ->paginate(15);
+
         return view('frontend.incomes.index', compact('incomes'));
     }
 
+    /**
+     * Show the form for creating a new income.
+     */
     public function create()
     {
         return view('frontend.incomes.create');
     }
 
+    public function show(Income $income)
+    {
+        return view('frontend.incomes.show', compact('income'));
+    }
+
+
+    /**
+     * Store a newly created income in storage.
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -25,41 +45,63 @@ class IncomeController extends Controller
             'date'   => 'required|date',
         ]);
 
+        // stamp with the current user's ID
+        $data['user_id'] = Auth::id();
+
         Income::create($data);
 
         return redirect()->route('incomes.index')
-                         ->with('success','Income recorded!');
+                         ->with('success', 'Income recorded!');
     }
 
-
+    /**
+     * Store a range‐sum income entry (date = from).
+     */
     public function storeRange(Request $request)
     {
-        // range‐sum income
         $data = $request->validate([
             'from'   => 'required|date',
             'to'     => 'required|date|after_or_equal:from',
             'amount' => 'required|numeric|min:0',
         ]);
 
-        // create one Income entry with date = from
+        // stamp with the current user's ID
+        $data['user_id'] = Auth::id();
+
         $inc = Income::create([
-            'date'   => $data['from'],
-            'amount' => $data['amount'],
+            'date'    => $data['from'],
+            'amount'  => $data['amount'],
+            'user_id' => $data['user_id'],
         ]);
 
         if ($request->wantsJson()) {
-            return response()->json(['success'=>true,'income'=>$inc],201);
+            return response()->json(['success' => true, 'income' => $inc], 201);
         }
-        return back()->with('success','Range added to income!');
+
+        return back()->with('success', 'Range added to income!');
     }
 
+    /**
+     * Show the form for editing the specified income.
+     */
     public function edit(Income $income)
     {
+        if ($income->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
         return view('frontend.incomes.create', compact('income'));
     }
 
+    /**
+     * Update the specified income in storage.
+     */
     public function update(Request $request, Income $income)
     {
+        if ($income->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
         $data = $request->validate([
             'amount' => 'required|numeric|min:0',
             'date'   => 'required|date',
@@ -68,12 +110,20 @@ class IncomeController extends Controller
         $income->update($data);
 
         return redirect()->route('incomes.index')
-                         ->with('success','Income updated!');
+                         ->with('success', 'Income updated!');
     }
 
+    /**
+     * Remove the specified income from storage.
+     */
     public function destroy(Income $income)
     {
+        if ($income->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
         $income->delete();
-        return back()->with('success','Income removed.');
+
+        return back()->with('success', 'Income removed.');
     }
 }

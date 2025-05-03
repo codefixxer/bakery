@@ -1,10 +1,13 @@
 <?php
-// app/Models/ProductionDetail.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Production;
+use App\Models\Recipe;
+use App\Models\PastryChef;
 
 class ProductionDetail extends Model
 {
@@ -18,12 +21,11 @@ class ProductionDetail extends Model
         'execution_time',
         'equipment_ids',
         'potential_revenue',
+        'user_id', // ✅ Add user_id to track owner
     ];
 
-    // Cast equipment_ids from JSON to array automatically
     protected $casts = [
-        'equipment_ids' => 'array',
-
+        'equipment_ids' => 'array', // ✅ Automatically cast JSON to array
     ];
 
     public function production()
@@ -41,4 +43,9 @@ class ProductionDetail extends Model
         return $this->belongsTo(PastryChef::class, 'pastry_chef_id');
     }
 
+    // ✅ Link to user who created the detail
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

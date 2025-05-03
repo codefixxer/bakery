@@ -11,6 +11,7 @@ class CreateEquipmentTable extends Migration
     {
         Schema::create('equipment', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->string('name');
             $table->timestamps();
         });

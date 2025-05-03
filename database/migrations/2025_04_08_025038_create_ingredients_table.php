@@ -11,6 +11,7 @@ return new class extends Migration
 {
     Schema::create('ingredients', function (Blueprint $table) {
         $table->id();
+        $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
         $table->string('ingredient_name');
         $table->decimal('price_per_kg', 8, 2);
         $table->timestamps();

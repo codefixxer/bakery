@@ -10,6 +10,7 @@ class CreateIncomesTable extends Migration
     {
         Schema::create('incomes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->decimal('amount', 12, 2);
             $table->date('date');
             $table->timestamps();

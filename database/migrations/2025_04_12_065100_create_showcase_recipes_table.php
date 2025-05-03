@@ -10,8 +10,10 @@ class CreateShowcaseRecipesTable extends Migration
     {
         Schema::create('showcase_recipes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->foreignId('showcase_id')->constrained('showcases')->onDelete('cascade');
             $table->foreignId('recipe_id')->constrained('recipes')->onDelete('cascade');
+            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
             $table->string('category')->nullable();
             $table->decimal('price', 10, 2)->nullable();
             $table->integer('quantity')->default(0);

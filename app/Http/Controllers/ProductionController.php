@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\Recipe;
 use App\Models\Equipment;
 use App\Models\PastryChef;
@@ -12,99 +13,129 @@ use App\Models\ProductionDetail;
 
 class ProductionController extends Controller
 {
-
-
+    /**
+     * Return one template’s data as JSON (for AJAX),
+     * but only if it belongs to the current user.
+     */
     public function getTemplate($id)
     {
-        $production = Production::with('details')->findOrFail($id);
+        $userId = Auth::id();
+
+        $production = Production::with('details')
+            ->where('user_id', $userId)
+            ->findOrFail($id);
 
         $details = $production->details->map(function($d) {
             return [
-                'recipe_id'       => $d->recipe_id,
-                'chef_id'         => $d->pastry_chef_id,
-                'quantity'        => $d->quantity,
-                'execution_time'  => $d->execution_time,
-                'equipment_ids'   => $d->equipment_ids
-                                       ? explode(',', $d->equipment_ids)
-                                       : [],
-                'potential_revenue' => $d->potential_revenue,
+                'recipe_id'        => $d->recipe_id,
+                'chef_id'          => $d->pastry_chef_id,
+                'quantity'         => $d->quantity,
+                'execution_time'   => $d->execution_time,
+                'equipment_ids'    => $d->equipment_ids
+                                        ? explode(',', $d->equipment_ids)
+                                        : [],
+                'potential_revenue'=> $d->potential_revenue,
             ];
         });
 
         return response()->json($details);
     }
+
+
+    public function show(Production $production)
+    {
+        // ensure equipmentMap is available to the view
+        $equipmentMap = config('production.equipment_map'); // or however you build this
+        return view('frontend.production.show', compact('production', 'equipmentMap'));
+    }
+
     /**
-     * Display a listing of productions.
+     * Display a listing of the logged‑in user’s productions.
      */
     public function index()
     {
-        // Eager load details with recipe and chef
+        $userId       = Auth::id();
         $productions  = Production::with(['details.recipe', 'details.chef'])
+                                 ->where('user_id', $userId)
                                  ->latest()
                                  ->get();
 
-        // Optional equipment map for display
-        $equipmentMap = Equipment::pluck('name', 'id')->toArray();
+        $equipmentMap = Equipment::where('user_id', $userId)
+                                 ->pluck('name', 'id')
+                                 ->toArray();
 
         return view('frontend.production.index', compact('productions', 'equipmentMap'));
     }
 
     /**
-     * Show the form for creating a new production.
+     * Show the form for creating a new production,
+     * with only this user’s recipes, chefs, and templates.
      */
     public function create()
     {
-        return view('frontend.production.create', [
-            'recipes'    => Recipe::all(),
-            'chefs'      => PastryChef::all(),
-            'equipments' => Equipment::all(),
-            // new: only those you’ve marked as templates
-            'templates'  => Production::where('save_template', true)
-                                      ->pluck('production_name', 'id'),
-        ]);
+        $userId     = Auth::id();
+
+        $recipes    = Recipe::where('labor_cost_mode', 'shop')
+                            ->where('user_id', $userId)
+                            ->get();
+
+        $chefs      = PastryChef::where('user_id', $userId)
+                               ->get();
+
+        $equipments = Equipment::where('user_id', $userId)
+                               ->get();
+
+        $templates  = Production::where('save_template', true)
+                                ->where('user_id', $userId)
+                                ->pluck('production_name', 'id');
+
+        return view('frontend.production.create', compact(
+            'recipes', 'chefs', 'equipments', 'templates'
+        ));
     }
-    
 
     /**
-     * Store a newly created production in storage.
+     * Store a newly created production in storage,
+     * stamping it with the current user’s ID.
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'production_name'      => 'nullable|string|max:255',
-            'production_date'      => 'required|date',
-            'template_action'      => 'nullable|in:none,template,both',
-            'recipe_id'            => 'required|array',
-            'pastry_chef_id'       => 'required|array',
-            'quantity'             => 'required|array',
-            'execution_time'       => 'required|array',
-            'equipment_ids'        => 'required|array',
-            'potential_revenue'    => 'required|array',
-            'total_revenue'        => 'required|numeric|min:0',
+        $data = $request->validate([
+            'production_name'   => 'nullable|string|max:255',
+            'production_date'   => 'required|date',
+            'template_action'   => 'nullable|in:none,template,both',
+            'recipe_id'         => 'required|array',
+            'pastry_chef_id'    => 'required|array',
+            'quantity'          => 'required|array',
+            'execution_time'    => 'required|array',
+            'equipment_ids'     => 'required|array',
+            'potential_revenue' => 'required|array',
+            'total_revenue'     => 'required|numeric|min:0',
         ]);
 
-        // Determine whether to save as template
-        $saveTemplate = in_array($request->template_action, ['template', 'both']);
+        $saveTemplate = in_array($data['template_action'], ['template', 'both']);
+        $total = $data['total_revenue'];
 
-        // Create production header
         $production = Production::create([
-            'production_name'         => $request->production_name,
-            'production_date'         => $request->production_date,
-            'total_potential_revenue' => $request->total_revenue,
+            'production_name'         => $data['production_name'],
+            'production_date'         => $data['production_date'],
+            'total_potential_revenue' => $total,
             'save_template'           => $saveTemplate,
+            'user_id'                 => Auth::id(),
         ]);
 
-        // Create production details
-        foreach ($request->recipe_id as $i => $recipeId) {
+        foreach ($data['recipe_id'] as $i => $recipeId) {
             ProductionDetail::create([
                 'production_id'     => $production->id,
                 'recipe_id'         => $recipeId,
-                'pastry_chef_id'    => $request->pastry_chef_id[$i],
-                'quantity'          => $request->quantity[$i],
-                'execution_time'    => $request->execution_time[$i],
-                'equipment_ids'     => implode(',', $request->equipment_ids[$i] ?? []),
-                'potential_revenue' => $request->potential_revenue[$i],
+                'pastry_chef_id'    => $data['pastry_chef_id'][$i],
+                'quantity'          => $data['quantity'][$i],
+                'execution_time'    => $data['execution_time'][$i],
+                'equipment_ids'     => implode(',', $data['equipment_ids'][$i] ?? []),
+                'potential_revenue' => $data['potential_revenue'][$i],
+                'user_id'           => Auth::id(), // ✅ Add this line
             ]);
+            
         }
 
         return redirect()
@@ -113,63 +144,76 @@ class ProductionController extends Controller
     }
 
     /**
-     * Show the form for editing the specified production.
+     * Show the form for editing the specified production,
+     * only if it belongs to the logged‑in user.
      */
     public function edit($id)
     {
-        $production = Production::with('details')->findOrFail($id);
+        $userId     = Auth::id();
+        $production = Production::with('details')
+            ->where('user_id', $userId)
+            ->findOrFail($id);
 
-        return view('frontend.production.create', [
-            'production' => $production,
-            'recipes'    => Recipe::all(),
-            'chefs'      => PastryChef::all(),
-            'equipments' => Equipment::all(),
-            'templates'  => Production::where('save_template', true)
-            ->pluck('production_name', 'id'),
-        ]);
+        $recipes    = Recipe::where('labor_cost_mode', 'shop')
+                            ->where('user_id', $userId)
+                            ->get();
+
+        $chefs      = PastryChef::where('user_id', $userId)
+                               ->get();
+
+        $equipments = Equipment::where('user_id', $userId)
+                               ->get();
+
+        $templates  = Production::where('save_template', true)
+                                ->where('user_id', $userId)
+                                ->pluck('production_name', 'id');
+
+        return view('frontend.production.create', compact(
+            'production', 'recipes', 'chefs', 'equipments', 'templates'
+        ));
     }
 
     /**
-     * Update the specified production in storage.
+     * Update the specified production in storage,
+     * only if it belongs to the logged‑in user.
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'production_name'      => 'required|string|max:255',
-            'production_date'      => 'required|date',
-            'template_action'      => 'required|in:none,template,both',
-            'recipe_id'            => 'required|array',
-            'pastry_chef_id'       => 'required|array',
-            'quantity'             => 'required|array',
-            'execution_time'       => 'required|array',
-            'equipment_ids'        => 'required|array',
-            'potential_revenue'    => 'required|array',
-            'total_revenue'        => 'required|numeric|min:0',
+        $userId     = Auth::id();
+        $production = Production::where('user_id', $userId)
+                                ->findOrFail($id);
+
+        $data = $request->validate([
+            'production_name'   => 'required|string|max:255',
+            'production_date'   => 'required|date',
+            'template_action'   => 'required|in:none,template,both',
+            'recipe_id'         => 'required|array',
+            'pastry_chef_id'    => 'required|array',
+            'quantity'          => 'required|array',
+            'execution_time'    => 'required|array',
+            'equipment_ids'     => 'required|array',
+            'potential_revenue' => 'required|array',
+            'total_revenue'     => 'required|numeric|min:0',
         ]);
 
-        $production   = Production::findOrFail($id);
-        $saveTemplate = in_array($request->template_action, ['template', 'both']);
-
-        // Update production header
+        $saveTemplate = in_array($data['template_action'], ['template', 'both']);
         $production->update([
-            'production_name'         => $request->production_name,
-            'production_date'         => $request->production_date,
-            'total_potential_revenue' => $request->total_revenue,
+            'production_name'         => $data['production_name'],
+            'production_date'         => $data['production_date'],
+            'total_potential_revenue' => $data['total_revenue'],
             'save_template'           => $saveTemplate,
         ]);
 
-        // Delete old details and recreate
         $production->details()->delete();
-
-        foreach ($request->recipe_id as $i => $recipeId) {
+        foreach ($data['recipe_id'] as $i => $recipeId) {
             ProductionDetail::create([
                 'production_id'     => $production->id,
                 'recipe_id'         => $recipeId,
-                'pastry_chef_id'    => $request->pastry_chef_id[$i],
-                'quantity'          => $request->quantity[$i],
-                'execution_time'    => $request->execution_time[$i],
-                'equipment_ids'     => implode(',', $request->equipment_ids[$i] ?? []),
-                'potential_revenue' => $request->potential_revenue[$i],
+                'pastry_chef_id'    => $data['pastry_chef_id'][$i],
+                'quantity'          => $data['quantity'][$i],
+                'execution_time'    => $data['execution_time'][$i],
+                'equipment_ids'     => implode(',', $data['equipment_ids'][$i] ?? []),
+                'potential_revenue' => $data['potential_revenue'][$i],
             ]);
         }
 
@@ -179,12 +223,15 @@ class ProductionController extends Controller
     }
 
     /**
-     * Remove the specified production from storage.
+     * Remove the specified production from storage,
+     * only if it belongs to the logged‑in user.
      */
     public function destroy($id)
     {
-        $production = Production::findOrFail($id);
-        $production->delete(); // details cascade if FK set
+        $production = Production::where('user_id', Auth::id())
+                                ->findOrFail($id);
+
+        $production->delete();
 
         return redirect()
             ->route('production.index')

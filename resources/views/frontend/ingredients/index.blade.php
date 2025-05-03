@@ -7,7 +7,7 @@
   <div class="card border-success shadow-sm">
     <div class="card-header bg-success text-white d-flex align-items-center">
       <i class="bi bi-box-seam fs-4 me-2"></i>
-      <h5 class="mb-0">Add Ingredient</h5>
+      <h5 class="mb-0">{{ isset($ingredient) ? 'Edit Ingredient' : 'Add Ingredient' }}</h5>
     </div>
     <div class="card-body">
       <form
@@ -92,6 +92,7 @@
               <td>€{{ number_format($ingredient->price_per_kg, 2) }}</td>
               <td>{{ $ingredient->updated_at->format('Y-m-d H:i') }}</td>
               <td class="text-center">
+                <!-- Edit -->
                 <a
                   href="{{ route('ingredients.edit', $ingredient) }}"
                   class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
@@ -99,13 +100,25 @@
                 >
                   <iconify-icon icon="lucide:edit"></iconify-icon>
                 </a>
+
+                <!-- View -->
+                <a
+                  href="{{ route('ingredients.show', $ingredient) }}"
+                  class="w-32-px h-32-px bg-primary-focus text-primary-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
+                  title="View"
+                >
+                  <iconify-icon icon="lucide:eye"></iconify-icon>
+                </a>
+
+                <!-- Delete -->
                 <form
                   action="{{ route('ingredients.destroy', $ingredient) }}"
                   method="POST"
                   class="d-inline"
                   onsubmit="return confirm('Delete this ingredient?');"
                 >
-                  @csrf @method('DELETE')
+                  @csrf
+                  @method('DELETE')
                   <button
                     type="submit"
                     class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"

@@ -1,60 +1,76 @@
+{{-- resources/views/frontend/showcase/show.blade.php --}}
 @extends('frontend.layouts.app')
-@section('title', 'Showcase on '.$showcase->showcase_date)
+
+@section('title', $showcase->showcase_date)
+
 @section('content')
 <div class="container py-5">
-  <a href="{{ route('showcase.index') }}" class="btn btn-outline-secondary mb-3">
-    ← Back to all showcases
-  </a>
+  <div class="card border-primary shadow-lg rounded-3 overflow-hidden">
+    <!-- Header with icon and date -->
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <i class="bi bi-calendar-event fs-2 me-3"></i>
+      <h4 class="mb-0">Showcase: {{ $showcase->showcase_date }}</h4>
+    </div>
+    <div class="card-body">
+      <!-- Details grid -->
+      <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+        <div class="col">
+          <h6 class="text-uppercase text-muted small mb-1">Break-even (€)</h6>
+          <p class="fs-4 fw-bold mb-0">{{ number_format($showcase->break_even, 2) }}</p>
+        </div>
+        <div class="col">
+          <h6 class="text-uppercase text-muted small mb-1">Total Revenue (€)</h6>
+          <p class="fs-4 fw-bold mb-0">{{ number_format($showcase->total_revenue, 2) }}</p>
+        </div>
+        <div class="col">
+          <h6 class="text-uppercase text-muted small mb-1">Potential Avg (€)</h6>
+          <p class="fs-4 fw-bold mb-0">{{ number_format($showcase->potential_income_average, 2) }}</p>
+        </div>
+        <div class="col">
+          <h6 class="text-uppercase text-muted small mb-1">Plus (€)</h6>
+          <p class="fs-4 fw-bold mb-0">{{ number_format($showcase->plus, 2) }}</p>
+        </div>
+        <div class="col">
+          <h6 class="text-uppercase text-muted small mb-1">Real Margin (%)</h6>
+          <p class="fs-4 fw-bold mb-0">
+            @if($showcase->real_margin >= 0)
+              <span class="text-success">{{ $showcase->real_margin }}%</span>
+            @else
+              <span class="text-danger">{{ $showcase->real_margin }}%</span>
+            @endif
+          </p>
+        </div>
+        <div class="col">
+          <h6 class="text-uppercase text-muted small mb-1">Created At</h6>
+          <p class="fs-5 mb-0">{{ optional($showcase->created_at)->format('Y-m-d H:i') ?? '—' }}</p>
+        </div>
+        <div class="col">
+          <h6 class="text-uppercase text-muted small mb-1">Last Updated</h6>
+          <p class="fs-5 mb-0">{{ optional($showcase->updated_at)->format('Y-m-d H:i') ?? '—' }}</p>
+        </div>
+      </div>
 
-  <h3>Showcase for {{ $showcase->showcase_date }}</h3>
-  <div class="row mb-4 gx-3">
-    <div class="col-md-3"><strong>Break-even:</strong> €{{ number_format($showcase->break_even,2) }}</div>
-    <div class="col-md-3"><strong>Total Revenue:</strong> €{{ number_format($showcase->total_revenue,2) }}</div>
-    <div class="col-md-3"><strong>Potential Avg:</strong> €{{ number_format($showcase->potential_income_average,2) }}</div>
-    <div class="col-md-3"><strong>Real Margin:</strong> {{ $showcase->real_margin }}%</div>
-  </div>
+      <hr class="border-secondary">
 
-  <div class="table-responsive">
-    <table id="detailTable" class="table table-bordered table-hover mb-0">
-      <thead class="table-light">
-        <tr>
-          <th>Recipe</th>
-          <th>Department</th>
-          <th class="text-center">Qty</th>
-          <th class="text-center">Sold</th>
-          <th class="text-center">Reuse</th>
-          <th class="text-center">Waste</th>
-          <th class="text-end">Potential (€)</th>
-          <th class="text-end">Actual (€)</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($showcase->recipes as $sr)
-          <tr>
-            <td>{{ $sr->recipe->recipe_name }}</td>
-            <td>{{ $sr->recipe->department->name }}</td>
-            <td class="text-center">{{ $sr->quantity }}</td>
-            <td class="text-center">{{ $sr->sold }}</td>
-            <td class="text-center">{{ $sr->reuse }}</td>
-            <td class="text-center">{{ $sr->waste }}</td>
-            <td class="text-end">{{ number_format($sr->potential_income,2) }}</td>
-            <td class="text-end">{{ number_format($sr->actual_revenue,2) }}</td>
-          </tr>
-        @endforeach
-      </tbody>
-    </table>
+      <!-- Action Buttons -->
+      <div class="d-flex justify-content-end gap-2">
+        <a href="{{ route('showcase.edit', $showcase) }}" class="btn btn-outline-primary btn-lg">
+          <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a href="{{ route('showcase.index') }}" class="btn btn-outline-secondary btn-lg">
+          <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+        <form action="{{ route('showcase.destroy', $showcase) }}"
+              method="POST"
+              onsubmit="return confirm('Delete this showcase?');">
+          @csrf
+          @method('DELETE')
+          <button type="submit" class="btn btn-danger btn-lg">
+            <i class="bi bi-trash me-1"></i>Delete
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
-@endsection
-
-@section('scripts')
-<script>
-  $(function(){
-    $('#detailTable').DataTable({
-      pageLength: 25,
-      responsive: true,
-      ordering: true
-    });
-  });
-</script>
 @endsection

@@ -4,40 +4,53 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use App\Models\User;
 
 class CostCategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $now = Carbon::now();
 
+        // ✅ Ensure the user exists
+        $superadmin = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('password'), // use secure password in production
+            ]
+        );
+
         DB::table('cost_categories')->insert([
             [
-                'name' => 'Utilities',
+                'name'       => 'Utilities',
+                'user_id'    => $superadmin->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Rent',
+                'name'       => 'Rent',
+                'user_id'    => $superadmin->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Packaging',
+                'name'       => 'Packaging',
+                'user_id'    => $superadmin->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Raw Materials',
+                'name'       => 'Raw Materials',
+                'user_id'    => $superadmin->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Salaries',
+                'name'       => 'Salaries',
+                'user_id'    => $superadmin->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],

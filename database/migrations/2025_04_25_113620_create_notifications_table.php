@@ -14,6 +14,7 @@ public function up()
 {
     Schema::create('notifications', function (Blueprint $table) {
         $table->id();
+        $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
         $table->string('title');
         $table->text('message');
         $table->boolean('is_new')->default(true); 

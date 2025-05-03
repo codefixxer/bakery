@@ -11,6 +11,7 @@ class CreatePastryChefsTable extends Migration
     {
         Schema::create('pastry_chefs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();

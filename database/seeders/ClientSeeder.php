@@ -9,15 +9,14 @@ use Carbon\Carbon;
 
 class ClientSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $now = Carbon::now();
+        $userId = 1; // or dynamically fetch a superadmin if needed
 
         DB::table('clients')->insert([
             [
+                'user_id'    => $userId,
                 'name'       => 'Acme Corporation',
                 'location'   => 'New York, NY',
                 'phone'      => '212-555-1234',
@@ -27,6 +26,7 @@ class ClientSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
+                'user_id'    => $userId,
                 'name'       => 'Globex LLC',
                 'location'   => 'Los Angeles, CA',
                 'phone'      => '310-555-5678',
@@ -36,6 +36,7 @@ class ClientSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
+                'user_id'    => $userId,
                 'name'       => 'Initech',
                 'location'   => 'Dallas, TX',
                 'phone'      => '214-555-9012',
@@ -45,6 +46,7 @@ class ClientSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
+                'user_id'    => $userId,
                 'name'       => 'Umbrella Corp',
                 'location'   => 'Chicago, IL',
                 'phone'      => '312-555-3456',
@@ -54,6 +56,7 @@ class ClientSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
+                'user_id'    => $userId,
                 'name'       => 'Stark Industries',
                 'location'   => 'Miami, FL',
                 'phone'      => '305-555-7890',

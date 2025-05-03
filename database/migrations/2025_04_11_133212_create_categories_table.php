@@ -9,6 +9,7 @@ return new class extends Migration {
     {
         Schema::create('cost_categories', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->string('name'); // e.g. Utilities, Rent, Packaging
             $table->timestamps();
         });

@@ -32,6 +32,7 @@ class PermissionsTableSeeder extends Seeder
             'news',
             'production',
             'labor cost',
+            'can add admin',
         ];
 
         foreach ($permissions as $name) {

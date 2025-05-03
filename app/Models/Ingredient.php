@@ -4,19 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\RecipeIngredient;
+use App\Models\User;
 
 class Ingredient extends Model
 {
     use HasFactory;
 
-    // We’ll allow mass assignment on these fields
-    protected $fillable = ['ingredient_name', 'price_per_kg'];
+    protected $fillable = [
+        'ingredient_name',
+        'price_per_kg',
+        'user_id', // ✅ allow mass assignment of user_id
+    ];
 
     /**
-     * Get all of the IngredientRecipe records that reference this ingredient.
+     * Get all of the RecipeIngredient records that reference this ingredient.
      */
     public function ingredientRecipes()
     {
         return $this->hasMany(RecipeIngredient::class);
+    }
+
+    // ✅ Ingredient belongs to a user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

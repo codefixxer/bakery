@@ -5,31 +5,47 @@ namespace App\Http\Controllers;
 use App\Models\Showcase;
 use App\Models\ExternalSupply;
 use App\Models\Income;
+use App\Models\RecipeCategory;  // ← make sure to import
+use App\Models\Department;      // ← make sure to import
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RecordFilterController extends Controller
 {
     /**
-     * Show the filter form + records.
+     * Show the filter form + records that this user hasn’t yet added to their income,
+     * along with only this user’s categories & departments.
      */
     public function index(Request $request)
     {
-        $from = $request->query('from');
-        $to   = $request->query('to');
-    
-        // Get all dates already in the income table
-        $incomeDates = Income::pluck('date')->map(fn($d) => $d->format('Y-m-d'))->toArray();
-    
-        // 1) Filter Showcase records by date and exclude dates already in income
+        $userId = Auth::id();
+        $from   = $request->query('from');
+        $to     = $request->query('to');
+
+        // only this user’s categories & departments
+        $categories  = RecipeCategory::where('user_id', $userId)
+                                     ->orderBy('name')
+                                     ->get();
+        $departments = Department::where('user_id', $userId)
+                                 ->orderBy('name')
+                                 ->get();
+
+        // only this user’s already‑recorded income dates
+        $incomeDates = Income::where('user_id', $userId)
+            ->pluck('date')
+            ->map(fn($d) => $d->format('Y-m-d'))
+            ->toArray();
+
+        // un‑recorded showcases
         $showcaseRecords = Showcase::with('recipes.recipe')
             ->when($from, fn($q) => $q->whereDate('showcase_date', '>=', $from))
             ->when($to,   fn($q) => $q->whereDate('showcase_date', '<=', $to))
             ->whereNotIn(DB::raw('DATE(showcase_date)'), $incomeDates)
             ->orderBy('showcase_date')
             ->get();
-    
-        // 2) Filter ExternalSupply records by date and exclude income dates
+
+        // un‑recorded external supplies
         $externalRecords = ExternalSupply::with([
                 'client',
                 'recipes.recipe',
@@ -40,17 +56,20 @@ class RecordFilterController extends Controller
             ->whereNotIn(DB::raw('DATE(supply_date)'), $incomeDates)
             ->orderBy('supply_date')
             ->get();
-    
+
         return view('frontend.records.index', [
             'showcaseRecords' => $showcaseRecords,
             'externalRecords' => $externalRecords,
             'from'            => $from,
             'to'              => $to,
+            'categories'      => $categories,
+            'departments'     => $departments,
         ]);
     }
-    
 
-
+    /**
+     * Take the filtered rows and insert them into this user’s income.
+     */
     public function addFiltered(Request $request)
     {
         $data = $request->validate([
@@ -61,38 +80,37 @@ class RecordFilterController extends Controller
             'external.*.date'     => 'required_with:external|date',
             'external.*.amount'   => 'required_with:external|numeric',
         ]);
-    
-        // If both are missing or empty, reject
+
         if (
-            (!isset($data['showcase']) || count($data['showcase']) === 0) &&
-            (!isset($data['external']) || count($data['external']) === 0)
+            empty($data['showcase'] ?? []) &&
+            empty($data['external'] ?? [])
         ) {
-            return redirect()->back()->withErrors('At least one of Showcase or External records must be provided.');
+            return redirect()->back()
+                             ->withErrors('At least one record must be provided.');
         }
-    
+
         $toInsert = [];
-    
-        if (!empty($data['showcase'])) {
-            foreach ($data['showcase'] as $row) {
-                $toInsert[] = [
-                    'date'   => $row['date'],
-                    'amount' => $row['amount'],
-                ];
-            }
+        $userId   = Auth::id();
+
+        foreach ($data['showcase'] ?? [] as $row) {
+            $toInsert[] = [
+                'date'    => $row['date'],
+                'amount'  => $row['amount'],
+                'user_id' => $userId,
+            ];
         }
-    
-        if (!empty($data['external'])) {
-            foreach ($data['external'] as $row) {
-                $toInsert[] = [
-                    'date'   => $row['date'],
-                    'amount' => $row['amount'],
-                ];
-            }
+
+        foreach ($data['external'] ?? [] as $row) {
+            $toInsert[] = [
+                'date'    => $row['date'],
+                'amount'  => $row['amount'],
+                'user_id' => $userId,
+            ];
         }
-    
+
         Income::insert($toInsert);
-    
-        return redirect()->back()->with('success', 'Income records added.');
+
+        return redirect()->back()
+                         ->with('success', 'Income records added.');
     }
-    
 }

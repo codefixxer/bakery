@@ -3,60 +3,104 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\Equipment;
 
 class EquipmentController extends Controller
 {
-    // List all equipment
+    /**
+     * Display a listing of the logged‑in user’s equipment.
+     */
     public function index()
     {
-        // rename to $equipments
-        $equipments = Equipment::latest()->get();
+        $equipments = Equipment::where('user_id', Auth::id())
+                               ->latest()
+                               ->get();
+
         return view('frontend.equipment.index', compact('equipments'));
     }
 
-    // Show create form
+    /**
+     * Show the form for creating a new piece of equipment.
+     */
     public function create()
     {
-        return view('frontend.equipment.create'); // shared form
+        return view('frontend.equipment.create');
     }
 
-    // Store new equipment
+    /**
+     * Store a newly created piece of equipment for this user.
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'nullable|string|max:255',
         ]);
 
-        Equipment::create($request->only('name'));
+        $data['user_id'] = Auth::id();
 
-        return redirect()->route('equipment.index')->with('success', 'Equipment added successfully!');
+        Equipment::create($data);
+
+        return redirect()
+            ->route('equipment.index')
+            ->with('success', 'Equipment added successfully!');
     }
 
-    // Show edit form
+    /**
+     * Show the form for editing the specified equipment,
+     * only if it belongs to the logged‑in user.
+     */
     public function edit(Equipment $equipment)
     {
-        return view('frontend.equipment.create', compact('equipment')); // shared form
+        if ($equipment->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
+        return view('frontend.equipment.create', compact('equipment'));
     }
 
-    // Update existing equipment
+    /**
+     * Update the specified equipment in storage,
+     * only if it belongs to the logged‑in user.
+     */
     public function update(Request $request, Equipment $equipment)
     {
-        $request->validate([
+        if ($equipment->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'nullable|string|max:255',
         ]);
 
-        $equipment->update($request->only('name', 'type'));
+        $equipment->update($data);
 
-        return redirect()->route('equipment.index')->with('success', 'Equipment updated successfully!');
+        return redirect()
+            ->route('equipment.index')
+            ->with('success', 'Equipment updated successfully!');
+    }
+    public function show(Equipment $equipment)
+    {
+        return view('frontend.equipment.show', compact('equipment'));
     }
 
-    // Delete equipment
+    /**
+     * Remove the specified equipment from storage,
+     * only if it belongs to the logged‑in user.
+     */
     public function destroy(Equipment $equipment)
     {
+        if ($equipment->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
         $equipment->delete();
-        return redirect()->route('equipment.index')->with('success', 'Equipment deleted successfully!');
+
+        return redirect()
+            ->route('equipment.index')
+            ->with('success', 'Equipment deleted successfully!');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Client;
 use App\Models\Recipe;
 use App\Models\LaborCost;
@@ -11,19 +12,21 @@ use App\Models\ExternalSupply;
 
 class ExternalSuppliesController extends Controller
 {
-
-
-    
     /**
-     * Display a combined listing of supplies and returns, grouped by client and date.
+     * Display a combined listing of this user’s supplies and returns, grouped by client and date.
      */
     public function index()
     {
-        // 1) Load supplies & returns
-        $supplies = ExternalSupply::with('client', 'recipes.recipe')->get();
-        $returns  = ReturnedGood::with('client', 'recipes.recipe')->get();
+        $userId = Auth::id();
 
-        // 2) Build flat collection
+        $supplies = ExternalSupply::with('client', 'recipes.recipe')
+            ->where('user_id', $userId)
+            ->get();
+
+        $returns = ReturnedGood::with('client', 'recipes.recipe')
+            ->where('user_id', $userId)
+            ->get();
+
         $all = collect();
 
         foreach ($supplies as $supply) {
@@ -38,7 +41,6 @@ class ExternalSuppliesController extends Controller
         }
 
         foreach ($returns as $return) {
-            // normalize returned lines
             $returnedLines = $return->recipes->map(fn($r) => $r->supplyLine);
             $all->push([
                 'type'               => 'return',
@@ -50,36 +52,41 @@ class ExternalSuppliesController extends Controller
             ]);
         }
 
-        // 3) Sort desc by date, then group by client → date
         $grouped = $all
             ->sortByDesc('date')
             ->groupBy('client')
             ->map(fn($byClient) => $byClient->groupBy('date'));
 
-        // 4) Pass to view as $all
         return view('frontend.external-supplies.index', ['all' => $grouped]);
     }
+    public function show(ExternalSupply $externalSupply)
+    {
+        // Eager‐load client and line‐items (recipes)
+        $externalSupply->load('client', 'lines.recipe');
 
+        return view('frontend.external-supplies.show', compact('externalSupply'));
+    }
     /**
      * Show the form for creating a new external supply.
      */
-   // app/Http/Controllers/ExternalSuppliesController.php
+    public function create()
+    {
+        $userId    = Auth::id();
+        $laborCost = LaborCost::first();
 
-public function create()
-{
-    $laborCost = LaborCost::first();
-    $clients   = Client::all();
-    $recipes   = Recipe::where('labor_cost_mode', 'external')->get();
+        $clients   = Client::where('user_id', $userId)->get();
+        $recipes   = Recipe::where('labor_cost_mode', 'external')
+                            ->where('user_id', $userId)
+                            ->get();
 
-    // only supplies marked as templates
-    $templates = ExternalSupply::where('save_template', true)
-                               ->pluck('supply_name', 'id');
+        $templates = ExternalSupply::where('save_template', true)
+                                   ->where('user_id', $userId)
+                                   ->pluck('supply_name', 'id');
 
-    return view('frontend.external-supplies.create', compact(
-        'laborCost', 'clients', 'recipes', 'templates'
-    ));
-}
-
+        return view('frontend.external-supplies.create', compact(
+            'laborCost', 'clients', 'recipes', 'templates'
+        ));
+    }
 
     /**
      * Store a newly created external supply in storage.
@@ -107,6 +114,7 @@ public function create()
             'supply_date'   => $data['supply_date'],
             'total_amount'  => $totalAmount,
             'save_template' => $saveTemplate,
+            'user_id'       => Auth::id(),
         ]);
 
         foreach ($data['recipes'] as $row) {
@@ -116,6 +124,7 @@ public function create()
                 'price'        => $row['price'],
                 'qty'          => $row['qty'],
                 'total_amount' => $row['total_amount'],
+                'user_id'      => Auth::id(),
             ]);
         }
 
@@ -129,7 +138,11 @@ public function create()
      */
     public function getTemplate($id)
     {
-        $supply = ExternalSupply::with('recipes')->findOrFail($id);
+        $userId = Auth::id();
+
+        $supply = ExternalSupply::with('recipes')
+            ->where('user_id', $userId)
+            ->findOrFail($id);
 
         $rows = $supply->recipes->map(fn($r) => [
             'recipe_id'    => $r->recipe_id,
@@ -151,13 +164,21 @@ public function create()
      */
     public function edit(ExternalSupply $externalSupply)
     {
-        $externalSupply->load('recipes.recipe');
+        if ($externalSupply->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-        $laborCost = LaborCost::first();
-        $clients   = Client::all();
-        $recipes   = Recipe::where('labor_cost_mode', 'external')->get();
-        $templates = ExternalSupply::where('save_template', true)
-                                   ->pluck('supply_name', 'id');
+        $userId     = Auth::id();
+        $laborCost  = LaborCost::first();
+        $clients    = Client::where('user_id', $userId)->get();
+        $recipes    = Recipe::where('labor_cost_mode', 'external')
+                             ->where('user_id', $userId)
+                             ->get();
+        $templates  = ExternalSupply::where('save_template', true)
+                                    ->where('user_id', $userId)
+                                    ->pluck('supply_name', 'id');
+
+        $externalSupply->load('recipes.recipe');
 
         return view('frontend.external-supplies.create', compact(
             'externalSupply', 'laborCost', 'clients', 'recipes', 'templates'
@@ -169,6 +190,10 @@ public function create()
      */
     public function update(Request $request, ExternalSupply $externalSupply)
     {
+        if ($externalSupply->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'supply_name'            => 'required|string|max:255',
             'template_action'        => 'required|in:none,template,both',
@@ -213,6 +238,10 @@ public function create()
      */
     public function destroy(ExternalSupply $externalSupply)
     {
+        if ($externalSupply->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $externalSupply->recipes()->delete();
         $externalSupply->delete();
 

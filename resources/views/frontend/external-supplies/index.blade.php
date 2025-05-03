@@ -103,6 +103,12 @@
                            title="Return">
                           <i class="bi bi-arrow-counterclockwise"></i>
                         </a>
+                        {{-- View --}}
+                        <a href="{{ route('external-supplies.show', $entry['external_supply_id']) }}"
+                           class="btn btn-sm btn-outline-info me-1"
+                           title="View">
+                          <i class="bi bi-eye"></i>
+                        </a>
                         {{-- Edit --}}
                         <a href="{{ route('external-supplies.edit', $entry['external_supply_id']) }}"
                            class="btn btn-sm btn-outline-primary me-1"

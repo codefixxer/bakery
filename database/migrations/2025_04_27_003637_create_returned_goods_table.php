@@ -10,6 +10,7 @@ return new class extends Migration {
         // Modify the returned_goods table to add external_supply_id
         Schema::create('returned_goods', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->foreignId('external_supply_id') // Add external_supply_id here
                   ->constrained('external_supplies')  // References the external_supplies table

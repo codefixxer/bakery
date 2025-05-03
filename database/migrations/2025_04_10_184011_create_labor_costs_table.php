@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('labor_costs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
             $table->integer('num_chefs')->default(1);
             $table->integer('opening_days')->default(22);
             $table->integer('hours_per_day')->default(8);

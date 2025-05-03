@@ -14,39 +14,33 @@ class UserController extends Controller
 {
     public function index()
     {
-        // start with the base query
         $query = User::with('roles');
-    
-        // if the current user is _not_ a super‑admin, restrict to their own users
+
         if (! Auth::user()->hasRole('super')) {
             $query->where('created_by', Auth::id());
         }
-    
-        // paginate whatever the query returns
+
         $users = $query->paginate(10);
-    
+
         return view('frontend.user-management.users.index', compact('users'));
     }
-    
 
     public function create()
     {
-        // all other roles are always shown
-        $query = Role::whereNotIn('name', ['admin', 'super']);
-    
-        // if the logged‑in user *can* add admins, include those too
-        if (Auth::user()->can('can add admin')) {
-            // remove the restriction
+        $currentUser = Auth::user();
+
+        if ($currentUser->hasRole('super')) {
             $roles = Role::all();
         } else {
-            $roles = $query->get();
+            $roles = Role::whereNotIn('name', ['super', 'admin'])->get();
         }
-    
-        $user   = new User();
+
+        $user = new User();
         $isEdit = false;
-    
+
         return view('frontend.user-management.users.create', compact('roles', 'user', 'isEdit'));
     }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -73,14 +67,12 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        if (Auth::user()->hasRole('superadmin')) {
-            $roles = Role::all(); // Superadmin can edit any role
+        $currentUser = Auth::user();
+
+        if ($currentUser->hasRole('super')) {
+            $roles = Role::all();
         } else {
-            // Regular admins can't assign/edit to roles with admin/super in the name
-            $roles = Role::where(function ($query) {
-                $query->whereRaw("LOWER(name) NOT LIKE ?", ['%admin%'])
-                      ->whereRaw("LOWER(name) NOT LIKE ?", ['%super%']);
-            })->get();
+            $roles = Role::whereNotIn('name', ['super', 'admin'])->get();
         }
 
         $isEdit = true;

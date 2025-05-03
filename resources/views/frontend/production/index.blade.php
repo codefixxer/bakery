@@ -30,17 +30,17 @@
     background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
   }
   /* Table styling */
-  #productionTable {
+  .production-table {
     border-radius: .5rem;
     overflow: hidden;
   }
-  #productionTable thead {
+  .production-table thead {
     background: #f8f9fa;
   }
-  #productionTable tbody tr:hover {
+  .production-table tbody tr:hover {
     background: rgba(13,110,253,.05);
   }
-  #productionTable tbody tr.detail-row td {
+  .production-table tbody tr.detail-row td {
     background: #fafafa;
   }
   .toggle-btn i {
@@ -54,6 +54,7 @@
 
 @section('content')
 @php
+  use Illuminate\Support\Str;
   $allRecipes = $productions
     ->flatMap(fn($p) => $p->details->pluck('recipe.recipe_name'))
     ->unique()->sort();
@@ -64,15 +65,21 @@
 
 <div class="container py-5">
 
-  {{-- 1) Filters + Total --}}
+  <!-- Header with New Production button -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Production Records</h3>
+    <a href="{{ route('production.create') }}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i>New Production
+    </a>
+  </div>
+
+  <!-- Filters + Total -->
   <div class="card mb-4 shadow-sm filter-card p-3">
     <div class="row g-3 align-items-end">
-      {{-- Recipe --}}
-      <div class="col-6 col-md-3">
+      <div class="col-md-3">
         <label class="form-label small">Recipe</label>
         <div class="dropdown">
-          <button class="btn btn-outline-primary w-100 text-start dropdown-toggle"
-                  data-bs-toggle="dropdown">
+          <button class="btn btn-outline-primary w-100 text-start dropdown-toggle" data-bs-toggle="dropdown">
             <i class="bi bi-journal-bookmark me-1"></i> Recipes
           </button>
           <div class="dropdown-menu p-3">
@@ -87,12 +94,10 @@
           </div>
         </div>
       </div>
-      {{-- Chef --}}
-      <div class="col-6 col-md-3">
+      <div class="col-md-3">
         <label class="form-label small">Chef</label>
         <div class="dropdown">
-          <button class="btn btn-outline-success w-100 text-start dropdown-toggle"
-                  data-bs-toggle="dropdown">
+          <button class="btn btn-outline-success w-100 text-start dropdown-toggle" data-bs-toggle="dropdown">
             <i class="bi bi-person-lines-fill me-1"></i> Chefs
           </button>
           <div class="dropdown-menu p-3">
@@ -107,31 +112,27 @@
           </div>
         </div>
       </div>
-      {{-- Equipment --}}
-      <div class="col-6 col-md-3">
+      <div class="col-md-3">
         <label class="form-label small">Equipment</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-tools"></i></span>
-          <input type="text" id="filterEquipment" class="form-control"
-                 placeholder="Type to filter…">
+          <input type="text" id="filterEquipment" class="form-control" placeholder="Type to filter…">
         </div>
       </div>
-      {{-- From Date --}}
-      <div class="col-6 col-md-3">
+      <div class="col-md-3">
         <label class="form-label small">From</label>
         <input type="date" id="filterStartDate" class="form-control">
       </div>
-      {{-- To Date --}}
-      <div class="col-6 col-md-3">
+      <div class="col-md-3">
         <label class="form-label small">To</label>
         <input type="date" id="filterEndDate" class="form-control">
       </div>
     </div>
 
-    {{-- Active filter chips --}}
+    <!-- Active filter chips -->
     <div id="activeFilters" class="mt-3"></div>
 
-    {{-- Total card --}}
+    <!-- Total card -->
     <div class="row mt-4">
       <div class="col-12">
         <div class="card revenue-card shadow-sm">
@@ -150,103 +151,96 @@
     </div>
   </div>
 
-  {{-- 2) Table --}}
-  <div class="table-responsive">
-    <table class="table table-striped" id="productionTable">
-      <thead class="table-light">
-        <tr>
-          <th style="width:48px"></th>
-          <th>Date</th>
-          <th>Items</th>
-          <th>Potential</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($productions as $i => $p)
-          @php
-            $equipmentList = $p->details
-              ->flatMap(fn($d) => (array)$d->equipment_ids)
-              ->unique()
-              ->map(fn($id) => $equipmentMap[$id] ?? '')
-              ->filter()
-              ->implode(' ');
-          @endphp
-       <tr class="prod-row"
-       data-recipes  ="{{ strtolower($p->details->pluck('recipe.recipe_name')->implode(' ')) }}"
-       data-chefs    ="{{ strtolower($p->details->pluck('chef.name')->implode(' ')) }}"
-       data-equipment="{{ strtolower($equipmentList) }}"
-       data-date     ="{{ $p->production_date }}"
-       data-potential="{{ $p->total_potential_revenue }}">
-     <!-- toggle detail -->
-     <td>
-       <button class="btn btn-sm btn-outline-secondary toggle-btn">
-         <i class="bi bi-caret-right-fill"></i>
-       </button>
-     </td>
-   
-     <!-- date -->
-     <td>{{ $p->production_date }}</td>
-   
-     <!-- item count -->
-     <td>{{ $p->details->count() }}</td>
-   
-     <!-- total potential -->
-     <td>${{ number_format($p->total_potential_revenue, 2) }}</td>
-   
-     <!-- actions: edit & delete -->
-     <td class="text-center">
-       <!-- Edit button -->
-       <a href="{{ route('production.edit', $p->id) }}"
-          class="btn btn-sm btn-outline-primary"
-          title="Edit">
-         <i class="bi bi-pencil"></i>
-       </a>
-   
-       <!-- Delete form -->
-       <form action="{{ route('production.destroy', $p->id) }}"
-             method="POST"
-             class="d-inline"
-             onsubmit="return confirm('Are you sure you want to delete this record?');">
-         @csrf
-         @method('DELETE')
-         <button class="btn btn-sm btn-outline-danger" title="Delete">
-           <i class="bi bi-trash"></i>
-         </button>
-       </form>
-     </td>
-   </tr>
-   
-          <tr class="detail-row" style="display:none">
-            <td colspan="4" class="p-3">
-              <ul class="mb-0">
-                @foreach($p->details as $d)
-                  @php
-                    $ids       = is_array($d->equipment_ids)
+  <!-- Production Records Table -->
+  <div class="card shadow-sm production-table">
+    <div class="card-body table-responsive p-0">
+      <table class="table mb-0" id="productionTable">
+        <thead>
+          <tr>
+            <th style="width:48px"></th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Potential</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($productions as $i => $p)
+            @php
+              $equipmentList = collect($p->details)
+                ->flatMap(fn($d) => (array)$d->equipment_ids)
+                ->unique()
+                ->map(fn($id) => $equipmentMap[$id] ?? '')
+                ->filter()
+                ->implode(', ');
+            @endphp
+            <tr class="prod-row"
+                data-recipes="{{ strtolower($p->details->pluck('recipe.recipe_name')->implode(' ')) }}"
+                data-chefs="{{ strtolower($p->details->pluck('chef.name')->implode(' ')) }}"
+                data-equipment="{{ strtolower($equipmentList) }}"
+                data-date="{{ $p->production_date }}"
+                data-potential="{{ $p->total_potential_revenue }}">
+              <td>
+                <button class="btn btn-sm btn-outline-secondary toggle-btn">
+                  <i class="bi bi-caret-right-fill"></i>
+                </button>
+              </td>
+              <td>{{ $p->production_date }}</td>
+              <td>{{ $p->details->count() }}</td>
+              <td>${{ number_format($p->total_potential_revenue, 2) }}</td>
+              <td class="text-center">
+                <a href="{{ route('production.show', $p) }}"
+                   class="btn btn-sm btn-outline-info me-1" title="View">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{{ route('production.edit', $p) }}"
+                   class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form action="{{ route('production.destroy', $p) }}"
+                      method="POST"
+                      class="d-inline"
+                      onsubmit="return confirm('Delete this record?');">
+                  @csrf @method('DELETE')
+                  <button class="btn btn-sm btn-outline-danger" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <tr class="detail-row" style="display:none">
+              <td colspan="5" class="p-3">
+                <ul class="mb-0">
+                  @foreach($p->details as $d)
+                    @php
+                      $ids   = is_array($d->equipment_ids)
                                 ? $d->equipment_ids
                                 : (strlen($d->equipment_ids)
                                    ? explode(',',$d->equipment_ids)
                                    : []);
-                    $names     = array_map(fn($id) => $equipmentMap[$id] ?? $id, $ids);
-                    $equipDisp = $names ? implode(', ',$names) : '—';
-                  @endphp
-                  <li class="mb-1"
-                      data-recipe    ="{{ strtolower($d->recipe->recipe_name) }}"
-                      data-chef      ="{{ strtolower($d->chef->name) }}"
-                      data-potential ="{{ $d->potential_revenue }}">
-                    <strong>{{ $d->recipe->recipe_name }}</strong> &times; {{ $d->quantity }}
-                    — Chef: {{ $d->chef->name }}, {{ $d->execution_time }}m,
-                    <span class="text-primary"><i class="bi bi-tools"></i> {{ $equipDisp }}</span>
-                  </li>
-                @endforeach
-              </ul>
-            </td>
-          </tr>
-        @endforeach
-      </tbody>
-    </table>
+                      $names = array_map(fn($id) => $equipmentMap[$id] ?? $id, $ids);
+                      $equip = $names ? implode(', ',$names) : '—';
+                    @endphp
+                    <li class="mb-1">
+                      <strong>{{ $d->recipe->recipe_name }}</strong> × {{ $d->quantity }}
+                      — Chef: {{ $d->chef->name }}, {{ $d->execution_time }}m,
+                      <span class="text-primary"><i class="bi bi-tools"></i> {{ $equip }}</span>
+                    </li>
+                  @endforeach
+                </ul>
+              </td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
   </div>
+
 </div>
 @endsection
+
+
+
 
 @section('scripts')
 <script>
