@@ -2,33 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\Client;
 use App\Models\Recipe;
 use App\Models\LaborCost;
 use App\Models\ReturnedGood;
+use Illuminate\Http\Request;
 use App\Models\ExternalSupply;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ExternalSuppliesController extends Controller
 {
-    /**
-     * Display a combined listing of this user’s supplies and returns, grouped by client and date.
-     */
+
     public function index()
     {
-        $userId = Auth::id();
-
-        $supplies = ExternalSupply::with('client', 'recipes.recipe')
-            ->where('user_id', $userId)
+        $user = Auth::user();
+        $groupRootId = $user->created_by ?? $user->id;
+    
+        $groupUserIds = User::where('created_by', $groupRootId)
+                            ->pluck('id')
+                            ->push($groupRootId);
+    
+        $supplies = ExternalSupply::with('client', 'recipes.recipe', 'user')
+            ->whereIn('user_id', $groupUserIds)
             ->get();
-
-        $returns = ReturnedGood::with('client', 'recipes.recipe')
-            ->where('user_id', $userId)
+    
+        $returns = ReturnedGood::with('client', 'recipes.supplyLine.recipe', 'user')
+            ->whereIn('user_id', $groupUserIds)
             ->get();
-
+    
         $all = collect();
-
+    
         foreach ($supplies as $supply) {
             $all->push([
                 'type'               => 'supply',
@@ -37,11 +42,21 @@ class ExternalSuppliesController extends Controller
                 'external_supply_id' => $supply->id,
                 'lines'              => $supply->recipes,
                 'revenue'            => $supply->total_amount,
+                'created_by'         => $supply->user->name ?? '—',
             ]);
         }
-
+    
         foreach ($returns as $return) {
-            $returnedLines = $return->recipes->map(fn($r) => $r->supplyLine);
+            $returnedLines = $return->recipes->map(function ($r) {
+                $recipe = $r->supplyLine->recipe ?? null;
+    
+                return (object)[
+                    'recipe'       => $recipe,
+                    'qty'          => $r->qty,
+                    'total_amount' => $r->total_amount,
+                ];
+            });
+    
             $all->push([
                 'type'               => 'return',
                 'client'             => $return->client->name,
@@ -49,38 +64,27 @@ class ExternalSuppliesController extends Controller
                 'external_supply_id' => $return->external_supply_id,
                 'lines'              => $returnedLines,
                 'revenue'            => -1 * $return->total_amount,
+                'created_by'         => $return->user->name ?? '—',
             ]);
         }
-
+    
         $grouped = $all
             ->sortByDesc('date')
             ->groupBy('client')
             ->map(fn($byClient) => $byClient->groupBy('date'));
-
+    
         return view('frontend.external-supplies.index', ['all' => $grouped]);
     }
-    public function show(ExternalSupply $externalSupply)
-    {
-        // Eager‐load client and line‐items (recipes)
-        $externalSupply->load('client', 'lines.recipe');
+    
+    
+    
 
-        return view('frontend.external-supplies.show', compact('externalSupply'));
-    }
-    /**
-     * Show the form for creating a new external supply.
-     */
     public function create()
     {
-        $userId    = Auth::id();
         $laborCost = LaborCost::first();
-
-        $clients   = Client::where('user_id', $userId)->get();
-        $recipes   = Recipe::where('labor_cost_mode', 'external')
-                            ->where('user_id', $userId)
-                            ->get();
-
+        $clients   = Client::all();
+        $recipes   = Recipe::where('labor_cost_mode', 'external')->get();
         $templates = ExternalSupply::where('save_template', true)
-                                   ->where('user_id', $userId)
                                    ->pluck('supply_name', 'id');
 
         return view('frontend.external-supplies.create', compact(
@@ -88,13 +92,10 @@ class ExternalSuppliesController extends Controller
         ));
     }
 
-    /**
-     * Store a newly created external supply in storage.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'supply_name'            => 'nullable|string|max:255',
+            'supply_name'            => 'required_if:template_action,template,both|max:255',
             'template_action'        => 'nullable|in:none,template,both',
             'client_id'              => 'required|exists:clients,id',
             'supply_date'            => 'required|date',
@@ -114,9 +115,8 @@ class ExternalSuppliesController extends Controller
             'supply_date'   => $data['supply_date'],
             'total_amount'  => $totalAmount,
             'save_template' => $saveTemplate,
-            'user_id'       => Auth::id(),
+            'user_id'       => auth()->id(),
         ]);
-
         foreach ($data['recipes'] as $row) {
             $supply->recipes()->create([
                 'recipe_id'    => $row['id'],
@@ -124,25 +124,19 @@ class ExternalSuppliesController extends Controller
                 'price'        => $row['price'],
                 'qty'          => $row['qty'],
                 'total_amount' => $row['total_amount'],
-                'user_id'      => Auth::id(),
+                'user_id'      => auth()->id(), // ← THIS LINE IS MISSING
             ]);
         }
+        
 
         return redirect()
             ->route('external-supplies.index')
             ->with('success', 'External supply saved successfully!');
     }
 
-    /**
-     * Return one template’s data as JSON (for AJAX).
-     */
     public function getTemplate($id)
     {
-        $userId = Auth::id();
-
-        $supply = ExternalSupply::with('recipes')
-            ->where('user_id', $userId)
-            ->findOrFail($id);
+        $supply = ExternalSupply::with('recipes')->findOrFail($id);
 
         $rows = $supply->recipes->map(fn($r) => [
             'recipe_id'    => $r->recipe_id,
@@ -159,44 +153,26 @@ class ExternalSuppliesController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified external supply.
-     */
     public function edit(ExternalSupply $externalSupply)
     {
-        if ($externalSupply->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $userId     = Auth::id();
-        $laborCost  = LaborCost::first();
-        $clients    = Client::where('user_id', $userId)->get();
-        $recipes    = Recipe::where('labor_cost_mode', 'external')
-                             ->where('user_id', $userId)
-                             ->get();
-        $templates  = ExternalSupply::where('save_template', true)
-                                    ->where('user_id', $userId)
-                                    ->pluck('supply_name', 'id');
-
         $externalSupply->load('recipes.recipe');
+
+        $laborCost = LaborCost::first();
+        $clients   = Client::all();
+        $recipes   = Recipe::where('labor_cost_mode', 'external')->get();
+        $templates = ExternalSupply::where('save_template', true)
+                                   ->pluck('supply_name', 'id');
 
         return view('frontend.external-supplies.create', compact(
             'externalSupply', 'laborCost', 'clients', 'recipes', 'templates'
         ));
     }
 
-    /**
-     * Update the specified external supply in storage.
-     */
     public function update(Request $request, ExternalSupply $externalSupply)
     {
-        if ($externalSupply->user_id !== Auth::id()) {
-            abort(403);
-        }
-
         $data = $request->validate([
-            'supply_name'            => 'required|string|max:255',
-            'template_action'        => 'required|in:none,template,both',
+            'supply_name'            => 'required_if:template_action,template,both|max:255',
+            'template_action'        => 'nullable|in:none,template,both',
             'client_id'              => 'required|exists:clients,id',
             'supply_date'            => 'required|date',
             'recipes'                => 'required|array|min:1',
@@ -225,6 +201,7 @@ class ExternalSuppliesController extends Controller
                 'price'        => $row['price'],
                 'qty'          => $row['qty'],
                 'total_amount' => $row['total_amount'],
+                'user_id'      => auth()->id(),
             ]);
         }
 
@@ -233,15 +210,8 @@ class ExternalSuppliesController extends Controller
             ->with('success', 'External supply updated successfully!');
     }
 
-    /**
-     * Remove the specified external supply from storage.
-     */
     public function destroy(ExternalSupply $externalSupply)
     {
-        if ($externalSupply->user_id !== Auth::id()) {
-            abort(403);
-        }
-
         $externalSupply->recipes()->delete();
         $externalSupply->delete();
 

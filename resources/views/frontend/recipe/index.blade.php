@@ -25,6 +25,8 @@
           <thead class="table-primary">
             <tr>
               <th style="width:1%"></th>
+              <th>Created By</th>
+
               <th>Name</th>
               <th>Category</th>
               <th>Department</th>
@@ -54,14 +56,18 @@
                 $marPct   = $sell > 0 ? round($marVal * 100 / $sell, 2) : 0;
               @endphp
 
-              <tr class="dt-control" data-ingredients='@json(
-                $r->ingredients->map(fn($ing) => [
-                  'name'   => $ing->ingredient->ingredient_name,
-                  'qty_g'  => $ing->quantity_g,
-                  'cost'   => $ing->cost
-                ])
-              )'>
-                <td></td>
+<tr class="dt-control" data-ingredients='@json(
+  $r->ingredients->map(fn($ing) => [
+    'name'   => $ing->ingredient?->ingredient_name ?? 'Unknown',
+    'qty_g'  => $ing->quantity_g,
+    'cost'   => $ing->cost
+  ])
+)'>
+
+<td></td>
+<td>
+  <span class="badge bg-light text-dark">{{ $r->user->name ?? '—' }}</span>
+</td>
                 <td>{{ $r->recipe_name }}</td>
                 <td>{{ $r->category->name ?? '—' }}</td>
                 <td>{{ $r->department->name ?? '—' }}</td>

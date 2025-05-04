@@ -9,9 +9,12 @@
   <form method="POST"
         action="{{ isset($externalSupply)
                    ? route('external-supplies.update', $externalSupply->id)
-                   : route('external-supplies.store') }}">
+                   : route('external-supplies.store') }}"
+        novalidate>
     @csrf
-    @if(isset($externalSupply)) @method('PUT') @endif
+    @if(isset($externalSupply))
+      @method('PUT')
+    @endif
 
     {{-- Supply Name --}}
     <div class="mb-4">
@@ -24,28 +27,24 @@
         name="supply_name"
         class="form-control"
         value="{{ old('supply_name', $externalSupply->supply_name ?? '') }}"
-        required
       >
+      <div class="invalid-feedback">
+        Please enter a template name when saving as template.
+      </div>
     </div>
 
-    {{-- resources/views/frontend/external-supplies/create.blade.php --}}
-
-@if(!isset($externalSupply))
-<div class="mb-4">
-  <label for="template_select" class="form-label fw-semibold">Choose Template</label>
-  <select id="template_select"
-          name="template_id"
-          class="form-select">
-    <option value="">-- Select Template --</option>
-    @foreach($templates as $id => $name)
-      <option value="{{ $id }}">{{ $name }}</option>
-    @endforeach
-  </select>
-</div>
-@endif
-
-
-   
+    {{-- Choose Template --}}
+    @if(!isset($externalSupply))
+      <div class="mb-4">
+        <label for="template_select" class="form-label fw-semibold">Choose Template</label>
+        <select id="template_select" name="template_id" class="form-select">
+          <option value="">-- Select Template --</option>
+          @foreach($templates as $id => $name)
+            <option value="{{ $id }}">{{ $name }}</option>
+          @endforeach
+        </select>
+      </div>
+    @endif
 
     {{-- Supplier & Date --}}
     <div class="row mb-4 g-3 align-items-end">
@@ -54,8 +53,10 @@
         <select id="client_id" name="client_id" class="form-select" required>
           <option value="">Select Client</option>
           @foreach($clients as $client)
-            <option value="{{ $client->id }}"
-              {{ old('client_id', $externalSupply->client_id ?? '') == $client->id ? 'selected' : '' }}>
+            <option
+              value="{{ $client->id }}"
+              {{ old('client_id', $externalSupply->client_id ?? '') == $client->id ? 'selected' : '' }}
+            >
               {{ $client->name }}
             </option>
           @endforeach
@@ -77,7 +78,6 @@
           required
         >
       </div>
-      
     </div>
 
     {{-- Save As --}}
@@ -125,7 +125,6 @@
               </tr>
             </thead>
             <tbody id="supplyTableBody">
-              @php $index = 0; @endphp
               @foreach(old('recipes', $externalSupply->recipes ?? [null]) as $index => $item)
                 <tr class="supply-row">
                   <td>
@@ -212,30 +211,27 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Elements
-  const actionSelect   = document.getElementById('template_action');
-  const nameLabel      = document.getElementById('supplyNameLabel');
-  const nameInput      = document.getElementById('supply_name');
+  // Ensure Supply Name is required when saving as template
+  const actionSelect = document.getElementById('template_action');
+  const nameInput    = document.getElementById('supply_name');
+  const nameLabel    = document.getElementById('supplyNameLabel');
+
+  function toggleNameRequirement() {
+    const v = actionSelect.value;
+    const isTemplate = v === 'template' || v === 'both';
+    nameInput.required = isTemplate;
+    nameLabel.textContent = isTemplate ? 'Template Name *' : 'Supply Name';
+  }
+
+  toggleNameRequirement();
+  actionSelect.addEventListener('change', toggleNameRequirement);
+
+  // Elements for product rows
+  const nameLabelOld   = nameLabel; // placeholder to avoid collision
   const dateInput      = document.getElementById('supply_date');
   const templateSelect = document.getElementById('template_select');
   const supplyBody     = document.getElementById('supplyTableBody');
   const addBtn         = document.getElementById('addRowBtn');
-
-  // 1) Toggle “Supply Name” ↔ “Template Name”
-  (function initLabel() {
-    const v = actionSelect.value;
-    nameLabel.textContent =
-      (v === 'template' || v === 'both')
-        ? 'Template Name'
-        : 'Supply Name';
-  })();
-  actionSelect.addEventListener('change', () => {
-    const v = actionSelect.value;
-    nameLabel.textContent =
-      (v === 'template' || v === 'both')
-        ? 'Template Name'
-        : 'Supply Name';
-  });
 
   // 2) Grab a blank row for cloning
   let rowIndex = supplyBody.querySelectorAll('.supply-row').length;
@@ -313,10 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => res.json())
       .then(data => {
         // header fields
-        nameInput.value      = data.supply_name;
+        document.getElementById('supply_name').value = data.supply_name;
         dateInput.value      = data.supply_date;
         actionSelect.value   = data.template_action;
-        actionSelect.dispatchEvent(new Event('change'));
+        toggleNameRequirement();
 
         // rebuild table rows
         supplyBody.innerHTML = '';
@@ -324,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.rows.forEach(rowData => {
           const r = blankRow.cloneNode(true);
-          // update names & values
           r.querySelectorAll('input, select').forEach(el => {
             el.name = el.name.replace(/\[\d+\]/, `[${rowIndex}]`);
           });
@@ -342,4 +337,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endsection
-

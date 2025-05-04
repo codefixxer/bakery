@@ -4,191 +4,234 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Recipe;
-use App\Models\ReturnedGood;
 use App\Models\ExternalSupply;
+use App\Models\ExternalSupplyRecipe;
+use App\Models\ReturnedGood;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class ReturnedGoodController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = Auth::id();
-
-        // only this user’s clients for the filter dropdown
-        $clients = Client::where('user_id', $userId)
-                         ->orderBy('name')
-                         ->get();
-
-        // base query for this user’s returned goods
-        $rgQuery = ReturnedGood::with('client', 'externalSupply')
-                               ->where('user_id', $userId);
-
+        $user = Auth::user();
+        $groupRootId = $user->created_by ?? $user->id;
+    
+        // Get all related users (self + created users)
+        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
+            ->pluck('id')
+            ->push($groupRootId);
+    
+        // Get clients for filtering
+        $clients = Client::whereIn('user_id', $groupUserIds)
+                        ->orderBy('name')
+                        ->get();
+    
+        $rgQuery = ReturnedGood::with(['client', 'externalSupply', 'recipes'])
+            ->whereIn('user_id', $groupUserIds);
+    
         if ($request->filled('client_id')) {
             $rgQuery->where('client_id', $request->client_id);
         }
+    
         if ($request->filled('start_date')) {
             $rgQuery->where('return_date', '>=', $request->start_date);
         }
+    
         if ($request->filled('end_date')) {
             $rgQuery->where('return_date', '<=', $request->end_date);
         }
-
-        $returnedGoods = $rgQuery->orderBy('return_date', 'desc')
-                                 ->paginate(15);
-
-        // only this user’s supplies for comparison
-        $sups = ExternalSupply::where('user_id', $userId)
+    
+        $returnedGoods = $rgQuery->orderBy('return_date', 'desc')->paginate(15);
+    
+        // Supplies for the group
+        $sups = ExternalSupply::whereIn('user_id', $groupUserIds)
             ->selectRaw('supply_date as date, SUM(total_amount) as total_supply')
             ->groupBy('supply_date')
             ->get();
-
-        $report = $sups->map(fn($supply) => (object)[
-            'date'         => $supply->date,
-            'total_supply' => $supply->total_supply,
-            'total_return' => $returnedGoods->where('return_date', $supply->date)->sum('total_amount'),
-            'net'          => $supply->total_supply - $returnedGoods->where('return_date', $supply->date)->sum('total_amount'),
-        ]);
-
+    
+        // Group returns by return date
+        $returnsByDate = $returnedGoods->groupBy(fn($rg) => $rg->return_date->format('Y-m-d'));
+    
+        $report = $sups->map(function($s) use ($returnsByDate) {
+            $dateKey = $s->date->format('Y-m-d');
+            $totalReturn = optional($returnsByDate->get($dateKey))
+                ?->flatMap->recipes
+                ->sum('total_amount') ?? 0;
+    
+            return (object) [
+                'date'         => $s->date,
+                'total_supply' => $s->total_supply,
+                'total_return' => $totalReturn,
+                'net'          => $s->total_supply - $totalReturn,
+            ];
+        });
+    
         $grandSupply = $sups->sum('total_supply');
-        $grandReturn = $returnedGoods->sum('total_amount');
-        $grandNet    = $grandSupply - $grandReturn;
-
+        $grandReturn = collect($returnedGoods->items())
+            ->flatMap->recipes
+            ->sum('total_amount');
+        $grandNet = $grandSupply - $grandReturn;
+    
         return view('frontend.returned-goods.index', compact(
             'clients', 'returnedGoods', 'report', 'grandSupply', 'grandReturn', 'grandNet'
         ));
     }
+    
+
 
     public function create(Request $request)
-    {
-        $userId = Auth::id();
+{
+    $user = Auth::user();
+    $groupRootId = $user->created_by ?? $user->id;
 
-        $externalSupplyId = $request->query('external_supply_id');
-        $externalSupply   = ExternalSupply::with('recipes.recipe')
-            ->where('user_id', $userId)
-            ->findOrFail($externalSupplyId);
+    // Get all users in the group: current + created users
+    $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
+        ->pluck('id')
+        ->push($groupRootId);
 
-        return view('frontend.returned-goods.form', [
-            'client'             => $externalSupply->client,
-            'recipes'            => $externalSupply->recipes,
-            'external_supply_id' => $externalSupplyId,
-            'externalSupply'     => $externalSupply,
-        ]);
+    $externalSupplyId = $request->query('external_supply_id');
+
+    if (! $externalSupplyId) {
+        abort(Response::HTTP_BAD_REQUEST, 'Missing external_supply_id');
     }
+
+    $externalSupply = ExternalSupply::with(['client','recipes.recipe','recipes.returns'])
+        ->whereIn('user_id', $groupUserIds)
+        ->findOrFail($externalSupplyId);
+
+    return view('frontend.returned-goods.form', compact('externalSupply'));
+}
+
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'client_id'             => 'required|exists:clients,id',
-            'external_supply_id'    => 'required|exists:external_supplies,id',
-            'return_date'           => 'required|date',
-            'recipes'               => 'required|array|min:1',
-            'recipes.*.price'       => 'required|numeric|min:0',
-            'recipes.*.qty'         => 'required|integer|min:1',
+            'client_id'           => 'required|exists:clients,id',
+            'external_supply_id'  => 'required|exists:external_supplies,id',
+            'return_date'         => 'required|date',
+            'recipes'             => 'required|array|min:1',
+            'recipes.*.qty'       => 'required|integer|min:0',
         ]);
 
         $userId = Auth::id();
 
-        // 1) Create the master return record
-        $return = ReturnedGood::create([
-            'client_id'           => $data['client_id'],
-            'external_supply_id'  => $data['external_supply_id'],
-            'return_date'         => $data['return_date'],
-            'total_amount'        => 0,
-            'user_id'             => $userId,
-        ]);
-
-        // 2) Loop each supply‐line returned
-        $grandTotal = 0;
-        foreach ($request->recipes as $supplyLineId => $row) {
-            $qty       = (int) $row['qty'];
-            $price     = (float) $row['price'];
-            $lineTotal = round($qty * $price, 2);
-
-            $return->lines()->create([
-                'external_supply_recipe_id' => $supplyLineId,
-                'price'                     => $price,
-                'qty'                       => $qty,
-                'total_amount'              => $lineTotal,
+        DB::transaction(function() use ($data, $userId) {
+            $rg = ReturnedGood::create([
+                'client_id'           => $data['client_id'],
+                'external_supply_id'  => $data['external_supply_id'],
+                'return_date'         => $data['return_date'],
+                'total_amount'        => 0,
+                'user_id'             => $userId,
             ]);
 
-            $grandTotal += $lineTotal;
-        }
+            $grandTotal = 0;
+            foreach ($data['recipes'] as $lineId => $row) {
+                $line     = ExternalSupplyRecipe::findOrFail($lineId);
+                $toReturn = (int) $row['qty'];
+                $remaining = $line->remaining_qty;
 
-        // 3) Update the overall total
-        $return->update(['total_amount' => $grandTotal]);
+                if ($toReturn > $remaining) {
+                    $recipeName = optional($line->recipe)->recipe_name ?? "Unknown Recipe";
+                    abort(Response::HTTP_UNPROCESSABLE_ENTITY,
+                          "Cannot return more than {$remaining} for {$recipeName}");
+                }
 
-        return redirect()->route('external-supplies.index');
+                if ($toReturn <= 0) {
+                    continue;
+                }
+
+                $lineTotal = round($line->price * $toReturn, 2);
+
+                $rg->recipes()->create([
+                    'external_supply_recipe_id' => $line->id,
+                    'price'                     => $line->price,
+                    'qty'                       => $toReturn,
+                    'total_amount'              => $lineTotal,
+                ]);
+
+                $grandTotal += $lineTotal;
+            }
+
+            $rg->update(['total_amount' => $grandTotal]);
+        });
+
+        return redirect()
+            ->route('returned-goods.index')
+            ->with('success', 'Return recorded!');
     }
 
     public function edit(ReturnedGood $returnedGood)
     {
-        $userId = Auth::id();
-        if ($returnedGood->user_id !== $userId) {
-            abort(403);
+        if ($returnedGood->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
         }
 
-        // only this user’s clients & recipes
-        $clients = Client::where('user_id', $userId)
-                         ->orderBy('name')
-                         ->get();
+        $userId = Auth::id();
 
-        $recipes = Recipe::where('user_id', $userId)
-                         ->orderBy('recipe_name')
-                         ->get();
+        $clients = Client::where('user_id', $userId)->orderBy('name')->get();
+        $recipes = Recipe::where('user_id', $userId)->orderBy('recipe_name')->get();
 
-        return view('frontend.returned-goods.create', compact('returnedGood', 'clients', 'recipes'));
+        return view('frontend.returned-goods.form', compact(
+            'returnedGood', 'clients', 'recipes'
+        ));
     }
 
     public function update(Request $request, ReturnedGood $returnedGood)
     {
-        $userId = Auth::id();
-        if ($returnedGood->user_id !== $userId) {
-            abort(403);
+        if ($returnedGood->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
         }
 
         $data = $request->validate([
-            'client_id'             => 'required|exists:clients,id',
-            'return_date'           => 'required|date',
-            'recipes'               => 'required|array|min:1',
-            'recipes.*.id'          => 'required|exists:recipes,id',
-            'recipes.*.price'       => 'required|numeric|min:0',
-            'recipes.*.qty'         => 'required|integer|min:1',
+            'client_id'           => 'required|exists:clients,id',
+            'return_date'         => 'required|date',
+            'recipes'             => 'required|array|min:1',
+            'recipes.*.qty'       => 'required|integer|min:1',
+            'recipes.*.price'     => 'required|numeric|min:0',
         ]);
 
         DB::transaction(function() use ($data, $returnedGood) {
             $returnedGood->update([
                 'client_id'   => $data['client_id'],
                 'return_date' => $data['return_date'],
-                'total_amount'=> array_sum(array_column($data['recipes'], 'total_amount')),
+                'total_amount'=> 0,
             ]);
 
             $returnedGood->recipes()->delete();
+            $grandTotal = 0;
+
             foreach ($data['recipes'] as $line) {
+                $lineTotal = round($line['price'] * $line['qty'], 2);
                 $returnedGood->recipes()->create([
                     'recipe_id'    => $line['id'],
                     'price'        => $line['price'],
                     'qty'          => $line['qty'],
-                    'total_amount'=> $line['total_amount'],
+                    'total_amount' => $lineTotal,
                 ]);
+                $grandTotal += $lineTotal;
             }
+
+            $returnedGood->update(['total_amount' => $grandTotal]);
         });
 
-        return redirect()->route('external-supplies.index')
-                         ->with('success', 'Returned goods updated.');
+        return redirect()
+            ->route('returned-goods.index')
+            ->with('success', 'Returned goods updated!');
     }
 
     public function destroy(ReturnedGood $returnedGood)
     {
-        $userId = Auth::id();
-        if ($returnedGood->user_id !== $userId) {
-            abort(403);
+        if ($returnedGood->user_id !== Auth::id()) {
+            abort(Response::HTTP_FORBIDDEN);
         }
 
         $returnedGood->delete();
 
-        return redirect()->route('returned-goods.index')
-                         ->with('success', 'Returned goods deleted.');
+        return redirect()
+            ->route('returned-goods.index')
+            ->with('success', 'Returned goods deleted!');
     }
 }

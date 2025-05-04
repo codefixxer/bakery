@@ -5,19 +5,9 @@
 
 @section('content')
 @php
-    // build dropdown options for category & department
-    $allCategories = $showcaseRecords
-        ->flatMap(fn($sc) => $sc->recipes->map(fn($line) => optional($line->recipe->category)->name))
-        ->filter() // drop nulls
-        ->unique()
-        ->sort()
-        ->values();
-    $allDepartments = $showcaseRecords
-        ->flatMap(fn($sc) => $sc->recipes->map(fn($line) => optional($line->recipe->department)->name))
-        ->filter()
-        ->unique()
-        ->sort()
-        ->values();
+    // Use data passed from the controller instead of extracting from showcase records
+    $allCategories = $categories->pluck('name');
+    $allDepartments = $departments->pluck('name');
 @endphp
 
 <div class="container py-5">
@@ -169,6 +159,7 @@
 </div>
 @endsection
 
+
 @section('scripts')
 <script>
   @php
@@ -193,9 +184,8 @@
         'client'      => $s->client->name,
         'recipe_name' => $line->recipe->recipe_name,
         'returns'     => $s->returnedGoods
-                            ->where('external_supply_id',$s->id)
                             ->flatMap(fn($rg) => $rg->recipes)
-                            ->where('recipe_id',$line->recipe_id)
+                            ->where('external_supply_recipe_id', $line->id)
                             ->sum('qty'),
         'qty'         => $line->qty,
         'total'       => $line->total_amount,
@@ -215,12 +205,10 @@
     const categoryVal  = document.getElementById('filter_category').value;
     const departmentVal= document.getElementById('filter_department').value;
 
-    // helpers
     const inRange = (d,a,b) => (!a||d>=a) && (!b||d<=b);
     const matchText = (hay, needle) => !needle || hay.toLowerCase().includes(needle);
     const matchExact = (hay, needle) => !needle || hay === needle;
 
-    // filter arrays
     const fShow = showcaseData.filter(r =>
          inRange(r.date, fromVal, toVal)
       && matchText(r.recipe_name, recipeVal)
@@ -239,13 +227,13 @@
     document.getElementById('summary').style.display          = has ? 'flex':''; 
     document.getElementById('addIncomeContainer').style.display = has ? 'flex':''; 
 
-    // grouping & summarizing
     function groupByDate(arr) {
       return arr.reduce((a,r)=>{
         (a[r.date]||(a[r.date]={ date:r.date, items:[], sums:{}})).items.push(r);
         return a;
       },{});
     }
+
     function summarizeShow(g){
       g.sums = g.items.reduce((S,r)=>{
         S.quantity=(S.quantity||0)+ +r.quantity;
@@ -256,11 +244,15 @@
         return S;
       },{});
     }
+
     function summarizeExt(g){
       g.sums = g.items.reduce((S,r)=>{
-        S.returns=(S.returns||0)+ +r.returns;
-        S.qty    =(S.qty    ||0)+ +r.qty;
-        S.total  =(S.total  ||0)+ +r.total;
+        const unitPrice = r.qty > 0 ? (r.total / r.qty) : 0;
+        const returnValue = r.returns * unitPrice;
+
+        S.returns = (S.returns || 0) + +r.returns;
+        S.qty     = (S.qty     || 0) + +r.qty;
+        S.total   = (S.total   || 0) + (+r.total - returnValue);
         return S;
       },{});
     }
@@ -270,20 +262,18 @@
     const eGroups = Object.values(groupByDate(fExt));
     eGroups.forEach(summarizeExt);
 
-    // stash for Add-to-Income
     window.lastShowGroups = sGroups.map(g=>({date:g.date,amount:g.sums.revenue}));
     window.lastExtGroups  = eGroups.map(g=>({date:g.date,amount:g.sums.total}));
 
-    // update summary cards
     const grandShow = sGroups.reduce((sum,g)=>sum+g.sums.revenue,0);
     const grandExt  = eGroups.reduce((sum,g)=>sum+g.sums.total,0);
     const gross     = grandShow+grandExt;
     document.getElementById('totalShowRevenue').textContent   = grandShow.toFixed(2);
     document.getElementById('pctShow').textContent           = gross?((grandShow/gross)*100).toFixed(0)+'%':'0%';
-    document.getElementById('totalExternalCost').textContent = grandExt .toFixed(2);
+    document.getElementById('totalExternalCost').textContent = grandExt.toFixed(2);
     document.getElementById('pctExt').textContent            = gross?((grandExt/gross)*100).toFixed(0)+'%':'0%';
 
-    // render showcase table
+    // Render showcase
     let outS = '';
     sGroups.forEach(g=>{
       outS+=`
@@ -311,14 +301,14 @@
         </tr>`;
       });
     });
-    document.getElementById('showcaseBody').innerHTML       = outS;
+    document.getElementById('showcaseBody').innerHTML = outS;
     document.getElementById('showcaseQtyFooter').textContent   = sGroups.reduce((s,g)=>s+g.sums.quantity,0);
     document.getElementById('showcaseSoldFooter').textContent  = sGroups.reduce((s,g)=>s+g.sums.sold,0);
     document.getElementById('showcaseReuseFooter').textContent = sGroups.reduce((s,g)=>s+g.sums.reuse,0);
     document.getElementById('showcaseWasteFooter').textContent = sGroups.reduce((s,g)=>s+g.sums.waste,0);
     document.getElementById('showcaseFooter').textContent      = grandShow.toFixed(2);
 
-    // render external table
+    // Render external table
     let outE = '';
     eGroups.forEach(g=>{
       outE+=`
@@ -348,7 +338,7 @@
     document.getElementById('externalQtyFooter').textContent     = eGroups.reduce((s,g)=>s+g.sums.qty,0);
     document.getElementById('externalFooter').textContent        = grandExt.toFixed(2);
 
-    // wire up expand/collapse
+    // Expand/collapse logic
     document.querySelectorAll('.group-header').forEach(row=>{
       row.querySelector('.toggle-icon').onclick = () => {
         const date = row.dataset.date;
@@ -376,13 +366,12 @@
 
   render();
 
-  // **Add to Income** (POST + redirect)
+  // POST to income
   document.getElementById('addToIncomeBtn').addEventListener('click', () => {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = '{{ route("income.addFiltered") }}';
     form.style.display = 'none';
-    // CSRF
     const token = document.createElement('input');
     token.name  = '_token';
     token.value = document.querySelector('meta[name="csrf-token"]').content;
@@ -408,3 +397,4 @@
   });
 </script>
 @endsection
+

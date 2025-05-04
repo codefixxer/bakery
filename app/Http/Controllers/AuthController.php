@@ -18,29 +18,23 @@ class AuthController extends Controller
     // Handle registration
     public function register(Request $request)
     {
-        // dump everything for debugging
-        // dd($request->all());
-
-        // validate
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:users,name',
+            'name'     => 'required|string|max:255|unique:users,name',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'terms'    => 'accepted',
         ]);
 
-        // create user
         $user = User::create([
-            'name' => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-            // role & status defaulted in migration
+            'name'       => $data['name'],
+            'email'      => $data['email'],
+            'password'   => Hash::make($data['password']),
+            'status'     => true, // ✅ ensure status is active
+            'created_by' => null, // or Auth::id() if created from panel
         ]);
 
-        // log them in
         Auth::login($user);
 
-        // redirect
         return redirect()->intended(route('dashboard'));
     }
 
@@ -61,23 +55,27 @@ class AuthController extends Controller
         $remember = $request->has('remember');
 
         if (Auth::attempt($credentials, $remember)) {
-            if (! Auth::user()->status) {
+            $user = Auth::user();
+
+            if (! $user->status) {
                 Auth::logout();
-                return back()->withErrors(['email'=>'Your account is inactive.']);
+                return back()->withErrors(['email' => 'Your account is inactive.']);
             }
+
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->withErrors(['email'=>'Invalid credentials.']);
+        return back()->withErrors(['email' => 'Invalid credentials.']);
     }
 
-    // Logout
+    // Handle logout
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 }

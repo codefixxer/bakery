@@ -1,4 +1,3 @@
-{{-- resources/views/frontend/external-supplies/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title','External Supplies & Returns')
@@ -37,7 +36,7 @@
                           ->flatMap(fn($e) => $e['lines'])
                           ->sum(fn($line) => ($line->recipe->production_cost_per_kg ?? 0)/1000 * $line->qty);
           $profit     = $revenue - $cost;
-          $type       = $entries->first()['type'];   // 'supply' or 'return'
+          $type       = $entries->first()['type'];
           $collapseId = "grp{$grp}";
         @endphp
 
@@ -84,6 +83,7 @@
               <table class="table table-sm">
                 <thead>
                   <tr>
+                    <th>Created_by</th>
                     <th>Recipe</th>
                     <th>Qty</th>
                     <th class="text-end">Line Rev (€)</th>
@@ -93,6 +93,12 @@
                 <tbody>
                   @foreach($entries as $entry)
                     <tr>
+                      <td>
+                        <span class="badge bg-light text-dark">
+                          {{ $entry['created_by'] ?? '—' }}
+                        </span>
+                      </td>
+                      
                       <td colspan="4">
                         <strong>{{ $entry['client'] }}</strong> — {{ $entry['date'] }}
                       </td>
@@ -128,16 +134,32 @@
                         </form>
                       </td>
                     </tr>
-                    @foreach($entry['lines'] as $line)
-                      @php
-                        $lineRev  = ($entry['type'] === 'supply' ? 1 : -1) * $line->total_amount;
-                        $lineCost = ($line->recipe->production_cost_per_kg ?? 0) / 1000 * $line->qty;
-                      @endphp
+
+                    @php
+                      $groupedLines = collect($entry['lines'])
+                          ->groupBy(fn($line) => $line->recipe->id ?? 'unknown')
+                          ->map(function ($group) use ($entry) {
+                              $first = $group->first();
+                              $qty = $group->sum('qty');
+                              $totalAmount = $group->sum('total_amount');
+                              $costPerKg = $first->recipe->production_cost_per_kg ?? 0;
+                              $cost = ($costPerKg / 1000) * $qty;
+
+                              return (object)[
+                                  'name' => $first->recipe->recipe_name ?? '—',
+                                  'qty'  => $qty,
+                                  'revenue' => ($entry['type'] === 'supply' ? 1 : -1) * $totalAmount,
+                                  'cost' => $cost,
+                              ];
+                          });
+                    @endphp
+
+                    @foreach($groupedLines as $line)
                       <tr>
-                        <td>{{ optional($line->recipe)->recipe_name ?? '—' }}</td>
+                        <td>{{ $line->name }}</td>
                         <td>{{ $line->qty }}</td>
-                        <td class="text-end">{{ number_format($lineRev, 2) }}</td>
-                        <td class="text-end">{{ number_format($lineCost, 2) }}</td>
+                        <td class="text-end">{{ number_format($line->revenue, 2) }}</td>
+                        <td class="text-end">{{ number_format($line->cost, 2) }}</td>
                       </tr>
                     @endforeach
                   @endforeach

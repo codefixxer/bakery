@@ -29,6 +29,7 @@
       >
         <thead class="table-primary">
           <tr>
+            <th>Created By</th>
             <th>Date</th>
             <th class="text-end">Break-even (€)</th>
             <th class="text-end">Total Revenue (€)</th>
@@ -43,7 +44,12 @@
         <tbody>
           @forelse($showcases as $s)
             <tr>
-              <td>{{ $s->showcase_date }}</td>
+              <td>
+                <span class="badge bg-light text-dark">
+                  {{ $s->user->name ?? '—' }}
+                </span>
+              </td>
+              <td style="white-space: nowrap;">{{ \Carbon\Carbon::parse($s->showcase_date)->format('Y-m-d') }}</td>
               <td class="text-end">{{ number_format($s->break_even, 2) }}</td>
               <td class="text-end">{{ number_format($s->total_revenue, 2) }}</td>
               <td class="text-end">{{ number_format($s->potential_income_average, 2) }}</td>
@@ -85,7 +91,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="9" class="text-center text-muted">No showcases found.</td>
+              <td colspan="10" class="text-center text-muted">No showcases found.</td>
             </tr>
           @endforelse
         </tbody>

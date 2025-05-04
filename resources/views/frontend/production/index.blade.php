@@ -158,6 +158,7 @@
         <thead>
           <tr>
             <th style="width:48px"></th>
+            <th>Created by</th>
             <th>Date</th>
             <th>Items</th>
             <th>Potential</th>
@@ -185,6 +186,12 @@
                   <i class="bi bi-caret-right-fill"></i>
                 </button>
               </td>
+              <td>
+                <span class="badge bg-light text-dark">
+                  {{ $production->user->name ?? '—' }}
+                </span>
+              </td>
+              
               <td>{{ $p->production_date }}</td>
               <td>{{ $p->details->count() }}</td>
               <td>${{ number_format($p->total_potential_revenue, 2) }}</td>

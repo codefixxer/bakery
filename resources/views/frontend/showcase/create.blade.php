@@ -203,29 +203,29 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const actionSelect = document.getElementById('template_action');
   const nameLabel    = document.getElementById('showcaseNameLabel');
+  const nameInput    = document.getElementById('showcase_name');
 
-  // Initial label text
-  (function() {
-    const v = actionSelect.value;
-    nameLabel.textContent =
-      (v === 'template' || v === 'both')
-        ? 'Template Name'
-        : 'Showcase Name';
-  })();
+  function updateNameRequirement() {
+    const val = actionSelect.value;
+    const isRequired = val === 'template' || val === 'both';
 
-  // Toggle label when "save as" changes
-  actionSelect.addEventListener('change', function() {
-    const v = this.value;
-    nameLabel.textContent =
-      (v === 'template' || v === 'both')
-        ? 'Template Name'
-        : 'Showcase Name';
-  });
+    nameLabel.textContent = isRequired ? 'Template Name' : 'Showcase Name';
 
-  // Cache DOM elements
+    if (isRequired) {
+      nameInput.setAttribute('required', 'required');
+    } else {
+      nameInput.removeAttribute('required');
+    }
+  }
+
+  updateNameRequirement();
+  actionSelect.addEventListener('change', updateNameRequirement);
+
+  // ------- rest of your script (unchanged) --------
+
   const tbody       = document.querySelector('#showcaseTable tbody');
   const addBtn      = document.getElementById('addRowBtn');
   const bepIn       = document.getElementById('break_even');
@@ -233,15 +233,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const dateInput   = document.getElementById('showcase_date');
 
   let idx = tbody.querySelectorAll('.showcase-row').length;
-
-  // Grab a blank row template
   let blankRow;
   setTimeout(() => {
     blankRow = tbody.querySelector('.showcase-row').cloneNode(true);
   }, 50);
 
-  // Add new row
-  addBtn.addEventListener('click', function() {
+  addBtn.addEventListener('click', function () {
     const clone = blankRow.cloneNode(true);
     clone.querySelectorAll('input, select').forEach(el => {
       el.name = el.name.replace(/\[\d+\]/, `[${idx}]`);
@@ -253,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
     idx++;
   });
 
-  // Recalculate one row
   function recalcRow(row) {
     const opt       = row.querySelector('.recipe-select').selectedOptions[0];
     const deptCell  = row.querySelector('.dept-field');
@@ -262,25 +258,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const unitSpan  = row.querySelector('.unit-field');
 
     const deptName = opt.dataset.deptName || '';
-    const deptId   = opt.dataset.deptId   || '';
+    const deptId   = opt.dataset.deptId || '';
     const price    = parseFloat(opt.dataset.price || 0).toFixed(2);
     const sellMode = opt.dataset.sellMode || '';
 
-    deptCell.textContent   = deptName;
-    deptInput.value        = deptId;
-    priceIn.value          = price;
-    unitSpan.textContent   = (sellMode === 'kg') ? '€/kg' : '€/pc';
+    deptCell.textContent = deptName;
+    deptInput.value = deptId;
+    priceIn.value = price;
+    unitSpan.textContent = (sellMode === 'kg') ? '€/kg' : '€/pc';
 
-    const qty  = +row.querySelector('.qty-field').value  || 0;
+    const qty  = +row.querySelector('.qty-field').value || 0;
     const sold = +row.querySelector('.sold-field').value || 0;
 
     row.querySelector('.potential-field').value = (price * qty).toFixed(2);
-    row.querySelector('.revenue-field').value   = (price * sold).toFixed(2);
+    row.querySelector('.revenue-field').value = (price * sold).toFixed(2);
 
     recalcSummary();
   }
 
-  // Recalculate summary
   function recalcSummary() {
     let totRev = 0, totPot = 0, rawCost = 0;
 
@@ -288,13 +283,14 @@ document.addEventListener('DOMContentLoaded', function() {
       totRev += +(r.querySelector('.revenue-field').value || 0);
       totPot += +(r.querySelector('.potential-field').value || 0);
 
-      const opt      = r.querySelector('.recipe-select').selectedOptions[0];
-      const ingCost  = +opt.dataset.ingredientsCost || 0;
-      const weight   = +opt.dataset.recipeWeight  || 1;
-      const sold     = +r.querySelector('.sold-field').value || 0;
-      const waste    = +r.querySelector('.waste-field').value || 0;
-      const costKg   = weight > 0 ? ingCost / weight : 0;
-      const outKg    = (opt.dataset.sellMode === 'kg')
+      const opt     = r.querySelector('.recipe-select').selectedOptions[0];
+      const ingCost = +opt.dataset.ingredientsCost || 0;
+      const weight  = +opt.dataset.recipeWeight || 1;
+      const sold    = +r.querySelector('.sold-field').value || 0;
+      const waste   = +r.querySelector('.waste-field').value || 0;
+
+      const costKg  = weight > 0 ? ingCost / weight : 0;
+      const outKg   = (opt.dataset.sellMode === 'kg')
                         ? (sold + waste)
                         : (sold + waste) * weight;
       rawCost += costKg * outKg;
@@ -307,38 +303,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const plusPct  = totRev > 0 ? plus / totRev * 100 : 0;
     const marPct   = plus > 0 ? margin / plus * 100 : 0;
 
-    document.getElementById('totalRevenue').value   = totRev.toFixed(2);
-    document.getElementById('plusAmount').value     = plus.toFixed(2);
+    document.getElementById('totalRevenue').value = totRev.toFixed(2);
+    document.getElementById('plusAmount').value = plus.toFixed(2);
     document.getElementById('totalPotential').value = totPot.toFixed(2);
-    document.getElementById('realMargin').value     = margin.toFixed(2);
+    document.getElementById('realMargin').value = margin.toFixed(2);
 
     document.querySelector('.fm-plus-pct').textContent = `Plus is ${plusPct.toFixed(1)}% of revenue`;
     document.querySelector('.fm-cost-pct').textContent = `Incidence: ${incPct.toFixed(1)}% • Margin on Plus: ${marPct.toFixed(1)}%`;
   }
 
-  // Delegate row events
-  tbody.addEventListener('change', function(e) {
+  tbody.addEventListener('change', function (e) {
     if (e.target.matches('.recipe-select')) recalcRow(e.target.closest('tr'));
   });
-  tbody.addEventListener('input', function(e) {
+  tbody.addEventListener('input', function (e) {
     if (e.target.matches('.qty-field, .sold-field, .reuse-field, .waste-field'))
       recalcRow(e.target.closest('tr'));
   });
-  tbody.addEventListener('click', function(e) {
+  tbody.addEventListener('click', function (e) {
     if (e.target.closest('.remove-row') && tbody.children.length > 1) {
       e.target.closest('tr').remove();
       recalcSummary();
     }
   });
 
-  // Initial calculation
   tbody.querySelectorAll('.showcase-row').forEach(r => recalcRow(r));
 
-  // Load template via AJAX
-  templateSel?.addEventListener('change', function() {
+  templateSel?.addEventListener('change', function () {
     const id = this.value;
     if (!id) {
-      dateInput.value    = '';
+      dateInput.value = '';
       actionSelect.value = 'none';
       actionSelect.dispatchEvent(new Event('change'));
       tbody.innerHTML = '';
@@ -357,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(`/showcase/template/${id}`)
       .then(res => res.json())
       .then(data => {
-        dateInput.value    = data.showcase_date;
+        dateInput.value = data.showcase_date;
         actionSelect.value = data.template_action;
         actionSelect.dispatchEvent(new Event('change'));
 
@@ -387,3 +380,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+

@@ -79,6 +79,7 @@
       >
         <thead>
           <tr>
+            <th scope="col">Created By</th>
             <th scope="col">Name</th>
             <th scope="col">Price / kg</th>
             <th scope="col">Last Updated</th>
@@ -88,6 +89,7 @@
         <tbody>
           @foreach($ingredients as $ingredient)
             <tr>
+              <td>{{ $ingredient->user->name ?? '—' }}</td>
               <td>{{ $ingredient->ingredient_name }}</td>
               <td>€{{ number_format($ingredient->price_per_kg, 2) }}</td>
               <td>{{ $ingredient->updated_at->format('Y-m-d H:i') }}</td>

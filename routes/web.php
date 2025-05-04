@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function(){
          ->middleware('can:recipe categories');
 
     // External Supplies & Templates
+    
     Route::resource('external-supplies', ExternalSuppliesController::class)
          ->middleware('can:external supplies');
     Route::get('external-supplies/template/{id}',
@@ -151,3 +152,9 @@ Route::middleware('auth')->group(function(){
 });
 
 Route::resource('roles', RolesController::class);
+
+
+Route::put('/users/{id}/status', [UserController::class, 'updateStatus'])->name('users.updateStatus');
+Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+
+

@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\ExternalSupply;
-use App\Models\Recipe;
-use App\Models\User;
 
 class ExternalSupplyRecipe extends Model
 {
@@ -16,7 +13,7 @@ class ExternalSupplyRecipe extends Model
         'price',
         'qty',
         'total_amount',
-        'user_id', // ✅ Add user_id to fillable
+        'user_id',
     ];
 
     public function externalSupply()
@@ -29,9 +26,16 @@ class ExternalSupplyRecipe extends Model
         return $this->belongsTo(Recipe::class);
     }
 
-    // ✅ Relationship: this recipe belongs to a user
-    public function user()
+    // ✅ Add this to track returns
+    public function returns()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(ReturnedGoodRecipe::class, 'external_supply_recipe_id');
+    }
+
+    // ✅ This is used in the controller to validate how much can be returned
+    public function getRemainingQtyAttribute()
+    {
+        $returnedQty = $this->returns->sum('qty');
+        return $this->qty - $returnedQty;
     }
 }

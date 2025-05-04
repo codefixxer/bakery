@@ -64,7 +64,25 @@ class UserController extends Controller
             ->route('users.index')
             ->with('success', 'User created successfully.');
     }
-
+    public function toggleStatus(User $user)
+    {
+        if (!Auth::user()->hasRole('super')) {
+            abort(403);
+        }
+    
+        $user->status = !$user->status;
+        $user->save();
+    
+        // Deactivate or activate roles created by this user
+        $relatedUsers = User::where('created_by', $user->id)->get();
+        foreach ($relatedUsers as $relatedUser) {
+            $relatedUser->status = $user->status;
+            $relatedUser->save();
+        }
+    
+        return redirect()->back()->with('success', 'User status updated.');
+    }
+    
     public function edit(User $user)
     {
         $currentUser = Auth::user();

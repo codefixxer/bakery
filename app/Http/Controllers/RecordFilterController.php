@@ -22,41 +22,33 @@ class RecordFilterController extends Controller
         $userId = Auth::id();
         $from   = $request->query('from');
         $to     = $request->query('to');
-
-        // only this user’s categories & departments
-        $categories  = RecipeCategory::where('user_id', $userId)
-                                     ->orderBy('name')
-                                     ->get();
-        $departments = Department::where('user_id', $userId)
-                                 ->orderBy('name')
-                                 ->get();
-
-        // only this user’s already‑recorded income dates
+    
+        $categories  = RecipeCategory::where('user_id', $userId)->orderBy('name')->get();
+        $departments = Department::where('user_id', $userId)->orderBy('name')->get();
+    
         $incomeDates = Income::where('user_id', $userId)
             ->pluck('date')
             ->map(fn($d) => $d->format('Y-m-d'))
             ->toArray();
-
-        // un‑recorded showcases
+    
         $showcaseRecords = Showcase::with('recipes.recipe')
             ->when($from, fn($q) => $q->whereDate('showcase_date', '>=', $from))
             ->when($to,   fn($q) => $q->whereDate('showcase_date', '<=', $to))
             ->whereNotIn(DB::raw('DATE(showcase_date)'), $incomeDates)
             ->orderBy('showcase_date')
             ->get();
-
-        // un‑recorded external supplies
+    
         $externalRecords = ExternalSupply::with([
                 'client',
                 'recipes.recipe',
-                'returnedGoods.recipes.recipe',
+                'returnedGoods.recipes.supplyLine.recipe', // important
             ])
             ->when($from, fn($q) => $q->whereDate('supply_date', '>=', $from))
             ->when($to,   fn($q) => $q->whereDate('supply_date', '<=', $to))
             ->whereNotIn(DB::raw('DATE(supply_date)'), $incomeDates)
             ->orderBy('supply_date')
             ->get();
-
+    
         return view('frontend.records.index', [
             'showcaseRecords' => $showcaseRecords,
             'externalRecords' => $externalRecords,
@@ -66,7 +58,7 @@ class RecordFilterController extends Controller
             'departments'     => $departments,
         ]);
     }
-
+    
     /**
      * Take the filtered rows and insert them into this user’s income.
      */

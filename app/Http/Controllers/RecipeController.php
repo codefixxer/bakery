@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Recipe;
 use App\Models\LaborCost;
 use App\Models\Department;
 use App\Models\Ingredient;
 use App\Models\CostCategory;
-use App\Models\RecipeCategory;
 use Illuminate\Http\Request;
+use App\Models\RecipeCategory;
 use App\Models\IngredientRecipe;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class RecipeController extends Controller
 {
@@ -60,46 +61,71 @@ class RecipeController extends Controller
 
 
 
-
-    
     public function create()
     {
+        $user = Auth::user();
+    
+        // Determine group root admin
+        $groupRootId = $user->created_by ?? $user->id;
+    
+        // Get all users in this group (admin + their users)
+        $groupUserIds = User::where('created_by', $groupRootId)
+                            ->pluck('id')
+                            ->push($groupRootId);
+    
         $laborCost   = LaborCost::first();
-        $ingredients = Ingredient::where('user_id', Auth::id())
+    
+        $ingredients = Ingredient::whereIn('user_id', $groupUserIds)
                                  ->orderBy('ingredient_name')
                                  ->get();
-        $categories  = RecipeCategory::where('user_id', Auth::id())
+    
+        $categories  = RecipeCategory::whereIn('user_id', $groupUserIds)
                                      ->orderBy('name')
                                      ->get();
-        $departments = Department::where('user_id', Auth::id())
+    
+        $departments = Department::whereIn('user_id', $groupUserIds)
                                  ->orderBy('name')
                                  ->get();
-
+    
         return view('frontend.recipe.create', compact(
             'laborCost', 'ingredients', 'categories', 'departments'
         ));
     }
-
+    
     public function index()
     {
-        $recipes     = Recipe::with([
-                            'category:id,name',
-                            'department:id,name',
-                            'ingredients.ingredient'
-                         ])
-                         ->where('user_id', Auth::id())
-                         ->get();
-
-        $departments = Department::where('user_id', Auth::id())
-                                 ->orderBy('name')
+        $user = Auth::user();
+    
+        // Super admin: can access everything
+        if (is_null($user->created_by)) {
+            $recipes     = Recipe::with(['category:id,name', 'department:id,name', 'ingredients.ingredient'])->get();
+            $departments = Department::orderBy('name')->get();
+            $categories  = RecipeCategory::orderBy('name')->get();
+    
+        } else {
+            // Determine group root admin
+            $groupRootId = $user->created_by ?? $user->id;
+    
+            // Find all users in this admin's group (admin + users)
+            $groupUserIds = User::where('created_by', $groupRootId)
+                                ->pluck('id')
+                                ->push($groupRootId);
+    
+            // Now load only records created by those users
+            $recipes     = Recipe::with(['category:id,name', 'department:id,name', 'ingredients.ingredient'])
+                                 ->whereIn('user_id', $groupUserIds)
                                  ->get();
-        $categories  = RecipeCategory::where('user_id', Auth::id())
-                                     ->orderBy('name')
-                                     ->get();
-
+    
+            $departments = Department::whereIn('user_id', $groupUserIds)
+                                     ->orderBy('name')->get();
+    
+            $categories  = RecipeCategory::whereIn('user_id', $groupUserIds)
+                                         ->orderBy('name')->get();
+        }
+    
         return view('frontend.recipe.index', compact('recipes', 'departments', 'categories'));
     }
-
+    
 
     public function show(Recipe $recipe)
     {
