@@ -10,19 +10,29 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RecipeCategoryController extends Controller
 {
-    /**
-     * List only the logged‑in user’s categories.
-     */
     public function index()
     {
-        $userId = Auth::id();
-
-        $categories = RecipeCategory::where('user_id', $userId)
+        $user = Auth::user();
+        $groupRootId = $user->created_by ?? $user->id;
+    
+        // Get user IDs of: self, group root (admin), and all super admins
+        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
+            ->pluck('id')
+            ->push($groupRootId)
+            ->merge(
+                \App\Models\User::role('super')->pluck('id') // include super admins
+            )
+            ->unique();
+    
+        $categories = \App\Models\RecipeCategory::whereIn('user_id', $groupUserIds)
             ->orderBy('name')
             ->get();
-
+    
         return view('frontend.recipe_categories.index', compact('categories'));
     }
+    
+    
+    
 
     /**
      * Store a new category for this user.

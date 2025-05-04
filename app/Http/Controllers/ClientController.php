@@ -14,12 +14,27 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::where('user_id', Auth::id())
-                         ->latest()
-                         ->paginate(10);
-
+        $user = Auth::user();
+        $groupOwnerId = $user->created_by ?? $user->id;
+    
+        $groupUserIds = \App\Models\User::where('created_by', $groupOwnerId)
+                            ->pluck('id')
+                            ->push($groupOwnerId);
+    
+        // Also include super admin's records (created_by is NULL and id is not a child of anyone)
+        $superAdminIds = \App\Models\User::whereNull('created_by')->pluck('id');
+    
+        // Merge group + super admin IDs (avoid duplicates)
+        $userIds = $groupUserIds->merge($superAdminIds)->unique();
+    
+        $clients = \App\Models\Client::with('user')
+                     ->whereIn('user_id', $userIds)
+                     ->latest()
+                     ->paginate(10);
+    
         return view('frontend.clients.index', compact('clients'));
     }
+    
 
     /**
      * Show the form for creating a new client.

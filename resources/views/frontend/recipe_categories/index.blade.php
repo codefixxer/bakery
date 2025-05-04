@@ -72,6 +72,7 @@
         >
           <thead class="table-primary">
             <tr>
+              <th>Created By</th>
               <th>Name</th>
               <th>Last Updated</th>
               <th class="text-center">Actions</th>
@@ -80,6 +81,16 @@
           <tbody>
             @foreach($categories as $cat)
               <tr>
+                <td>
+                  <span class="badge bg-light text-dark">
+                    @if(optional($cat->user)->hasRole('super'))
+                      Default
+                    @else
+                      {{ $cat->user->name ?? '—' }}
+                    @endif
+                  </span>
+                </td>
+                
                 <td>{{ $cat->name }}</td>
                 <td>{{ $cat->updated_at->format('Y-m-d H:i') }}</td>
                 <td class="text-center">

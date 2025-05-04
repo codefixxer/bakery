@@ -14,12 +14,22 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        $departments = Department::where('user_id', Auth::id())
-                                 ->latest()
-                                 ->get();
-
+        $user = Auth::user();
+        $groupRootId = $user->created_by ?? $user->id;
+    
+        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
+                            ->pluck('id')
+                            ->push($groupRootId);
+    
+        $departments = \App\Models\Department::with('user') // eager load creator
+                            ->whereIn('user_id', $groupUserIds)
+                            ->orWhereHas('user.roles', fn($q) => $q->where('name', 'super')) // allow super-created
+                            ->latest()
+                            ->get();
+    
         return view('frontend.departments.index', compact('departments'));
     }
+    
 
     /**
      * Show the form for creating a new department.

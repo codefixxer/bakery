@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\CostCategory;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,17 +16,26 @@ class CostCategoryController extends Controller
      */
     public function index()
     {
-        $categories = CostCategory::where('user_id', Auth::id())
-                                  ->latest()
-                                  ->get();
-
+        $user = Auth::user();
+        $groupRootId = $user->created_by ?? $user->id;
+    
+        $groupUserIds = User::where('created_by', $groupRootId)
+                            ->pluck('id')
+                            ->push($groupRootId);
+    
+        $categories = CostCategory::with('user')
+            ->where(function ($q) use ($groupUserIds) {
+                $q->whereIn('user_id', $groupUserIds)
+                  ->orWhereHas('user.roles', function ($query) {
+                      $query->where('name', 'super'); // allow super admin-created categories
+                  });
+            })
+            ->latest()
+            ->get();
+    
         return view('frontend.categories.index', compact('categories'));
     }
 
-    /**
-     * Redirect create‑page requests back to the index,
-     * since the form lives on the index view.
-     */
     public function create()
     {
         return redirect()->route('cost_categories.index');

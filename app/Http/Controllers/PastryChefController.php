@@ -14,12 +14,21 @@ class PastryChefController extends Controller
      */
     public function index()
     {
-        $pastryChefs = PastryChef::where('user_id', Auth::id())
-                                 ->latest()
-                                 ->get();
-
+        $user = Auth::user();
+        $groupRootId = $user->created_by ?? $user->id;
+    
+        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
+                            ->pluck('id')
+                            ->push($groupRootId);
+    
+        $pastryChefs = \App\Models\PastryChef::with('user') // 👈 eager load creator
+                            ->whereIn('user_id', $groupUserIds)
+                            ->latest()
+                            ->get();
+    
         return view('frontend.pastry-chefs.index', compact('pastryChefs'));
     }
+    
     
     /**
      * Show the form for creating a new chef.

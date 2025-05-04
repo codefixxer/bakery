@@ -60,6 +60,7 @@
       >
         <thead class="table-primary">
           <tr>
+            <th>Created By </th>
             <th>Department Name</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -67,6 +68,11 @@
         <tbody>
           @forelse($departments as $department)
             <tr>
+              <td>
+                <span class="badge bg-light text-dark">
+                  {{ $department->user->name ?? 'Default' }}
+                </span>
+              </td>
               <td>{{ $department->name }}</td>
               <td class="text-center">
                 <!-- View -->

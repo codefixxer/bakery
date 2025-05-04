@@ -2,25 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Equipment;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\Equipment;
 
 class EquipmentController extends Controller
 {
     /**
      * Display a listing of the logged‑in user’s equipment.
      */
-    public function index()
-    {
-        $equipments = Equipment::where('user_id', Auth::id())
-                               ->latest()
-                               ->get();
 
-        return view('frontend.equipment.index', compact('equipments'));
-    }
-
+     public function index()
+     {
+         $user = Auth::user();
+         $groupRootId = $user->created_by ?? $user->id;
+     
+         $groupUserIds = User::where('created_by', $groupRootId)
+                             ->pluck('id')
+                             ->push($groupRootId);
+     
+         $equipments = Equipment::with('user') // 👈 load who created
+                                ->whereIn('user_id', $groupUserIds)
+                                ->latest()
+                                ->get();
+     
+         return view('frontend.equipment.index', compact('equipments'));
+     }
     /**
      * Show the form for creating a new piece of equipment.
      */

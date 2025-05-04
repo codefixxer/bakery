@@ -73,7 +73,7 @@ class RecipeController extends Controller
                             ->pluck('id')
                             ->push($groupRootId);
     
-        $laborCost   = LaborCost::first();
+                            $laborCost = \App\Models\LaborCost::where('user_id', $groupRootId)->first();
     
         $ingredients = Ingredient::whereIn('user_id', $groupUserIds)
                                  ->orderBy('ingredient_name')

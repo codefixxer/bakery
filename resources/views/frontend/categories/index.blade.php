@@ -62,6 +62,8 @@
       >
         <thead class="table-primary">
           <tr>
+            <th>Created By</th>
+
             <th>Category Name</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -69,6 +71,14 @@
         <tbody>
           @forelse($categories as $cat)
             <tr>
+              <td>
+                @if(optional($cat->user)->hasRole('super'))
+                  <span class="badge bg-info">Default</span>
+                @else
+                  <span class="badge bg-light text-dark">{{ $cat->user->name ?? '—' }}</span>
+                @endif
+              </td>
+              
               <td>{{ $cat->name }}</td>
               <td class="text-center">
                 <a

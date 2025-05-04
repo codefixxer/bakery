@@ -16,6 +16,14 @@
       </div>
       <div class="card-body">
 
+        @if($laborCost && $laborCost->user)
+  <div class="mb-3">
+    <strong>Updated By:</strong>
+    <span class="badge bg-light text-dark">
+      {{ $laborCost->user->name }}
+    </span>
+  </div>
+@endif
         {{-- 1) Top inputs --}}
         <div class="row g-3 mb-3">
           <div class="col-md-4">
