@@ -31,23 +31,22 @@ class RecordFilterController extends Controller
             ->map(fn($d) => $d->format('Y-m-d'))
             ->toArray();
     
-        $showcaseRecords = Showcase::with('recipes.recipe')
+            $showcaseRecords = Showcase::with('recipes.recipe')
             ->when($from, fn($q) => $q->whereDate('showcase_date', '>=', $from))
             ->when($to,   fn($q) => $q->whereDate('showcase_date', '<=', $to))
-            ->whereNotIn(DB::raw('DATE(showcase_date)'), $incomeDates)
             ->orderBy('showcase_date')
             ->get();
-    
+        
         $externalRecords = ExternalSupply::with([
                 'client',
                 'recipes.recipe',
-                'returnedGoods.recipes.supplyLine.recipe', // important
+                'returnedGoods.recipes.supplyLine.recipe',
             ])
             ->when($from, fn($q) => $q->whereDate('supply_date', '>=', $from))
             ->when($to,   fn($q) => $q->whereDate('supply_date', '<=', $to))
-            ->whereNotIn(DB::raw('DATE(supply_date)'), $incomeDates)
             ->orderBy('supply_date')
             ->get();
+        
     
         return view('frontend.records.index', [
             'showcaseRecords' => $showcaseRecords,
@@ -62,47 +61,47 @@ class RecordFilterController extends Controller
     /**
      * Take the filtered rows and insert them into this user’s income.
      */
-    public function addFiltered(Request $request)
-    {
-        $data = $request->validate([
-            'showcase'            => 'array',
-            'showcase.*.date'     => 'required_with:showcase|date',
-            'showcase.*.amount'   => 'required_with:showcase|numeric',
-            'external'            => 'array',
-            'external.*.date'     => 'required_with:external|date',
-            'external.*.amount'   => 'required_with:external|numeric',
-        ]);
+    // public function addFiltered(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'showcase'            => 'array',
+    //         'showcase.*.date'     => 'required_with:showcase|date',
+    //         'showcase.*.amount'   => 'required_with:showcase|numeric',
+    //         'external'            => 'array',
+    //         'external.*.date'     => 'required_with:external|date',
+    //         'external.*.amount'   => 'required_with:external|numeric',
+    //     ]);
 
-        if (
-            empty($data['showcase'] ?? []) &&
-            empty($data['external'] ?? [])
-        ) {
-            return redirect()->back()
-                             ->withErrors('At least one record must be provided.');
-        }
+    //     if (
+    //         empty($data['showcase'] ?? []) &&
+    //         empty($data['external'] ?? [])
+    //     ) {
+    //         return redirect()->back()
+    //                          ->withErrors('At least one record must be provided.');
+    //     }
 
-        $toInsert = [];
-        $userId   = Auth::id();
+    //     $toInsert = [];
+    //     $userId   = Auth::id();
 
-        foreach ($data['showcase'] ?? [] as $row) {
-            $toInsert[] = [
-                'date'    => $row['date'],
-                'amount'  => $row['amount'],
-                'user_id' => $userId,
-            ];
-        }
+    //     foreach ($data['showcase'] ?? [] as $row) {
+    //         $toInsert[] = [
+    //             'date'    => $row['date'],
+    //             'amount'  => $row['amount'],
+    //             'user_id' => $userId,
+    //         ];
+    //     }
 
-        foreach ($data['external'] ?? [] as $row) {
-            $toInsert[] = [
-                'date'    => $row['date'],
-                'amount'  => $row['amount'],
-                'user_id' => $userId,
-            ];
-        }
+    //     foreach ($data['external'] ?? [] as $row) {
+    //         $toInsert[] = [
+    //             'date'    => $row['date'],
+    //             'amount'  => $row['amount'],
+    //             'user_id' => $userId,
+    //         ];
+    //     }
 
-        Income::insert($toInsert);
+    //     Income::insert($toInsert);
 
-        return redirect()->back()
-                         ->with('success', 'Income records added.');
-    }
+    //     return redirect()->back()
+    //                      ->with('success', 'Income records added.');
+    // }
 }

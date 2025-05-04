@@ -49,11 +49,11 @@
     </div>
   </div>
 
-  <div id="addIncomeContainer" class="d-flex justify-content-end mb-4" style="display:none">
+  {{-- <div id="addIncomeContainer" class="d-flex justify-content-end mb-4" style="display:none">
     <button id="addToIncomeBtn" class="btn btn-success">
       <i class="bi bi-plus-circle me-1"></i> Add to Income
     </button>
-  </div>
+  </div> --}}
 
   <div id="noRecords" class="alert alert-info text-center" style="display:none">
     No records found for the selected filters.
