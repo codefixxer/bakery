@@ -7,10 +7,11 @@
 <div class="container py-5">
   <!-- Header -->
   <div class="card mb-4 shadow-sm border-primary">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">All Recipes</h5>
-      <small>Quickly search, sort, and filter all your recipes below.</small>
+    <div class="card-header" style="background-color: #041930; color: #e2ae76;">
+      <h5 class="mb-0" style="color: #e2ae76;">All Recipes</h5>
+      <small style="color: #e2ae76;">Quickly search, sort, and filter all your recipes below.</small>
     </div>
+  
   </div>
 
   <!-- Table -->
@@ -25,7 +26,7 @@
           <thead class="table-primary">
             <tr>
               <th style="width:1%"></th>
-              <th>Created By</th>
+              
 
               <th>Name</th>
               <th>Category</th>
@@ -65,9 +66,7 @@
 )'>
 
 <td></td>
-<td>
-  <span class="badge bg-light text-dark">{{ $r->user->name ?? '—' }}</span>
-</td>
+
                 <td>{{ $r->recipe_name }}</td>
                 <td>{{ $r->category->name ?? '—' }}</td>
                 <td>{{ $r->department->name ?? '—' }}</td>

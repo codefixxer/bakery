@@ -112,7 +112,6 @@
         >
           <thead class="table-primary">
             <tr>
-              <th>Created By</th>
               <th>Name</th>
               <th>Location</th>
               <th>Phone</th>
@@ -124,13 +123,6 @@
           <tbody>
             @forelse($clients as $client)
               <tr>
-                <td>
-                  <span class="badge bg-light text-dark">
-                    {{ optional($client->user)->created_by ? optional($client->user)->name : 'Default' }}
-                  </span>
-                </td>
-                
-                
                 <td>{{ $client->name }}</td>
                 <td>{{ $client->location }}</td>
                 <td>{{ $client->phone }}</td>

@@ -1,60 +1,61 @@
-{{-- resources/views/frontend/records/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'Filter Records')
 
 @section('content')
 @php
-    // Use data passed from the controller instead of extracting from showcase records
     $allCategories = $categories->pluck('name');
     $allDepartments = $departments->pluck('name');
 @endphp
 
-<div class="container py-5">
-  <h2 class="mb-5 text-center">Showcase &amp; External Supply Records</h2>
+<div class="container py-5 px-md-5">
 
-  {{-- Filters --}}
-  <div class="row justify-content-center g-4 mb-4">
-    <div class="col-sm-6 col-md-4">
-      <label class="form-label d-block text-center">From</label>
-      <input type="date" id="filter_from" class="form-control mx-auto" value="{{ $from }}">
-    </div>
-    <div class="col-sm-6 col-md-4">
-      <label class="form-label d-block text-center">To</label>
-      <input type="date" id="filter_to" class="form-control mx-auto" value="{{ $to }}">
-    </div>
-    <div class="col-sm-8 col-md-6 col-lg-4">
-      <label class="form-label d-block text-center">Recipe Name</label>
-      <input type="text" id="filter_recipe" class="form-control mx-auto" placeholder="Enter recipe...">
-    </div>
-  </div>
-  <div class="row justify-content-center g-4 mb-5">
-    <div class="col-sm-6 col-md-4">
-      <label class="form-label d-block text-center">Category</label>
-      <select id="filter_category" class="form-select mx-auto">
-        <option value="">All Categories</option>
-        @foreach($allCategories as $cat)
-          <option value="{{ strtolower($cat) }}">{{ $cat }}</option>
-        @endforeach
-      </select>
-    </div>
-    <div class="col-sm-6 col-md-4">
-      <label class="form-label d-block text-center">Department</label>
-      <select id="filter_department" class="form-select mx-auto">
-        <option value="">All Departments</option>
-        @foreach($allDepartments as $dept)
-          <option value="{{ strtolower($dept) }}">{{ $dept }}</option>
-        @endforeach
-      </select>
-    </div>
+  {{-- Page Heading --}}
+  <div class="text-center py-3 px-3 rounded mb-5 shadow" style="background-color: #041930;">
+    <h2 class="fw-bold mb-0" style="color: #e2ae76; font-size: 1.8rem;">
+      Showcase &amp; External Supply Records
+    </h2>
   </div>
 
-  {{-- <div id="addIncomeContainer" class="d-flex justify-content-end mb-4" style="display:none">
-    <button id="addToIncomeBtn" class="btn btn-success">
-      <i class="bi bi-plus-circle me-1"></i> Add to Income
-    </button>
-  </div> --}}
+  {{-- Filter Form --}}
+  <div class="card mb-5 shadow-sm border-0">
+    <div class="card-body">
+      <div class="row g-4">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">From</label>
+          <input type="date" id="filter_from" class="form-control" value="{{ $from }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">To</label>
+          <input type="date" id="filter_to" class="form-control" value="{{ $to }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Recipe Name</label>
+          <input type="text" id="filter_recipe" class="form-control" placeholder="Enter recipe...">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Category</label>
+          <select id="filter_category" class="form-select">
+            <option value="">All Categories</option>
+            @foreach($allCategories as $cat)
+              <option value="{{ strtolower($cat) }}">{{ $cat }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Department</label>
+          <select id="filter_department" class="form-select">
+            <option value="">All Departments</option>
+            @foreach($allDepartments as $dept)
+              <option value="{{ strtolower($dept) }}">{{ $dept }}</option>
+            @endforeach
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  {{-- No Records Alert --}}
   <div id="noRecords" class="alert alert-info text-center" style="display:none">
     No records found for the selected filters.
   </div>
@@ -62,22 +63,22 @@
   {{-- Summary Cards --}}
   <div id="summary" class="row justify-content-center mb-5 g-4" style="display:none">
     <div class="col-sm-8 col-md-5 col-lg-4">
-      <div class="card border-primary h-100">
+      <div class="card border-0 shadow h-100">
         <div class="card-body text-center">
           <i class="bi bi-graph-up display-4 text-primary mb-3"></i>
           <h5 class="card-title">Total Showcase Revenue</h5>
           <p class="display-5 fw-bold mb-1" id="totalShowRevenue">0.00</p>
-          <small class="text-muted" id="pctShow">0%</small>
+          <small class="text-muted fw-semibold fs-5" id="pctShow">0%</small>
         </div>
       </div>
     </div>
     <div class="col-sm-8 col-md-5 col-lg-4">
-      <div class="card border-danger h-100">
+      <div class="card border-0 shadow h-100">
         <div class="card-body text-center">
           <i class="bi bi-currency-dollar display-4 text-danger mb-3"></i>
           <h5 class="card-title">Total External Cost</h5>
           <p class="display-5 fw-bold mb-1" id="totalExternalCost">0.00</p>
-          <small class="text-muted" id="pctExt">0%</small>
+          <small class="text-muted fw-semibold fs-5" id="pctExt">0%</small>
         </div>
       </div>
     </div>
@@ -85,11 +86,12 @@
 
   {{-- Tables --}}
   <div class="row gx-4 gy-5">
-    {{-- Showcase --}}
+    {{-- Showcase Table --}}
     <div class="col-lg-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-primary text-white">
-          <i class="bi bi-list-ul me-2"></i> Showcase Records
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+          <i class="bi bi-list-ul me-2" style="color: #e2ae76;"></i>
+          <strong class="fs-5">Showcase Records</strong>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -122,11 +124,12 @@
       </div>
     </div>
 
-    {{-- External Supply --}}
+    {{-- External Supply Table --}}
     <div class="col-lg-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-dark text-white">
-          <i class="bi bi-box-seam me-2"></i> External Supply Records
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+          <i class="bi bi-box-seam me-2" style="color: #e2ae76;"></i>
+          <strong class="fs-5">External Supply Records</strong>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -158,6 +161,9 @@
   </div>
 </div>
 @endsection
+
+
+
 
 
 @section('scripts')

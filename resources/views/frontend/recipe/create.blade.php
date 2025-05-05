@@ -1,7 +1,9 @@
 @extends('frontend.layouts.app')
 
 @section('title', 'Create Recipe')
-
+@php
+  $sectionHeaderStyle = 'style="background-color: #041930; color: #e2ae76;"';
+@endphp
 @section('content')
     <div class="container py-5">
         @php
@@ -16,10 +18,11 @@
             @endif
 
             <div class="card mb-4 border-primary shadow-sm">
-                <div class="card-header bg-primary text-white d-flex align-items-center">
-                    <i class="bi bi-journal-text fs-4 me-2"></i>
-                    <h5 class="mb-0">Recipe Details</h5>
-                </div>
+                <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76;">
+                    <i class="bi bi-journal-text fs-4 me-2" style="color: #e2ae76;"></i>
+                    <h5 class="mb-0" style="color: #e2ae76;">Recipe Details</h5>
+                  </div>
+                  
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -57,14 +60,14 @@
             </div>
 
             <div class="card mb-4 border-info shadow-sm">
-                <div class="card-header bg-info text-white d-flex align-items-center">
-                    <i class="bi bi-list-ul fs-4 me-2"></i>
-                    <h5 class="mb-0">Ingredients</h5>
-                    <button type="button" class="btn btn-outline-light ms-auto" data-bs-toggle="modal"
-                        data-bs-target="#addIngredientModal">
-                        <i class="bi bi-plus-lg"></i> New Ingredient
+                <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+                    <i class="bi bi-list-ul fs-4 me-2" style="color: #e2ae76;"></i>
+                    <h5 class="mb-0" style="color: #e2ae76;">Ingredients</h5>
+                    <button type="button" class="btn btn-outline-light ms-auto" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
+                      <i class="bi bi-plus-lg"></i> New Ingredient
                     </button>
-                </div>
+                  </div>
+                  
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
@@ -192,10 +195,11 @@
             <div class="card mb-4 border-warning shadow-sm">
                 <input type="hidden" id="shopRate" value="{{ optional($laborCost)->shop_cost_per_min ?? 0 }}">
                 <input type="hidden" id="externalRate" value="{{ optional($laborCost)->external_cost_per_min ?? 0 }}">
-                <div class="card-header bg-warning text-dark d-flex align-items-center">
-                    <i class="bi bi-clock-history fs-4 me-2"></i>
-                    <h5 class="mb-0">Labor</h5>
-                </div>
+                <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+                    <i class="bi bi-clock-history fs-4 me-2" style="color: #e2ae76;"></i>
+                    <h5 class="mb-0" style="color: #e2ae76;">Labor</h5>
+                  </div>
+                  
                 <div class="card-body">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="labor_cost_mode" id="costModeShop"
@@ -242,10 +246,11 @@
             <div class="row gx-4 mb-4">
                 <div class="col-md-6">
                     <div class="card border-success shadow-sm h-100">
-                        <div class="card-header bg-success text-white d-flex align-items-center">
-                            <i class="bi bi-calculator fs-4 me-2"></i>
-                            <h5 class="mb-0">Total Expense</h5>
-                        </div>
+                        <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+                            <i class="bi bi-calculator fs-4 me-2" style="color: #e2ae76;"></i>
+                            <h5 class="mb-0" style="color: #e2ae76;">Total Expense</h5>
+                          </div>
+                          
                         <div class="card-body d-flex flex-column align-items-center">
                             <div class="input-group w-75 mb-3">
                                 <span class="input-group-text">Cost / kg Before Packing</span>
@@ -275,10 +280,11 @@
                 </div>
                 <div class="col-md-6">
                     <div class="card border-secondary shadow-sm h-100">
-                        <div class="card-header bg-secondary text-white d-flex align-items-center">
-                            <i class="bi bi-shop fs-4 me-2"></i>
-                            <h5 class="mb-0">Selling Mode</h5>
-                        </div>
+                        <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+                            <i class="bi bi-shop fs-4 me-2" style="color: #e2ae76;"></i>
+                            <h5 class="mb-0" style="color: #e2ae76;">Selling Mode</h5>
+                          </div>
+                          
                         <div class="card-body">
                             <div class="mb-3">
                                 <div class="form-check form-check-inline">
@@ -357,10 +363,11 @@
             </div>
 
             <div class="card mb-4 border-info shadow-sm">
-                <div class="card-header bg-info text-white d-flex align-items-center">
-                    <i class="bi bi-plus-circle fs-4 me-2"></i>
-                    <h5 class="mb-0">Additions</h5>
-                </div>
+                <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+                    <i class="bi bi-plus-circle fs-4 me-2" style="color: #e2ae76;"></i>
+                    <h5 class="mb-0" style="color: #e2ae76;">Additions</h5>
+                  </div>
+                  
                 <div class="card-body">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="addAsIngredient" name="add_as_ingredient"

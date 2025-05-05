@@ -3,12 +3,15 @@
 @section('title','Ingredients Showcase')
 
 @section('content')
-<div class="container py-5">
-  <div class="card border-success shadow-sm">
-    <div class="card-header bg-success text-white d-flex align-items-center">
-      <i class="bi bi-box-seam fs-4 me-2"></i>
-      <h5 class="mb-0">{{ isset($ingredient) ? 'Edit Ingredient' : 'Add Ingredient' }}</h5>
+<div class="container py-5 px-md-5">
+
+  <!-- Add/Edit Ingredient Form -->
+  <div class="card border-primary shadow-sm mb-5">
+    <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+      <i class="bi bi-box-seam fs-4 me-2" style="color: #e2ae76;"></i>
+      <h5 class="mb-0" style="color: #e2ae76;">{{ isset($ingredient) ? 'Edit Ingredient' : 'Add Ingredient' }}</h5>
     </div>
+    
     <div class="card-body">
       <form
         action="{{ isset($ingredient) ? route('ingredients.update', $ingredient->id) : route('ingredients.store') }}"
@@ -36,7 +39,7 @@
 
         <div class="col-md-6">
           <label for="pricePerKg" class="form-label fw-semibold">Price per kg</label>
-          <div class="input-group input-group-lg has-validation">
+          <div class="input-group input-group-lg has-validation w-100">
             <span class="input-group-text">€</span>
             <input
               type="number"
@@ -64,76 +67,77 @@
       </form>
     </div>
   </div>
-</div>
 
-<div class="container py-5">
-  <div class="card basic-data-table mb-4">
-    <div class="card-header">
-      <h5 class="card-title mb-0">Ingredients Showcase</h5>
+  <!-- Ingredients Table -->
+  <div class="card border-primary shadow-sm">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Ingredients Showcase</h5>
     </div>
-    <div class="table-responsive">
-      <table
-        id="ingredientsTable"
-        class="table bordered-table mb-0"
-        data-page-length="10"
-      >
-        <thead>
-          <tr>
-            <th scope="col">Created By</th>
-            <th scope="col">Name</th>
-            <th scope="col">Price / kg</th>
-            <th scope="col">Last Updated</th>
-            <th scope="col" class="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($ingredients as $ingredient)
+    <div class="card-body px-4">
+      <div class="table-responsive p-3">
+        <table
+          id="ingredientsTable"
+          class="table table-bordered table-striped table-hover align-middle mb-0"
+          data-page-length="10"
+        >
+          <thead class="table-primary">
             <tr>
-              <td>{{ $ingredient->user->name ?? '—' }}</td>
-              <td>{{ $ingredient->ingredient_name }}</td>
-              <td>€{{ number_format($ingredient->price_per_kg, 2) }}</td>
-              <td>{{ $ingredient->updated_at->format('Y-m-d H:i') }}</td>
-              <td class="text-center">
-                <!-- Edit -->
-                <a
-                  href="{{ route('ingredients.edit', $ingredient) }}"
-                  class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
-                  title="Edit"
-                >
-                  <iconify-icon icon="lucide:edit"></iconify-icon>
-                </a>
-
-                <!-- View -->
-                <a
-                  href="{{ route('ingredients.show', $ingredient) }}"
-                  class="w-32-px h-32-px bg-primary-focus text-primary-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
-                  title="View"
-                >
-                  <iconify-icon icon="lucide:eye"></iconify-icon>
-                </a>
-
-                <!-- Delete -->
-                <form
-                  action="{{ route('ingredients.destroy', $ingredient) }}"
-                  method="POST"
-                  class="d-inline"
-                  onsubmit="return confirm('Delete this ingredient?');"
-                >
-                  @csrf
-                  @method('DELETE')
-                  <button
-                    type="submit"
-                    class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                    title="Delete"
-                  >
-                    <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
-                  </button>
-                </form>
-              </td>
+             
+              <th scope="col">Name</th>
+              <th scope="col">Price / kg</th>
+              <th scope="col">Last Updated</th>
+              <th scope="col" class="text-center">Actions</th>
             </tr>
-          @endforeach
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @foreach($ingredients as $ingredient)
+              <tr>
+               
+                <td>{{ $ingredient->ingredient_name }}</td>
+                <td>€{{ number_format($ingredient->price_per_kg, 2) }}</td>
+                <td>{{ $ingredient->updated_at->format('Y-m-d H:i') }}</td>
+                <td class="text-center">
+                  <!-- Edit -->
+                  <a
+                    href="{{ route('ingredients.edit', $ingredient) }}"
+                    class="btn btn-sm btn-outline-success me-1"
+                    title="Edit"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </a>
+
+                  <!-- View -->
+                  <a
+                    href="{{ route('ingredients.show', $ingredient) }}"
+                    class="btn btn-sm btn-outline-primary me-1"
+                    title="View"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </a>
+
+                  <!-- Delete -->
+                  <form
+                    action="{{ route('ingredients.destroy', $ingredient) }}"
+                    method="POST"
+                    class="d-inline"
+                    onsubmit="return confirm('Delete this ingredient?');"
+                  >
+                    @csrf
+                    @method('DELETE')
+                    <button
+                      type="submit"
+                      class="btn btn-sm btn-outline-danger"
+                      title="Delete"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -141,7 +145,6 @@
 
 @section('scripts')
 <script>
-  // Bootstrap validation
   (() => {
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');
@@ -164,11 +167,11 @@
         scrollX: true,
         autoWidth: false,
         columnDefs: [
-          // disable ordering on the 4th column (Actions), which is index 3
-          { orderable: false, targets: 3 }
+          { orderable: false, targets: 3 } // fix index from 4 to 3
         ]
       });
     }
   });
 </script>
 @endsection
+
