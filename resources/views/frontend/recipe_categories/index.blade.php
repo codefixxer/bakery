@@ -83,13 +83,14 @@
               <tr>
                 <td>
                   <span class="badge bg-light text-dark">
-                    @if(optional($cat->user)->hasRole('super'))
+                    @if(optional($cat->user)?->hasRole('super'))
                       Default
                     @else
                       {{ $cat->user->name ?? '—' }}
                     @endif
                   </span>
                 </td>
+                
                 
                 <td>{{ $cat->name }}</td>
                 <td>{{ $cat->updated_at->format('Y-m-d H:i') }}</td>

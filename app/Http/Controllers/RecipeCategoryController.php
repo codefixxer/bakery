@@ -13,18 +13,25 @@ class RecipeCategoryController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
     
-        // Get user IDs of: self, group root (admin), and all super admins
-        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
-            ->pluck('id')
-            ->push($groupRootId)
-            ->merge(
-                \App\Models\User::role('super')->pluck('id') // include super admins
-            )
-            ->unique();
+        // 1) Build the “group” of IDs you should see
+        if (is_null($user->created_by)) {
+            // You’re a root user: see yourself + anyone you created
+            $visibleUserIds = \App\Models\User::where('created_by', $user->id)
+                                   ->pluck('id')
+                                   ->push($user->id)
+                                   ->unique();
+        } else {
+            // You’re a child: see yourself + your creator
+            $visibleUserIds = collect([$user->id, $user->created_by])->unique();
+        }
     
-        $categories = \App\Models\RecipeCategory::whereIn('user_id', $groupUserIds)
+        // 2) Fetch categories in your group OR with status = 'Default'
+        $categories = \App\Models\RecipeCategory::with('user')
+            ->where(function($q) use ($visibleUserIds) {
+                $q->whereIn('user_id', $visibleUserIds)
+                  ->orWhere('status', 'Default');
+            })
             ->orderBy('name')
             ->get();
     

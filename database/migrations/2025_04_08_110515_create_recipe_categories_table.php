@@ -10,7 +10,7 @@ class CreateRecipeCategoriesTable extends Migration
     {
         Schema::create('recipe_categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name')->unique();
             $table->timestamps();
         });

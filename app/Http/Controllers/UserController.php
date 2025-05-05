@@ -28,19 +28,21 @@ class UserController extends Controller
     public function create()
     {
         $currentUser = Auth::user();
-
+    
         if ($currentUser->hasRole('super')) {
-            $roles = Role::all();
+            // Super may create any role *except* super
+            $roles = Role::where('name', '!=', 'super')->get();
         } else {
-            $roles = Role::whereNotIn('name', ['super', 'admin'])->get();
+            // Non‑super may create anything except super *and* admin
+            $roles = Role::whereNotIn('name', ['super','admin'])->get();
         }
-
-        $user = new User();
+    
+        $user   = new User();
         $isEdit = false;
-
-        return view('frontend.user-management.users.create', compact('roles', 'user', 'isEdit'));
+    
+        return view('frontend.user-management.users.create', compact('roles','user','isEdit'));
     }
-
+    
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -49,17 +51,27 @@ class UserController extends Controller
             'password' => 'required|string|min:6',
             'role'     => 'required|exists:roles,id',
         ]);
-
+    
+        // Find the selected role
+        $role = Role::findOrFail($data['role']);
+    
+        // If you’re creating an “admin”, created_by must be NULL.
+        // Otherwise, it’s the current user’s ID.
+        $createdBy = $role->name === 'admin'
+                     ? null
+                     : Auth::id();
+    
+        // Create the user
         $user = User::create([
             'name'       => $data['name'],
             'email'      => $data['email'],
             'password'   => Hash::make($data['password']),
-            'created_by' => Auth::id(),
+            'created_by' => $createdBy,
         ]);
-
-        $role = Role::findOrFail($data['role']);
+    
+        // Assign the role
         $user->syncRoles($role);
-
+    
         return redirect()
             ->route('users.index')
             ->with('success', 'User created successfully.');

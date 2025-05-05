@@ -11,11 +11,11 @@ class UserSeeder extends Seeder
     public function run()
     {
         $users = [
-            ['name'=>'super',   'email'=>'super@example.com',   'password'=>'password123', 'role'=>'super'],
-            ['name'=>'shop_user',   'email'=>'shop@example.com',   'password'=>'password123', 'role'=>'shop'],
-            ['name'=>'lab_user',    'email'=>'lab@example.com',    'password'=>'password123', 'role'=>'lab'],
-            ['name'=>'master_user', 'email'=>'master@example.com', 'password'=>'password123', 'role'=>'master'],
-            ['name'=>'admin_user',  'email'=>'admin@example.com',  'password'=>'password123', 'role'=>'admin'],
+            ['name'=>'super',   'email'=>'super@example.com',   'password'=>'password123'],
+            ['name'=>'shop_user',   'email'=>'shop@example.com',   'password'=>'password123'],
+            ['name'=>'lab_user',    'email'=>'lab@example.com',    'password'=>'password123'],
+            ['name'=>'master_user', 'email'=>'master@example.com', 'password'=>'password123'],
+            ['name'=>'admin_user',  'email'=>'admin@example.com',  'password'=>'password123'],
         ];
 
         foreach ($users as $data) {

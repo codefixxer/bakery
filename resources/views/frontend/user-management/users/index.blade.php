@@ -18,7 +18,7 @@
       <tr>
         <th>Name</th>
         <th>Email</th>
-        <th>Roles</th>
+        <th>Roles</th> 
         <th>Status</th>
         <th class="text-end">Actions</th>
       </tr>

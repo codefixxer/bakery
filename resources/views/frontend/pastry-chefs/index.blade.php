@@ -94,7 +94,6 @@
       >
         <thead class="table-primary">
           <tr>
-            <th>Created By</th> {{-- 👈 Add this --}}
 
             <th>Name</th>
             <th>Email</th>
@@ -106,14 +105,8 @@
         <tbody>
           @forelse($pastryChefs as $chef)
             <tr>
-              <td>
-                @if($chef->user?->created_by === null)
-                  <span class="badge bg-light text-dark">Default</span>
-                @else
-                  <span class="badge bg-light text-dark">{{ $chef->user->name ?? '—' }}</span>
-                @endif
-              </td>
-        
+         
+          
               <td>{{ $chef->name }}</td>
               <td>{{ $chef->email ?? '—' }}</td>
               <td>{{ $chef->phone ?? '—' }}</td>

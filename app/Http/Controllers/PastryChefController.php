@@ -2,32 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\PastryChef;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\PastryChef;
 
 class PastryChefController extends Controller
 {
-    /**
-     * Display a listing of the logged‑in user’s chefs.
-     */
     public function index()
     {
         $user = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
     
-        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
-                            ->pluck('id')
-                            ->push($groupRootId);
+        // Build the visible user IDs
+        if (is_null($user->created_by)) {
+            // ROOT user: self + any users they created
+            $visibleUserIds = \App\Models\User::where('created_by', $user->id)
+                                    ->pluck('id')
+                                    ->push($user->id)
+                                    ->unique();
+        } else {
+            // CHILD user: self + their creator
+            $visibleUserIds = collect([$user->id, $user->created_by])->unique();
+        }
     
-        $pastryChefs = \App\Models\PastryChef::with('user') // 👈 eager load creator
-                            ->whereIn('user_id', $groupUserIds)
-                            ->latest()
-                            ->get();
+        // Fetch chefs in your group OR with status = 'Default'
+        $pastryChefs = \App\Models\PastryChef::with('user')
+            ->where(function($q) use ($visibleUserIds) {
+                $q->whereIn('user_id', $visibleUserIds)
+                  ->orWhere('status', 'Default');
+            })
+            ->latest()
+            ->get();
     
         return view('frontend.pastry-chefs.index', compact('pastryChefs'));
     }
+    
+    
     
     
     /**
