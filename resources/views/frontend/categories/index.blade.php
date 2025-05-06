@@ -1,4 +1,3 @@
-{{-- resources/views/frontend/cost_categories/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'All Cost Categories')
@@ -62,8 +61,7 @@
       >
         <thead class="table-primary">
           <tr>
-            <th>Created By</th>
-
+           
             <th>Category Name</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -71,13 +69,6 @@
         <tbody>
           @forelse($categories as $cat)
             <tr>
-              <td>
-                @if(optional($cat->user)->hasRole('super'))
-                  <span class="badge bg-info">Default</span>
-                @else
-                  <span class="badge bg-light text-dark">{{ $cat->user->name ?? '—' }}</span>
-                @endif
-              </td>
               
               <td>{{ $cat->name }}</td>
               <td class="text-center">
@@ -115,7 +106,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="2" class="text-center text-muted">No categories found.</td>
+              <td colspan="3" class="text-center text-muted">No categories found.</td>
             </tr>
           @endforelse
         </tbody>
@@ -124,24 +115,26 @@
   </div>
 </div>
 @endsection
-
 @section('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTable
     if (window.$ && $.fn.DataTable) {
       $('#categoriesTable').DataTable({
         paging: true,
         ordering: true,
         responsive: true,
         pageLength: $('#categoriesTable').data('page-length'),
-        columnDefs: [{ orderable: false, targets: 1 }]
+        columnDefs: [
+          { orderable: false, targets: 1 } // Fix: only two columns, index 0 and 1
+        ]
       });
     }
 
-    // Bootstrap validation
+    // Bootstrap form validation
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
-      form.addEventListener('submit', e => {
+      form.addEventListener('submit', function(e) {
         if (!form.checkValidity()) {
           e.preventDefault();
           e.stopPropagation();
@@ -152,3 +145,4 @@
   });
 </script>
 @endsection
+

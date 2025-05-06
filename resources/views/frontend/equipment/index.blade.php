@@ -43,7 +43,7 @@
                     data-page-length="10">
                     <thead class="table-primary">
                         <tr>
-                            <th>Created By</th>
+                           
                             <th>Name</th>
                             <th class="text-center">Actions</th>
                         </tr>
@@ -51,13 +51,7 @@
                     <tbody>
                         @forelse($equipments as $equ)
                             <tr>
-                              <td>
-                                @if($equ->user?->created_by === null)
-                                    <span class="badge bg-light text-dark">Default</span>
-                                @else
-                                    <span class="badge bg-light text-dark">{{ $equ->user->name ?? '—' }}</span>
-                                @endif
-                              </td>
+                             
                                 <td>{{ $equ->name }}</td>
                                 <td class="text-center">
                                     <!-- View Button -->

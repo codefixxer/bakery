@@ -1,4 +1,3 @@
-{{-- resources/views/departments/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'All Departments')
@@ -50,7 +49,9 @@
   <div class="card border-primary shadow-sm">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
       <h5 class="mb-0">All Departments</h5>
-      
+      <a href="{{ route('departments.create') }}" class="btn btn-light">
+        <i class="bi bi-plus-circle me-1 text-primary"></i> New Department
+      </a>
     </div>
     <div class="card-body table-responsive">
       <table
@@ -60,7 +61,6 @@
       >
         <thead class="table-primary">
           <tr>
-            <th>Created By </th>
             <th>Department Name</th>
             <th class="text-center">Actions</th>
           </tr>
@@ -68,44 +68,39 @@
         <tbody>
           @forelse($departments as $department)
             <tr>
-              <td>
-                <span class="badge bg-light text-dark">
-                  {{ $department->user->name ?? 'Default' }}
-                </span>
-              </td>
-              <td>{{ $department->name }}</td>
+              <td>{{ $department->name ?? '—' }}</td>
               <td class="text-center">
                 <!-- View -->
                 <a
                   href="{{ route('departments.show', $department) }}"
-                  class="w-32-px h-32-px bg-primary-focus text-primary-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
+                  class="btn btn-sm btn-outline-info me-1"
                   title="View"
                 >
-                  <iconify-icon icon="lucide:eye"></iconify-icon>
+                  <i class="bi bi-eye"></i>
                 </a>
                 <!-- Edit -->
                 <a
                   href="{{ route('departments.edit', $department) }}"
-                  class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center me-1"
+                  class="btn btn-sm btn-outline-primary me-1"
                   title="Edit"
                 >
-                  <iconify-icon icon="lucide:edit"></iconify-icon>
+                  <i class="bi bi-pencil"></i>
                 </a>
                 <!-- Delete -->
                 <form
                   action="{{ route('departments.destroy', $department) }}"
                   method="POST"
                   class="d-inline"
-                  onsubmit="return confirm('Are you sure you want to delete this department?');"
+                  onsubmit="return confirm('Delete this department?');"
                 >
                   @csrf
                   @method('DELETE')
                   <button
                     type="submit"
-                    class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                    class="btn btn-sm btn-outline-danger"
                     title="Delete"
                   >
-                    <iconify-icon icon="mingcute:delete-2-line"></iconify-icon>
+                    <i class="bi bi-trash"></i>
                   </button>
                 </form>
               </td>
@@ -125,20 +120,23 @@
 @section('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTables safely
     if (window.$ && $.fn.DataTable) {
       $('#departmentsTable').DataTable({
         paging: true,
         ordering: true,
         responsive: true,
         pageLength: $('#departmentsTable').data('page-length'),
-        columnDefs: [{ orderable: false, targets: 1 }]
+        columnDefs: [
+          { orderable: false, targets: 1 } // Fix: Only 2 columns, so index 1 is the last column
+        ]
       });
     }
 
-    // Bootstrap validation
+    // Bootstrap validation logic
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
-      form.addEventListener('submit', e => {
+      form.addEventListener('submit', function (e) {
         if (!form.checkValidity()) {
           e.preventDefault();
           e.stopPropagation();

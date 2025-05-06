@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('external_supply_recipes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreignId('external_supply_id')
                   ->constrained('external_supplies')
                   ->onDelete('cascade');

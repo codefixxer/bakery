@@ -1,4 +1,3 @@
-{{-- resources/views/clients/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'Clients')
@@ -117,6 +116,7 @@
               <th>Phone</th>
               <th>Email</th>
               <th>Notes</th>
+              <th>Created By</th>  <!-- New column -->
               <th class="text-center">Actions</th>
             </tr>
           </thead>
@@ -128,6 +128,14 @@
                 <td>{{ $client->phone }}</td>
                 <td>{{ $client->email }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($client->notes, 50) }}</td>
+                <td>
+                  @php $creator = $client->user; @endphp
+                  @if($creator && is_null($creator->created_by))
+                    <span class="badge bg-dark text-white">{{ $creator->name }}</span>
+                  @else
+                    <span class="badge bg-light text-dark">{{ $creator->name ?? '—' }}</span>
+                  @endif
+                </td>
                 <td class="text-center">
                   <a
                     href="{{ route('clients.show', $client) }}"
@@ -163,11 +171,14 @@
               </tr>
             @empty
               <tr>
-                <td colspan="6" class="text-center">No clients found.</td>
+                <td colspan="7" class="text-center text-muted">No clients found.</td>
               </tr>
             @endforelse
           </tbody>
         </table>
+        <div class="mt-3">
+          {{ $clients->links() }}
+        </div>
       </div>
     </div>
   </div>
@@ -184,7 +195,7 @@
         ordering: true,
         responsive: true,
         pageLength: $('#clientsTable').data('page-length'),
-        columnDefs: [{ orderable: false, targets: 5 }]
+        columnDefs: [{ orderable: false, targets: 6 }]
       });
     }
 

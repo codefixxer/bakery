@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,23 +14,35 @@ class EquipmentController extends Controller
     /**
      * Display a listing of the logged‑in user’s equipment.
      */
+    public function index()
+    {
+        $user = Auth::user();
 
-     public function index()
-     {
-         $user = Auth::user();
-         $groupRootId = $user->created_by ?? $user->id;
-     
-         $groupUserIds = User::where('created_by', $groupRootId)
-                             ->pluck('id')
-                             ->push($groupRootId);
-     
-         $equipments = Equipment::with('user') // 👈 load who created
-                                ->whereIn('user_id', $groupUserIds)
-                                ->latest()
-                                ->get();
-     
-         return view('frontend.equipment.index', compact('equipments'));
-     }
+        // 1) Build your two‑level group of user IDs
+        if (is_null($user->created_by)) {
+            // Root user: yourself + anyone you created
+            $visibleUserIds = User::where('created_by', $user->id)
+                                  ->pluck('id')
+                                  ->push($user->id)
+                                  ->unique();
+        } else {
+            // Child user: yourself + your creator
+            $visibleUserIds = collect([$user->id, $user->created_by])->unique();
+        }
+
+        // 2) Fetch equipment: in-group OR status = 'Default'
+        $equipments = Equipment::with('user')
+                        ->where(function($q) use ($visibleUserIds) {
+                            $q->whereIn('user_id', $visibleUserIds)
+                              ->orWhere('status', 'Default');
+                        })
+                        ->latest()
+                        ->paginate(10);
+
+        return view('frontend.equipment.index', compact('equipments'));
+    }
+
+
     /**
      * Show the form for creating a new piece of equipment.
      */

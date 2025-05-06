@@ -10,7 +10,7 @@ class CreateClientsTable extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name');
             $table->string('location')->nullable();
             $table->string('phone')->nullable();

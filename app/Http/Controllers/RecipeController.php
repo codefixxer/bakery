@@ -93,38 +93,37 @@ class RecipeController extends Controller
     }
     
     public function index()
-    {
-        $user = Auth::user();
-    
-        // Super admin: can access everything
-        if (is_null($user->created_by)) {
-            $recipes     = Recipe::with(['category:id,name', 'department:id,name', 'ingredients.ingredient'])->get();
-            $departments = Department::orderBy('name')->get();
-            $categories  = RecipeCategory::orderBy('name')->get();
-    
-        } else {
-            // Determine group root admin
-            $groupRootId = $user->created_by ?? $user->id;
-    
-            // Find all users in this admin's group (admin + users)
-            $groupUserIds = User::where('created_by', $groupRootId)
-                                ->pluck('id')
-                                ->push($groupRootId);
-    
-            // Now load only records created by those users
-            $recipes     = Recipe::with(['category:id,name', 'department:id,name', 'ingredients.ingredient'])
-                                 ->whereIn('user_id', $groupUserIds)
-                                 ->get();
-    
-            $departments = Department::whereIn('user_id', $groupUserIds)
-                                     ->orderBy('name')->get();
-    
-            $categories  = RecipeCategory::whereIn('user_id', $groupUserIds)
-                                         ->orderBy('name')->get();
-        }
-    
-        return view('frontend.recipe.index', compact('recipes', 'departments', 'categories'));
+{
+    $user = Auth::user();
+
+    // 1) Build your two‑level group of user IDs
+    if (is_null($user->created_by)) {
+        // Top‑level user: yourself + anyone you created
+        $visibleUserIds = User::where('created_by', $user->id)
+                              ->pluck('id')
+                              ->push($user->id)
+                              ->unique();
+    } else {
+        // Child user: yourself + your creator
+        $visibleUserIds = collect([$user->id, $user->created_by])->unique();
     }
+
+    // 2) Fetch only recipes created by those IDs
+    $recipes = Recipe::with(['category:id,name','department:id,name','ingredients.ingredient'])
+                     ->whereIn('user_id', $visibleUserIds)
+                     ->get();
+
+    $departments = Department::whereIn('user_id', $visibleUserIds)
+                             ->orderBy('name')
+                             ->get();
+
+    $categories  = RecipeCategory::whereIn('user_id', $visibleUserIds)
+                                 ->orderBy('name')
+                                 ->get();
+
+    return view('frontend.recipe.index', compact('recipes','departments','categories'));
+}
+
     
 
     public function show(Recipe $recipe)

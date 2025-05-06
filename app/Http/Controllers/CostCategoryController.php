@@ -15,26 +15,34 @@ class CostCategoryController extends Controller
      * Display a listing of the logged‑in user’s categories.
      */
     public function index()
-    {
-        $user = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
-    
-        $groupUserIds = User::where('created_by', $groupRootId)
-                            ->pluck('id')
-                            ->push($groupRootId);
-    
-        $categories = CostCategory::with('user')
-            ->where(function ($q) use ($groupUserIds) {
-                $q->whereIn('user_id', $groupUserIds)
-                  ->orWhereHas('user.roles', function ($query) {
-                      $query->where('name', 'super'); // allow super admin-created categories
-                  });
-            })
-            ->latest()
-            ->get();
-    
-        return view('frontend.categories.index', compact('categories'));
+{
+    $user = Auth::user();
+
+    // 1) Build your two‑level group of user IDs
+    if (is_null($user->created_by)) {
+        // Root user → see yourself + any direct children
+        $visibleUserIds = User::where('created_by', $user->id)
+                              ->pluck('id')
+                              ->push($user->id)
+                              ->unique();
+    } else {
+        // Child user → see yourself + your creator
+        $visibleUserIds = collect([$user->id, $user->created_by])->unique();
     }
+
+    // 2) Fetch categories belonging to those users OR global ones (user_id NULL)
+    $categories = CostCategory::with('user')
+                     ->where(function($q) use ($visibleUserIds) {
+                         $q->whereIn('user_id', $visibleUserIds)
+                           ->orWhereNull('user_id');
+                     })
+                     ->orderBy('name')
+                     ->get();
+
+    return view('frontend.categories.index', compact('categories'));
+}
+
+
 
     public function create()
     {

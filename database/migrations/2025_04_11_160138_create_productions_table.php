@@ -11,7 +11,7 @@ class CreateProductionsTable extends Migration
     {
         Schema::create('productions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('production_name')->nullable();
             $table->boolean('save_template')->default(false)->nullable();
             $table->date('production_date');

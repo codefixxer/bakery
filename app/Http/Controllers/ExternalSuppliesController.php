@@ -18,22 +18,31 @@ class ExternalSuppliesController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
-    
-        $groupUserIds = User::where('created_by', $groupRootId)
-                            ->pluck('id')
-                            ->push($groupRootId);
-    
-        $supplies = ExternalSupply::with('client', 'recipes.recipe', 'user')
-            ->whereIn('user_id', $groupUserIds)
-            ->get();
-    
-        $returns = ReturnedGood::with('client', 'recipes.supplyLine.recipe', 'user')
-            ->whereIn('user_id', $groupUserIds)
-            ->get();
-    
+
+        // 1) Build your two‑level group of user IDs
+        if (is_null($user->created_by)) {
+            // Top‑level: yourself + anyone you created
+            $visibleUserIds = User::where('created_by', $user->id)
+                                  ->pluck('id')
+                                  ->push($user->id)
+                                  ->unique();
+        } else {
+            // Child user: yourself + your creator
+            $visibleUserIds = collect([$user->id, $user->created_by])->unique();
+        }
+
+        // 2) Load supplies & returns only from that group
+        $supplies = ExternalSupply::with(['client','recipes.recipe','user'])
+                        ->whereIn('user_id', $visibleUserIds)
+                        ->get();
+
+        $returns  = ReturnedGood::with(['client','recipes.supplyLine.recipe','user'])
+                        ->whereIn('user_id', $visibleUserIds)
+                        ->get();
+
+        // 3) Flatten into one collection for the accordion
         $all = collect();
-    
+
         foreach ($supplies as $supply) {
             $all->push([
                 'type'               => 'supply',
@@ -45,18 +54,14 @@ class ExternalSuppliesController extends Controller
                 'created_by'         => $supply->user->name ?? '—',
             ]);
         }
-    
+
         foreach ($returns as $return) {
-            $returnedLines = $return->recipes->map(function ($r) {
-                $recipe = $r->supplyLine->recipe ?? null;
-    
-                return (object)[
-                    'recipe'       => $recipe,
-                    'qty'          => $r->qty,
-                    'total_amount' => $r->total_amount,
-                ];
-            });
-    
+            $returnedLines = $return->recipes->map(fn($r) => (object)[
+                'recipe'       => $r->supplyLine->recipe ?? null,
+                'qty'          => $r->qty,
+                'total_amount' => $r->total_amount,
+            ]);
+
             $all->push([
                 'type'               => 'return',
                 'client'             => $return->client->name,
@@ -67,12 +72,12 @@ class ExternalSuppliesController extends Controller
                 'created_by'         => $return->user->name ?? '—',
             ]);
         }
-    
+
         $grouped = $all
             ->sortByDesc('date')
             ->groupBy('client')
             ->map(fn($byClient) => $byClient->groupBy('date'));
-    
+
         return view('frontend.external-supplies.index', ['all' => $grouped]);
     }
     

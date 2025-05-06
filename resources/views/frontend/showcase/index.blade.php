@@ -1,4 +1,3 @@
-{{-- resources/views/frontend/showcase/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'All Showcases')
@@ -44,11 +43,7 @@
         <tbody>
           @forelse($showcases as $s)
             <tr>
-              <td>
-                <span class="badge bg-light text-dark">
-                  {{ $s->user->name ?? '—' }}
-                </span>
-              </td>
+              <td><span class="badge bg-light text-dark">{{ $s->user->name ?? '—' }}</span></td>
               <td style="white-space: nowrap;">{{ \Carbon\Carbon::parse($s->showcase_date)->format('Y-m-d') }}</td>
               <td class="text-end">{{ number_format($s->break_even, 2) }}</td>
               <td class="text-end">{{ number_format($s->total_revenue, 2) }}</td>
@@ -64,24 +59,13 @@
               <td>{{ optional($s->created_at)->format('Y-m-d') }}</td>
               <td>{{ optional($s->updated_at)->format('Y-m-d') }}</td>
               <td class="text-center">
-                <a
-                  href="{{ route('showcase.show', $s) }}"
-                  class="btn btn-sm btn-outline-info me-1"
-                  title="View">
+                <a href="{{ route('showcase.show', $s) }}" class="btn btn-sm btn-outline-info me-1" title="View">
                   <i class="bi bi-eye"></i>
                 </a>
-                <a
-                  href="{{ route('showcase.edit', $s) }}"
-                  class="btn btn-sm btn-outline-primary me-1"
-                  title="Edit">
+                <a href="{{ route('showcase.edit', $s) }}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
                   <i class="bi bi-pencil"></i>
                 </a>
-                <form
-                  action="{{ route('showcase.destroy', $s) }}"
-                  method="POST"
-                  class="d-inline"
-                  onsubmit="return confirm('Delete this showcase?');"
-                >
+                <form action="{{ route('showcase.destroy', $s) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this showcase?');">
                   @csrf @method('DELETE')
                   <button class="btn btn-sm btn-outline-danger" title="Delete">
                     <i class="bi bi-trash"></i>
@@ -102,20 +86,42 @@
 @endsection
 
 @section('scripts')
+<!-- Include jQuery and DataTables if not already included in layout -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+@section('scripts')
+<!-- Include jQuery and DataTables if not already included in layout -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Ensure jQuery and DataTable are available
     if (window.$ && $.fn.DataTable) {
       $('#showcasesTable').DataTable({
-        paging: true,
-        ordering: true,
-        responsive: true,
-        pageLength: 10,
-        order: [[0, 'desc']],
+        paging: true,              // Enable pagination
+        ordering: true,            // Enable column sorting
+        responsive: true,          // Mobile-friendly
+        pageLength: 10,            // Show 10 rows per page
+        order: [[1, 'desc']],      // Default sort by "Date" column (2nd column)
         columnDefs: [
-          { orderable: false, targets: 8 }
-        ]
+          { orderable: false, targets: [9] } // Disable sorting on "Actions" column only
+        ],
+        language: {
+          search: "Search:",
+          lengthMenu: "Show _MENU_ entries per page",
+          info: "Showing _START_ to _END_ of _TOTAL_ entries",
+          paginate: {
+            previous: "&laquo;",
+            next: "&raquo;"
+          }
+        }
       });
     }
   });
 </script>
 @endsection
+

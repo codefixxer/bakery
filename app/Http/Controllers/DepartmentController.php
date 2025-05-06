@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,18 +17,28 @@ class DepartmentController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
-    
-        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
-                            ->pluck('id')
-                            ->push($groupRootId);
-    
-        $departments = \App\Models\Department::with('user') // eager load creator
-                            ->whereIn('user_id', $groupUserIds)
-                            ->orWhereHas('user.roles', fn($q) => $q->where('name', 'super')) // allow super-created
+
+        // 1) Build your two‑level group of user IDs
+        if (is_null($user->created_by)) {
+            // Top‑level user: yourself + anyone you created
+            $visibleUserIds = User::where('created_by', $user->id)
+                                  ->pluck('id')
+                                  ->push($user->id)
+                                  ->unique();
+        } else {
+            // Child user: yourself + your creator
+            $visibleUserIds = collect([$user->id, $user->created_by])->unique();
+        }
+
+        // 2) Fetch departments belonging to those users OR global ones (user_id NULL)
+        $departments = Department::with('user')
+                            ->where(function($q) use ($visibleUserIds) {
+                                $q->whereIn('user_id', $visibleUserIds)
+                                  ->orWhereNull('user_id');
+                            })
                             ->latest()
-                            ->get();
-    
+                            ->paginate(10);
+
         return view('frontend.departments.index', compact('departments'));
     }
     

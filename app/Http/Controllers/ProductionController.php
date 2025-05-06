@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 use App\Models\Recipe;
 use App\Models\Equipment;
 use App\Models\PastryChef;
 use App\Models\Production;
+use Illuminate\Http\Request;
 use App\Models\ProductionDetail;
+use Illuminate\Routing\Controller;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductionController extends Controller
 {
@@ -41,26 +43,39 @@ class ProductionController extends Controller
         return view('frontend.production.show', compact('production', 'equipmentMap'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
-    
-        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
+        // 1) Determine group: top‑level users see themselves + their children; child users see themselves + their creator
+        $groupRootId  = $user->created_by ?? $user->id;
+        $groupUserIds = User::where('created_by', $groupRootId)
                             ->pluck('id')
-                            ->push($groupRootId);
-    
-        $productions = \App\Models\Production::with(['details.recipe', 'details.chef', 'user'])
-                            ->whereIn('user_id', $groupUserIds)
-                            ->latest()
-                            ->get();
-    
-        $equipmentMap = \App\Models\Equipment::whereIn('user_id', $groupUserIds)
-                            ->pluck('name', 'id')
-                            ->toArray();
-    
-        return view('frontend.production.index', compact('productions', 'equipmentMap'));
+                            ->push($groupRootId)
+                            ->unique();
+
+        // 2) Load all productions for that group
+        $productions = Production::with(['details.recipe', 'details.chef', 'user'])
+                                 ->whereIn('user_id', $groupUserIds)
+                                 ->latest()
+                                 ->get();
+
+        // 3) Compute total potential revenue across all details
+        $totalPotentialRevenue = $productions
+            ->flatMap(fn($p) => $p->details)    // flatten all detail collections
+            ->sum('potential_revenue');        // sum the potential_revenue field
+
+        // 4) Equipment map for display & filtering
+        $equipmentMap = Equipment::whereIn('user_id', $groupUserIds)
+                                 ->pluck('name', 'id')
+                                 ->toArray();
+
+        return view('frontend.production.index', compact(
+            'productions',
+            'equipmentMap',
+            'totalPotentialRevenue'
+        ));
     }
+
     
 
     public function create()

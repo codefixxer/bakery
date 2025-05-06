@@ -15,25 +15,31 @@ class ClientController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $groupOwnerId = $user->created_by ?? $user->id;
     
-        $groupUserIds = \App\Models\User::where('created_by', $groupOwnerId)
-                            ->pluck('id')
-                            ->push($groupOwnerId);
+        // 1) Build your two‑level group of user IDs
+        if (is_null($user->created_by)) {
+            // Root user → see yourself + anyone you created
+            $visibleUserIds = \App\Models\User::where('created_by', $user->id)
+                                  ->pluck('id')
+                                  ->push($user->id)
+                                  ->unique();
+        } else {
+            // Child user → see yourself + your creator
+            $visibleUserIds = collect([$user->id, $user->created_by])->unique();
+        }
     
-        // Also include super admin's records (created_by is NULL and id is not a child of anyone)
-        $superAdminIds = \App\Models\User::whereNull('created_by')->pluck('id');
-    
-        // Merge group + super admin IDs (avoid duplicates)
-        $userIds = $groupUserIds->merge($superAdminIds)->unique();
-    
+        // 2) Fetch clients owned by those users OR global clients (user_id IS NULL)
         $clients = \App\Models\Client::with('user')
-                     ->whereIn('user_id', $userIds)
-                     ->latest()
-                     ->paginate(10);
+                      ->where(function($q) use ($visibleUserIds) {
+                          $q->whereIn('user_id', $visibleUserIds)
+                            ->orWhereNull('user_id');
+                      })
+                      ->latest()
+                      ->paginate(10);
     
         return view('frontend.clients.index', compact('clients'));
     }
+    
     
 
     /**

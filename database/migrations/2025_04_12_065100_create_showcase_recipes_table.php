@@ -10,7 +10,7 @@ class CreateShowcaseRecipesTable extends Migration
     {
         Schema::create('showcase_recipes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreignId('showcase_id')->constrained('showcases')->onDelete('cascade');
             $table->foreignId('recipe_id')->constrained('recipes')->onDelete('cascade');
             $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');

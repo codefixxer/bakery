@@ -10,7 +10,7 @@ return new class extends Migration {
     {
         Schema::create('recipes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('recipe_name');
             $table->foreignId('recipe_category_id')
                   ->constrained('recipe_categories')

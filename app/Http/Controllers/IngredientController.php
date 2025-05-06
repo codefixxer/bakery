@@ -13,25 +13,24 @@ class IngredientController extends Controller
     public function index()
     {
         $user = Auth::user();
-    
-        // Super admin → created_by is NULL → show all
+
+        // Build the list of user IDs you should see:
         if (is_null($user->created_by)) {
-            $ingredients = Ingredient::with('user')->get();
+            // Top‑level: see yourself + anyone you created
+            $visibleUserIds = User::where('created_by', $user->id)
+                                  ->pluck('id')
+                                  ->push($user->id)
+                                  ->unique();
         } else {
-            // Determine the group root admin
-            $groupRootId = $user->created_by ?? $user->id;
-    
-            // All users in the same group: admin + their users
-            $groupUserIds = User::where('created_by', $groupRootId)
-                                ->pluck('id')
-                                ->push($groupRootId); // include admin
-    
-            // Fetch ingredients only for this group
-            $ingredients = Ingredient::with('user')
-                                     ->whereIn('user_id', $groupUserIds)
-                                     ->get();
+            // Child: see yourself + your creator
+            $visibleUserIds = collect([$user->id, $user->created_by])->unique();
         }
-    
+
+        // Fetch ingredients belonging to those users
+        $ingredients = Ingredient::with('user')
+                          ->whereIn('user_id', $visibleUserIds)
+                          ->get();
+
         return view('frontend.ingredients.index', compact('ingredients'));
     }
     

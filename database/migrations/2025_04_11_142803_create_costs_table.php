@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('costs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('supplier');
             $table->string('cost_identifier')->nullable();
             $table->decimal('amount', 10, 2);

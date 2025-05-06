@@ -9,17 +9,19 @@
   <div class="card border-primary shadow-sm mb-5">
     <div class="card-header d-flex align-items-center" style="background-color: #041930;">
       <i class="bi bi-box-seam fs-4 me-2" style="color: #e2ae76;"></i>
-      <h5 class="mb-0" style="color: #e2ae76;">{{ isset($ingredient) ? 'Edit Ingredient' : 'Add Ingredient' }}</h5>
+      <h5 class="mb-0" style="color: #e2ae76;">
+        {{ isset($ingredient) ? 'Edit Ingredient' : 'Add Ingredient' }}
+      </h5>
     </div>
-    
     <div class="card-body">
       <form
-        action="{{ isset($ingredient) ? route('ingredients.update', $ingredient->id) : route('ingredients.store') }}"
-        method="POST" class="row g-3 needs-validation" novalidate>
+        action="{{ isset($ingredient) ? route('ingredients.update', $ingredient) : route('ingredients.store') }}"
+        method="POST"
+        class="row g-3 needs-validation"
+        novalidate
+      >
         @csrf
-        @if (isset($ingredient))
-          @method('PUT')
-        @endif
+        @if (isset($ingredient)) @method('PUT') @endif
 
         <div class="col-md-6">
           <label for="ingredientName" class="form-label fw-semibold">Ingredient Name</label>
@@ -32,9 +34,7 @@
             value="{{ old('ingredient_name', $ingredient->ingredient_name ?? '') }}"
             required
           >
-          <div class="invalid-feedback">
-            Please provide an ingredient name.
-          </div>
+          <div class="invalid-feedback">Please provide an ingredient name.</div>
         </div>
 
         <div class="col-md-6">
@@ -52,9 +52,7 @@
               required
             >
             <span class="input-group-text">/kg</span>
-            <div class="invalid-feedback">
-              Please provide a valid price.
-            </div>
+            <div class="invalid-feedback">Please provide a valid price.</div>
           </div>
         </div>
 
@@ -82,16 +80,17 @@
         >
           <thead class="table-primary">
             <tr>
-             
-              <th scope="col">Name</th>
-              <th scope="col">Price / kg</th>
-              <th scope="col">Last Updated</th>
-              <th scope="col" class="text-center">Actions</th>
+                      {{-- New column --}}
+              <th>Name</th>
+              <th>Price / kg</th>
+              <th>Last Updated</th>
+              <th class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            @foreach($ingredients as $ingredient)
+            @forelse($ingredients as $ingredient)
               <tr>
+                {{-- Created By --}}
                
                 <td>{{ $ingredient->ingredient_name }}</td>
                 <td>€{{ number_format($ingredient->price_per_kg, 2) }}</td>
@@ -102,19 +101,13 @@
                     href="{{ route('ingredients.edit', $ingredient) }}"
                     class="btn btn-sm btn-outline-success me-1"
                     title="Edit"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </a>
-
+                  ><i class="bi bi-pencil"></i></a>
                   <!-- View -->
                   <a
                     href="{{ route('ingredients.show', $ingredient) }}"
                     class="btn btn-sm btn-outline-primary me-1"
                     title="View"
-                  >
-                    <i class="bi bi-eye"></i>
-                  </a>
-
+                  ><i class="bi bi-eye"></i></a>
                   <!-- Delete -->
                   <form
                     action="{{ route('ingredients.destroy', $ingredient) }}"
@@ -122,19 +115,20 @@
                     class="d-inline"
                     onsubmit="return confirm('Delete this ingredient?');"
                   >
-                    @csrf
-                    @method('DELETE')
+                    @csrf @method('DELETE')
                     <button
                       type="submit"
                       class="btn btn-sm btn-outline-danger"
                       title="Delete"
-                    >
-                      <i class="bi bi-trash"></i>
-                    </button>
+                    ><i class="bi bi-trash"></i></button>
                   </form>
                 </td>
               </tr>
-            @endforeach
+            @empty
+              <tr>
+                <td colspan="5" class="text-center text-muted">No ingredients found.</td>
+              </tr>
+            @endforelse
           </tbody>
         </table>
       </div>
@@ -145,7 +139,8 @@
 
 @section('scripts')
 <script>
-  (() => {
+  // Bootstrap validation
+  (function(){
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');
     forms.forEach(form => {
@@ -159,19 +154,7 @@
     });
   })();
 
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.$ && $.fn.DataTable) {
-      $('#ingredientsTable').DataTable({
-        pageLength: $('#ingredientsTable').data('page-length'),
-        responsive: true,
-        scrollX: true,
-        autoWidth: false,
-        columnDefs: [
-          { orderable: false, targets: 3 } // fix index from 4 to 3
-        ]
-      });
-    }
-  });
+  // DataTable
+ 
 </script>
 @endsection
-
