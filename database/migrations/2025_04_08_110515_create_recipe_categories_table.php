@@ -12,6 +12,8 @@ class CreateRecipeCategoriesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name')->unique();
+            $table->string('status')->nullable();
+
             $table->timestamps();
         });
     }

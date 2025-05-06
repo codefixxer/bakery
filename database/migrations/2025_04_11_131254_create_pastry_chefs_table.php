@@ -15,6 +15,7 @@ class CreatePastryChefsTable extends Migration
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

@@ -13,6 +13,7 @@ class CreateEquipmentTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name');
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name'); // e.g. Utilities, Rent, Packaging
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }
