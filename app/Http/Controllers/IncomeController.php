@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Income;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -12,14 +14,31 @@ class IncomeController extends Controller
     /**
      * Display a listing of the logged‑in user’s incomes.
      */
-    public function index()
-    {
-        $incomes = Income::where('user_id', Auth::id())
-                         ->orderBy('date', 'desc')
-                         ->paginate(15);
 
-        return view('frontend.incomes.index', compact('incomes'));
-    }
+     public function index()
+     {
+         $user = Auth::user();
+ 
+         // 1) Build your two‑level group of user IDs
+         if (is_null($user->created_by)) {
+             // Root user: yourself + anyone you created
+             $children = User::where('created_by', $user->id)->pluck('id');
+             $visibleUserIds = $children->isEmpty()
+                 ? collect([$user->id])
+                 : $children->push($user->id);
+         } else {
+             // Child user: yourself + your creator
+             $visibleUserIds = collect([$user->id, $user->created_by]);
+         }
+ 
+         // 2) Fetch incomes belonging to that group
+         $incomes = Income::with('user')
+             ->whereIn('user_id', $visibleUserIds)
+             ->orderBy('date', 'desc')
+             ->paginate(15);
+ 
+         return view('frontend.incomes.index', compact('incomes'));
+     }
 
     /**
      * Show the form for creating a new income.

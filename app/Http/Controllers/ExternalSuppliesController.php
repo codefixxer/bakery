@@ -84,19 +84,49 @@ class ExternalSuppliesController extends Controller
     
     
 
-    public function create()
+ public function create()
     {
-        $laborCost = LaborCost::first();
-        $clients   = Client::all();
-        $recipes   = Recipe::where('labor_cost_mode', 'external')->get();
-        $templates = ExternalSupply::where('save_template', true)
-                                   ->pluck('supply_name', 'id');
+        $user = Auth::user();
+
+        // 1) Build your “visible” user IDs exactly as in index:
+        if (is_null($user->created_by)) {
+            // root user → yourself + anyone you created
+            $groupUserIds = User::where('created_by', $user->id)
+                                ->pluck('id')
+                                ->push($user->id)
+                                ->unique();
+        } else {
+            // child user → yourself + your creator
+            $groupUserIds = collect([$user->id, $user->created_by])->unique();
+        }
+
+        // 2) Now scope all dropdown data to that same group:
+        // — Labor cost lives at the group‑owner level, so pick group root
+        $groupRootId = $user->created_by ?? $user->id;
+        $laborCost   = LaborCost::where('user_id', $groupRootId)->first();
+
+        // — Clients created by anyone in your group
+        $clients     = Client::whereIn('user_id', $groupUserIds)
+                             ->orderBy('name')
+                             ->get();
+
+        // — Recipes for “external” mode, but only if owned by your group
+        $recipes     = Recipe::where('labor_cost_mode', 'external')
+                             ->whereIn('user_id', $groupUserIds)
+                             ->get();
+
+        // — Saved‐as‐template ExternalSupply entries, again scoped to group
+        $templates   = ExternalSupply::where('save_template', true)
+                             ->whereIn('user_id', $groupUserIds)
+                             ->pluck('supply_name', 'id');
 
         return view('frontend.external-supplies.create', compact(
-            'laborCost', 'clients', 'recipes', 'templates'
+            'laborCost',
+            'clients',
+            'recipes',
+            'templates'
         ));
     }
-
     public function store(Request $request)
     {
         $data = $request->validate([

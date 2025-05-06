@@ -4,113 +4,81 @@ namespace App\Http\Controllers;
 
 use App\Models\Showcase;
 use App\Models\ExternalSupply;
-use App\Models\Income;
-use App\Models\RecipeCategory;  // ← make sure to import
-use App\Models\Department;      // ← make sure to import
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class RecordFilterController extends Controller
 {
-    /**
-     * Show the filter form + records that this user hasn’t yet added to their income,
-     * along with only this user’s categories & departments.
-     */
     public function index(Request $request)
     {
-        $userId = Auth::id();
-        $from   = $request->query('from');
-        $to     = $request->query('to');
+        $user = Auth::user();
 
-        // only this user’s categories & departments
-        $categories  = RecipeCategory::where('user_id', $userId)
-                                     ->orderBy('name')
-                                     ->get();
-        $departments = Department::where('user_id', $userId)
-                                 ->orderBy('name')
-                                 ->get();
+        //
+        // 1) Build “visible” user IDs
+        //
+        if (is_null($user->created_by)) {
+            // root → self + direct children
+            $children = User::where('created_by', $user->id)->pluck('id');
+            $visibleUserIds = $children->isEmpty()
+                ? collect([$user->id])
+                : $children->push($user->id);
+        } else {
+            // child → self + your creator
+            $visibleUserIds = collect([$user->id, $user->created_by]);
+        }
 
-        // only this user’s already‑recorded income dates
-        $incomeDates = Income::where('user_id', $userId)
-            ->pluck('date')
-            ->map(fn($d) => $d->format('Y-m-d'))
-            ->toArray();
+        //
+        // 2) Date filters
+        //
+        $from = $request->query('from');
+        $to   = $request->query('to');
 
-        // un‑recorded showcases
-        $showcaseRecords = Showcase::with('recipes.recipe')
-            ->when($from, fn($q) => $q->whereDate('showcase_date', '>=', $from))
-            ->when($to,   fn($q) => $q->whereDate('showcase_date', '<=', $to))
-            ->whereNotIn(DB::raw('DATE(showcase_date)'), $incomeDates)
+        //
+        // 3) Fetch & group Showcase
+        //
+        $showcases = Showcase::with('recipes.recipe.category','recipes.recipe.department')
+            ->whereIn('user_id', $visibleUserIds)
+            ->when($from, fn($q) => $q->whereDate('showcase_date','>=',$from))
+            ->when($to,   fn($q) => $q->whereDate('showcase_date','<=',$to))
             ->orderBy('showcase_date')
             ->get();
+        $showcaseGroups = $showcases->groupBy(fn($sc) => $sc->showcase_date->format('Y-m-d'));
 
-        // un‑recorded external supplies
-        $externalRecords = ExternalSupply::with([
-                'client',
-                'recipes.recipe',
-                'returnedGoods.recipes.recipe',
-            ])
-            ->when($from, fn($q) => $q->whereDate('supply_date', '>=', $from))
-            ->when($to,   fn($q) => $q->whereDate('supply_date', '<=', $to))
-            ->whereNotIn(DB::raw('DATE(supply_date)'), $incomeDates)
+        //
+        // 4) Fetch & group ExternalSupply
+        //
+        $externals = ExternalSupply::with('client','recipes.recipe.category','recipes.recipe.department','recipes.returns')
+            ->whereIn('user_id', $visibleUserIds)
+            ->when($from, fn($q) => $q->whereDate('supply_date','>=',$from))
+            ->when($to,   fn($q) => $q->whereDate('supply_date','<=',$to))
             ->orderBy('supply_date')
             ->get();
+        $externalGroups = $externals->groupBy(fn($es) => $es->supply_date->format('Y-m-d'));
 
-        return view('frontend.records.index', [
-            'showcaseRecords' => $showcaseRecords,
-            'externalRecords' => $externalRecords,
-            'from'            => $from,
-            'to'              => $to,
-            'categories'      => $categories,
-            'departments'     => $departments,
-        ]);
-    }
+        //
+        // 5) Grand totals (used in summaries and footers)
+        //
+        $totalShowcaseRevenue = $showcases
+            ->flatMap(fn($sc) => $sc->recipes->pluck('actual_revenue'))
+            ->sum();
 
-    /**
-     * Take the filtered rows and insert them into this user’s income.
-     */
-    public function addFiltered(Request $request)
-    {
-        $data = $request->validate([
-            'showcase'            => 'array',
-            'showcase.*.date'     => 'required_with:showcase|date',
-            'showcase.*.amount'   => 'required_with:showcase|numeric',
-            'external'            => 'array',
-            'external.*.date'     => 'required_with:external|date',
-            'external.*.amount'   => 'required_with:external|numeric',
-        ]);
+        $totalExternalCost = $externals
+            ->flatMap(fn($es) => $es->recipes->map(function($line) {
+                $unit = $line->qty > 0
+                      ? ($line->total_amount / $line->qty)
+                      : 0;
+                $returned = $line->returns->sum('qty') * $unit;
+                return $line->total_amount - $returned;
+            }))
+            ->sum();
 
-        if (
-            empty($data['showcase'] ?? []) &&
-            empty($data['external'] ?? [])
-        ) {
-            return redirect()->back()
-                             ->withErrors('At least one record must be provided.');
-        }
-
-        $toInsert = [];
-        $userId   = Auth::id();
-
-        foreach ($data['showcase'] ?? [] as $row) {
-            $toInsert[] = [
-                'date'    => $row['date'],
-                'amount'  => $row['amount'],
-                'user_id' => $userId,
-            ];
-        }
-
-        foreach ($data['external'] ?? [] as $row) {
-            $toInsert[] = [
-                'date'    => $row['date'],
-                'amount'  => $row['amount'],
-                'user_id' => $userId,
-            ];
-        }
-
-        Income::insert($toInsert);
-
-        return redirect()->back()
-                         ->with('success', 'Income records added.');
+        return view('frontend.records.index', compact(
+            'showcaseGroups',
+            'externalGroups',
+            'from','to',
+            'totalShowcaseRevenue',
+            'totalExternalCost'
+        ));
     }
 }

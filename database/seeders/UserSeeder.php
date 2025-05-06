@@ -11,23 +11,23 @@ class UserSeeder extends Seeder
     public function run()
     {
         $users = [
-            ['name'=>'super',   'email'=>'super@example.com',   'password'=>'password123'],
-            ['name'=>'shop_user',   'email'=>'shop@example.com',   'password'=>'password123'],
-            ['name'=>'lab_user',    'email'=>'lab@example.com',    'password'=>'password123'],
-            ['name'=>'master_user', 'email'=>'master@example.com', 'password'=>'password123'],
-            ['name'=>'admin_user',  'email'=>'admin@example.com',  'password'=>'password123'],
+            ['name' => 'super',       'email' => 'super@example.com',   'password' => 'password123', 'role' => 'super-admin'],
+            ['name' => 'shop_user',   'email' => 'shop@example.com',    'password' => 'password123', 'role' => 'shop'],
+            ['name' => 'lab_user',    'email' => 'lab@example.com',     'password' => 'password123', 'role' => 'lab'],
+            ['name' => 'master_user', 'email' => 'master@example.com',  'password' => 'password123', 'role' => 'master'],
+            ['name' => 'admin_user',  'email' => 'admin@example.com',   'password' => 'password123', 'role' => 'admin'],
         ];
 
         foreach ($users as $data) {
             $user = User::firstOrCreate(
-                ['email'=>$data['email']],
+                ['email' => $data['email']],
                 [
-                   'name'     => $data['name'],
-                   'password' => Hash::make($data['password']),
+                    'name'     => $data['name'],
+                    'password' => Hash::make($data['password']),
                 ]
             );
 
-            // sync exactly one role
+            // sync exactly one role; now guaranteed to exist
             $user->syncRoles($data['role']);
         }
     }

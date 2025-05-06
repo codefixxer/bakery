@@ -1,53 +1,51 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Filter Records')
+@section('title', 'Showcase & External Supply Records')
 
 @section('content')
-@php
-    $allCategories = $categories->pluck('name');
-    $allDepartments = $departments->pluck('name');
-@endphp
-
-<div class="container py-5 px-md-5">
-
-  {{-- Page Heading --}}
-  <div class="text-center py-3 px-3 rounded mb-5 shadow" style="background-color: #041930;">
-    <h2 class="fw-bold mb-0" style="color: #e2ae76; font-size: 1.8rem;">
+<div class="container py-5">
+  {{-- Page Title --}}
+  <div class="text-center mb-4">
+    <h1 class="d-inline-block px-4 py-2" style="background:#041930; color:#e2ae76; border-radius:.5rem;">
       Showcase &amp; External Supply Records
-    </h2>
+    </h1>
   </div>
 
-  {{-- Filter Form --}}
-  <div class="card mb-5 shadow-sm border-0">
+  {{-- Filters --}}
+  <div class="card mb-4 shadow-sm border-0">
     <div class="card-body">
-      <div class="row g-4">
-        <div class="col-md-3">
-          <label class="form-label fw-semibold">From</label>
-          <input type="date" id="filter_from" class="form-control" value="{{ $from }}">
+      <div class="row g-3">
+        <div class="col-md-2">
+          <label class="form-label">From</label>
+          <input id="filter-from" type="date" value="{{ $from }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">To</label>
+          <input id="filter-to" type="date" value="{{ $to }}" class="form-control">
         </div>
         <div class="col-md-3">
-          <label class="form-label fw-semibold">To</label>
-          <input type="date" id="filter_to" class="form-control" value="{{ $to }}">
+          <label class="form-label">Recipe Name</label>
+          <input id="filter-recipe" type="text" class="form-control" placeholder="Enter recipe…">
         </div>
-        <div class="col-md-3">
-          <label class="form-label fw-semibold">Recipe Name</label>
-          <input type="text" id="filter_recipe" class="form-control" placeholder="Enter recipe...">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label fw-semibold">Category</label>
-          <select id="filter_category" class="form-select">
+        <div class="col-md-2">
+          <label class="form-label">Category</label>
+          <select id="filter-category" class="form-select">
             <option value="">All Categories</option>
-            @foreach($allCategories as $cat)
-              <option value="{{ strtolower($cat) }}">{{ $cat }}</option>
+            @foreach($showcaseGroups->flatten(1)->pluck('recipes.*.recipe.category.name')->flatten()->unique() as $cat)
+              @if($cat)
+                <option value="{{ strtolower($cat) }}">{{ $cat }}</option>
+              @endif
             @endforeach
           </select>
         </div>
-        <div class="col-md-3">
-          <label class="form-label fw-semibold">Department</label>
-          <select id="filter_department" class="form-select">
+        <div class="col-md-2">
+          <label class="form-label">Department</label>
+          <select id="filter-department" class="form-select">
             <option value="">All Departments</option>
-            @foreach($allDepartments as $dept)
-              <option value="{{ strtolower($dept) }}">{{ $dept }}</option>
+            @foreach($showcaseGroups->flatten(1)->pluck('recipes.*.recipe.department.name')->flatten()->unique() as $dept)
+              @if($dept)
+                <option value="{{ strtolower($dept) }}">{{ $dept }}</option>
+              @endif
             @endforeach
           </select>
         </div>
@@ -55,352 +53,303 @@
     </div>
   </div>
 
-  {{-- No Records Alert --}}
-  <div id="noRecords" class="alert alert-info text-center" style="display:none">
-    No records found for the selected filters.
-  </div>
-
-  {{-- Summary Cards --}}
-  <div id="summary" class="row justify-content-center mb-5 g-4" style="display:none">
-    <div class="col-sm-8 col-md-5 col-lg-4">
-      <div class="card border-0 shadow h-100">
+  {{-- Summaries --}}
+  <div class="row mb-5 gx-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
         <div class="card-body text-center">
-          <i class="bi bi-graph-up display-4 text-primary mb-3"></i>
-          <h5 class="card-title">Total Showcase Revenue</h5>
-          <p class="display-5 fw-bold mb-1" id="totalShowRevenue">0.00</p>
-          <small class="text-muted fw-semibold fs-5" id="pctShow">0%</small>
+          <i class="bi bi-graph-up display-4 text-primary mb-2"></i>
+          <h5>Total Showcase Revenue</h5>
+          <p id="summary-showcase" class="display-6 mb-1">{{ number_format($totalShowcaseRevenue,2) }}</p>
+          <small id="summary-showcase-pct" class="text-muted">0%</small>
         </div>
       </div>
     </div>
-    <div class="col-sm-8 col-md-5 col-lg-4">
-      <div class="card border-0 shadow h-100">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
         <div class="card-body text-center">
-          <i class="bi bi-currency-dollar display-4 text-danger mb-3"></i>
-          <h5 class="card-title">Total External Cost</h5>
-          <p class="display-5 fw-bold mb-1" id="totalExternalCost">0.00</p>
-          <small class="text-muted fw-semibold fs-5" id="pctExt">0%</small>
+          <i class="bi bi-currency-dollar display-4 text-danger mb-2"></i>
+          <h5>Total External Cost</h5>
+          <p id="summary-external" class="display-6 mb-1">{{ number_format($totalExternalCost,2) }}</p>
+          <small id="summary-external-pct" class="text-muted">0%</small>
         </div>
       </div>
     </div>
   </div>
 
-  {{-- Tables --}}
-  <div class="row gx-4 gy-5">
-    {{-- Showcase Table --}}
-    <div class="col-lg-6">
-      <div class="card shadow-sm h-100 border-0">
-        <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
-          <i class="bi bi-list-ul me-2" style="color: #e2ae76;"></i>
-          <strong class="fs-5">Showcase Records</strong>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover mb-0 align-middle">
-              <thead class="table-light text-center">
-                <tr>
-                  <th>Date</th>
-                  <th class="text-start">Recipe</th>
-                  <th>Qty</th>
-                  <th>Sold</th>
-                  <th>Reuse</th>
-                  <th>Waste</th>
-                  <th>Revenue</th>
-                </tr>
-              </thead>
-              <tbody id="showcaseBody" class="text-center"></tbody>
-              <tfoot class="table-light text-center">
-                <tr>
-                  <th colspan="2" class="text-end">Grand Total:</th>
-                  <th id="showcaseQtyFooter">0</th>
-                  <th id="showcaseSoldFooter">0</th>
-                  <th id="showcaseReuseFooter">0</th>
-                  <th id="showcaseWasteFooter">0</th>
-                  <th id="showcaseFooter">0.00</th>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
+  <div class="row gx-4">
+    {{-- Showcase (50%) --}}
+    <div class="col-lg-6 mb-5">
+      <div style="background:#041930; color:#e2ae76; padding:.5rem; border-top-left-radius:.5rem; border-top-right-radius:.5rem;">
+        <i class="bi bi-list-ul me-1"></i> Showcase Records
       </div>
+      <table class="table mb-0 border showcaseTable">
+        <thead class="table-light text-center">
+          <tr>
+            <th style="width:1%"></th>
+            <th>Date</th>
+            <th>Recipe</th>
+            <th>Qty</th>
+            <th>Sold</th>
+            <th>Reuse</th>
+            <th>Waste</th>
+            <th class="text-end">Revenue (€)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($showcaseGroups as $date => $group)
+            @php
+              $lines = $group->flatMap(fn($sc)=> $sc->recipes);
+              $sum   = $lines->sum('actual_revenue');
+            @endphp
+            <tr class="bg-light group-header text-center" data-date="{{ $date }}">
+              <td class="toggle-arrow" style="cursor:pointer">
+                <i class="bi bi-caret-right-fill"></i>
+              </td>
+              <td colspan="6" class="text-start">{{ $date }} ({{ $lines->count() }} lines)</td>
+              <td class="text-end fw-semibold">{{ number_format($sum,2) }}</td>
+            </tr>
+            @foreach($group as $sc)
+              @foreach($sc->recipes as $line)
+                <tr class="group-{{ $date }} d-none text-center"
+                    data-date="{{ $date }}"
+                    data-recipe="{{ strtolower($line->recipe->recipe_name) }}"
+                    data-category="{{ strtolower($line->recipe->category->name ?? '') }}"
+                    data-department="{{ strtolower($line->recipe->department->name ?? '') }}"
+                    data-qty="{{ $line->quantity }}"
+                    data-sold="{{ $line->sold }}"
+                    data-reuse="{{ $line->reuse }}"
+                    data-waste="{{ $line->waste }}"
+                    data-revenue="{{ $line->actual_revenue }}">
+                  <td></td>
+                  <td>{{ $sc->showcase_date->format('Y-m-d') }}</td>
+                  <td>{{ $line->recipe->recipe_name }}</td>
+                  <td>{{ $line->quantity }}</td>
+                  <td>{{ $line->sold }}</td>
+                  <td>{{ $line->reuse }}</td>
+                  <td>{{ $line->waste }}</td>
+                  <td class="text-end">{{ number_format($line->actual_revenue,2) }}</td>
+                </tr>
+              @endforeach
+            @endforeach
+          @endforeach
+        </tbody>
+        <tfoot class="table-light text-center">
+          <tr>
+            <th colspan="3" class="text-end">Grand Total:</th>
+            <th id="showcaseQtyFooter">0</th>
+            <th id="showcaseSoldFooter">0</th>
+            <th id="showcaseReuseFooter">0</th>
+            <th id="showcaseWasteFooter">0</th>
+            <th id="showcaseFooter">0.00</th>
+          </tr>
+        </tfoot>
+      </table>
     </div>
 
-    {{-- External Supply Table --}}
-    <div class="col-lg-6">
-      <div class="card shadow-sm h-100 border-0">
-        <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
-          <i class="bi bi-box-seam me-2" style="color: #e2ae76;"></i>
-          <strong class="fs-5">External Supply Records</strong>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover mb-0 align-middle">
-              <thead class="table-light text-center">
-                <tr>
-                  <th>Date</th>
-                  <th class="text-start">Client</th>
-                  <th class="text-start">Recipe</th>
-                  <th>Returns</th>
-                  <th>Qty</th>
-                  <th>Total ($)</th>
-                </tr>
-              </thead>
-              <tbody id="externalBody" class="text-center"></tbody>
-              <tfoot class="table-light text-center">
-                <tr>
-                  <th colspan="3" class="text-end">Grand Total:</th>
-                  <th id="externalReturnsFooter">0</th>
-                  <th id="externalQtyFooter">0</th>
-                  <th id="externalFooter">0.00</th>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
+    {{-- External (50%) --}}
+    <div class="col-lg-6 mb-5">
+      <div style="background:#041930; color:#e2ae76; padding:.5rem; border-top-left-radius:.5rem; border-top-right-radius:.5rem;">
+        <i class="bi bi-box-seam me-1"></i> External Supply Records
       </div>
+      <table class="table mb-0 border externalTable">
+        <thead class="table-light text-center">
+          <tr>
+            <th style="width:1%"></th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Recipe</th>
+            <th>Returns</th>
+            <th>Qty</th>
+            <th class="text-end">Total (€)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($externalGroups as $date => $group)
+            @php
+              $lines = $group->flatMap(fn($es)=> $es->recipes);
+              $sum   = $lines->sum(function($line){
+                $unit     = $line->qty>0?($line->total_amount/$line->qty):0;
+                $returned = $line->returns->sum('qty') * $unit;
+                return $line->total_amount - $returned;
+              });
+            @endphp
+            <tr class="bg-light group-header text-center" data-date="{{ $date }}">
+              <td class="toggle-arrow" style="cursor:pointer">
+                <i class="bi bi-caret-right-fill"></i>
+              </td>
+              <td colspan="5" class="text-start">{{ $date }} ({{ $lines->count() }} lines)</td>
+              <td class="text-end fw-semibold">{{ number_format($sum,2) }}</td>
+            </tr>
+            @foreach($group as $es)
+              @foreach($es->recipes as $line)
+                @php
+                  $unit     = $line->qty>0?($line->total_amount/$line->qty):0;
+                  $rQty     = $line->returns->sum('qty');
+                  $netTotal = $line->total_amount - $rQty * $unit;
+                @endphp
+                <tr class="group-{{ $date }} d-none text-center"
+                    data-date="{{ $date }}"
+                    data-recipe="{{ strtolower($line->recipe->recipe_name) }}"
+                    data-category="{{ strtolower($line->recipe->category->name ?? '') }}"
+                    data-department="{{ strtolower($line->recipe->department->name ?? '') }}"
+                    data-returns="{{ $rQty }}"
+                    data-qty="{{ $line->qty }}"
+                    data-total="{{ $netTotal }}">
+                  <td></td>
+                  <td>{{ $es->supply_date->format('Y-m-d') }}</td>
+                  <td>{{ $es->client->name }}</td>
+                  <td>{{ $line->recipe->recipe_name }}</td>
+                  <td>{{ $rQty }}</td>
+                  <td>{{ $line->qty }}</td>
+                  <td class="text-end">{{ number_format($netTotal,2) }}</td>
+                </tr>
+              @endforeach
+            @endforeach
+          @endforeach
+        </tbody>
+        <tfoot class="table-light text-center">
+          <tr>
+            <th colspan="4" class="text-end">Grand Total:</th>
+            <th id="externalReturnsFooter">0</th>
+            <th id="externalQtyFooter">0</th>
+            <th id="externalFooter">0.00</th>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </div>
 </div>
 @endsection
 
-
-
-
-
 @section('scripts')
 <script>
-  @php
-    // include category + department in the JS payload
-    $showData = $showcaseRecords->flatMap(fn($sc) =>
-      $sc->recipes->map(fn($line) => [
-        'date'        => $sc->showcase_date->format('Y-m-d'),
-        'recipe_name' => $line->recipe->recipe_name,
-        'quantity'    => $line->quantity,
-        'sold'        => $line->sold,
-        'reuse'       => $line->reuse,
-        'waste'       => $line->waste,
-        'revenue'     => $line->actual_revenue,
-        'category'    => optional($line->recipe->category)->name,
-        'department'  => optional($line->recipe->department)->name,
-      ])
-    )->all();
+document.addEventListener('DOMContentLoaded', () => {
+  const fromIn     = document.getElementById('filter-from');
+  const toIn       = document.getElementById('filter-to');
+  const recIn      = document.getElementById('filter-recipe');
+  const catIn      = document.getElementById('filter-category');
+  const deptIn     = document.getElementById('filter-department');
 
-    $extData = $externalRecords->flatMap(fn($s) =>
-      $s->recipes->map(fn($line) => [
-        'date'        => $s->supply_date->format('Y-m-d'),
-        'client'      => $s->client->name,
-        'recipe_name' => $line->recipe->recipe_name,
-        'returns'     => $s->returnedGoods
-                            ->flatMap(fn($rg) => $rg->recipes)
-                            ->where('external_supply_recipe_id', $line->id)
-                            ->sum('qty'),
-        'qty'         => $line->qty,
-        'total'       => $line->total_amount,
-        'category'    => optional($line->recipe->category)->name,
-        'department'  => optional($line->recipe->department)->name,
-      ])
-    )->all();
-  @endphp
+  const sumShowEl      = document.getElementById('summary-showcase');
+  const pctShowEl      = document.getElementById('summary-showcase-pct');
+  const sumExtEl       = document.getElementById('summary-external');
+  const pctExtEl       = document.getElementById('summary-external-pct');
+  const footerShowEl   = document.getElementById('showcaseFooter');
+  const qtyShowEl      = document.getElementById('showcaseQtyFooter');
+  const soldShowEl     = document.getElementById('showcaseSoldFooter');
+  const reuseShowEl    = document.getElementById('showcaseReuseFooter');
+  const wasteShowEl    = document.getElementById('showcaseWasteFooter');
+  const footerExtEl    = document.getElementById('externalFooter');
+  const retExtEl       = document.getElementById('externalReturnsFooter');
+  const qtyExtEl       = document.getElementById('externalQtyFooter');
 
-  const showcaseData  = {!! json_encode($showData) !!};
-  const externalData  = {!! json_encode($extData) !!};
+  function applyFilter() {
+    const f = val => !val || val.trim()==='';
+    const from  = fromIn.value;
+    const to    = toIn.value;
+    const rf    = recIn.value.trim().toLowerCase();
+    const cf    = catIn.value.trim().toLowerCase();
+    const df    = deptIn.value.trim().toLowerCase();
 
-  function render() {
-    const fromVal      = document.getElementById('filter_from').value;
-    const toVal        = document.getElementById('filter_to').value;
-    const recipeVal    = document.getElementById('filter_recipe').value.trim().toLowerCase();
-    const categoryVal  = document.getElementById('filter_category').value;
-    const departmentVal= document.getElementById('filter_department').value;
+    let showSum=0, extSum=0;
+    let qtySum=0, soldSum=0, reuseSum=0, wasteSum=0;
+    let retSum=0, extQtySum=0;
 
-    const inRange = (d,a,b) => (!a||d>=a) && (!b||d<=b);
-    const matchText = (hay, needle) => !needle || hay.toLowerCase().includes(needle);
-    const matchExact = (hay, needle) => !needle || hay === needle;
-
-    const fShow = showcaseData.filter(r =>
-         inRange(r.date, fromVal, toVal)
-      && matchText(r.recipe_name, recipeVal)
-      && matchExact((r.category||'').toLowerCase(), categoryVal)
-      && matchExact((r.department||'').toLowerCase(), departmentVal)
-    );
-    const fExt  = externalData.filter(r =>
-         inRange(r.date, fromVal, toVal)
-      && matchText(r.recipe_name, recipeVal)
-      && matchExact((r.category||'').toLowerCase(), categoryVal)
-      && matchExact((r.department||'').toLowerCase(), departmentVal)
-    );
-
-    const has = fShow.length || fExt.length;
-    document.getElementById('noRecords').style.display        = has ? 'none':''; 
-    document.getElementById('summary').style.display          = has ? 'flex':''; 
-    document.getElementById('addIncomeContainer').style.display = has ? 'flex':''; 
-
-    function groupByDate(arr) {
-      return arr.reduce((a,r)=>{
-        (a[r.date]||(a[r.date]={ date:r.date, items:[], sums:{}})).items.push(r);
-        return a;
-      },{});
+    // utility to test one row
+    function test(row, dataField, filterVal, matchExact=false) {
+      const v = (row.dataset[dataField]||'').toString().toLowerCase();
+      return !filterVal
+          || (!matchExact ? v.includes(filterVal) : v===filterVal);
     }
 
-    function summarizeShow(g){
-      g.sums = g.items.reduce((S,r)=>{
-        S.quantity=(S.quantity||0)+ +r.quantity;
-        S.sold    =(S.sold    ||0)+ +r.sold;
-        S.reuse   =(S.reuse   ||0)+ +r.reuse;
-        S.waste   =(S.waste   ||0)+ +r.waste;
-        S.revenue =(S.revenue ||0)+ +r.revenue;
-        return S;
-      },{});
-    }
-
-    function summarizeExt(g){
-      g.sums = g.items.reduce((S,r)=>{
-        const unitPrice = r.qty > 0 ? (r.total / r.qty) : 0;
-        const returnValue = r.returns * unitPrice;
-
-        S.returns = (S.returns || 0) + +r.returns;
-        S.qty     = (S.qty     || 0) + +r.qty;
-        S.total   = (S.total   || 0) + (+r.total - returnValue);
-        return S;
-      },{});
-    }
-
-    const sGroups = Object.values(groupByDate(fShow));
-    sGroups.forEach(summarizeShow);
-    const eGroups = Object.values(groupByDate(fExt));
-    eGroups.forEach(summarizeExt);
-
-    window.lastShowGroups = sGroups.map(g=>({date:g.date,amount:g.sums.revenue}));
-    window.lastExtGroups  = eGroups.map(g=>({date:g.date,amount:g.sums.total}));
-
-    const grandShow = sGroups.reduce((sum,g)=>sum+g.sums.revenue,0);
-    const grandExt  = eGroups.reduce((sum,g)=>sum+g.sums.total,0);
-    const gross     = grandShow+grandExt;
-    document.getElementById('totalShowRevenue').textContent   = grandShow.toFixed(2);
-    document.getElementById('pctShow').textContent           = gross?((grandShow/gross)*100).toFixed(0)+'%':'0%';
-    document.getElementById('totalExternalCost').textContent = grandExt.toFixed(2);
-    document.getElementById('pctExt').textContent            = gross?((grandExt/gross)*100).toFixed(0)+'%':'0%';
-
-    // Render showcase
-    let outS = '';
-    sGroups.forEach(g=>{
-      outS+=`
-      <tr class="group-header" data-date="${g.date}">
-        <td colspan="2" class="text-start">
-          <i class="bi bi-caret-right-fill toggle-icon"></i>
-          ${g.date} (${g.items.length} lines)
-        </td>
-        <td>${g.sums.quantity}</td>
-        <td>${g.sums.sold}</td>
-        <td>${g.sums.reuse}</td>
-        <td>${g.sums.waste}</td>
-        <td>${g.sums.revenue.toFixed(2)}</td>
-      </tr>`;
-      g.items.forEach(r=>{
-        outS+=`
-        <tr class="group-child group-${g.date}" style="display:none">
-          <td>${r.date}</td>
-          <td class="text-start">${r.recipe_name}</td>
-          <td>${r.quantity}</td>
-          <td>${r.sold}</td>
-          <td>${r.reuse}</td>
-          <td>${r.waste}</td>
-          <td>${(+r.revenue).toFixed(2)}</td>
-        </tr>`;
+    // process Showcase
+    document.querySelectorAll('.showcaseTable .group-header').forEach(h=>{
+      const date = h.dataset.date;
+      let groupVisible = false;
+      document.querySelectorAll(`.showcaseTable .group-${date}`).forEach(r=>{
+        const okDate = (!from || r.dataset.date>=from)
+                    && (!to   || r.dataset.date<=to);
+        const okRec  = test(r,'recipe', rf);
+        const okCat  = test(r,'category', cf, true);
+        const okDep  = test(r,'department', df, true);
+        const show   = okDate && okRec && okCat && okDep;
+        r.classList.toggle('d-none', !show);
+        if(show) {
+          groupVisible = true;
+          // accumulate
+          qtySum   += +r.dataset.qty   || 0;
+          soldSum  += +r.dataset.sold  || 0;
+          reuseSum += +r.dataset.reuse || 0;
+          wasteSum += +r.dataset.waste || 0;
+          showSum  += +r.dataset.revenue||0;
+        }
       });
+      h.classList.toggle('d-none', !groupVisible);
     });
-    document.getElementById('showcaseBody').innerHTML = outS;
-    document.getElementById('showcaseQtyFooter').textContent   = sGroups.reduce((s,g)=>s+g.sums.quantity,0);
-    document.getElementById('showcaseSoldFooter').textContent  = sGroups.reduce((s,g)=>s+g.sums.sold,0);
-    document.getElementById('showcaseReuseFooter').textContent = sGroups.reduce((s,g)=>s+g.sums.reuse,0);
-    document.getElementById('showcaseWasteFooter').textContent = sGroups.reduce((s,g)=>s+g.sums.waste,0);
-    document.getElementById('showcaseFooter').textContent      = grandShow.toFixed(2);
 
-    // Render external table
-    let outE = '';
-    eGroups.forEach(g=>{
-      outE+=`
-      <tr class="group-header" data-date="${g.date}">
-        <td colspan="3" class="text-start">
-          <i class="bi bi-caret-right-fill toggle-icon"></i>
-          ${g.date} (${g.items.length} lines)
-        </td>
-        <td>${g.sums.returns}</td>
-        <td>${g.sums.qty}</td>
-        <td>${g.sums.total.toFixed(2)}</td>
-      </tr>`;
-      g.items.forEach(r=>{
-        outE+=`
-        <tr class="group-child group-${g.date}" style="display:none">
-          <td>${r.date}</td>
-          <td class="text-start">${r.client}</td>
-          <td class="text-start">${r.recipe_name}</td>
-          <td>${r.returns}</td>
-          <td>${r.qty}</td>
-          <td>${(+r.total).toFixed(2)}</td>
-        </tr>`;
+    // process External
+    document.querySelectorAll('.externalTable .group-header').forEach(h=>{
+      const date = h.dataset.date;
+      let groupVisible = false;
+      document.querySelectorAll(`.externalTable .group-${date}`).forEach(r=>{
+        const okDate = (!from || r.dataset.date>=from)
+                    && (!to   || r.dataset.date<=to);
+        const okRec  = test(r,'recipe', rf);
+        const okCat  = test(r,'category', cf, true);
+        const okDep  = test(r,'department', df, true);
+        const show   = okDate && okRec && okCat && okDep;
+        r.classList.toggle('d-none', !show);
+        if(show) {
+          groupVisible = true;
+          retSum    += +r.dataset.returns||0;
+          extQtySum += +r.dataset.qty    ||0;
+          extSum    += +r.dataset.total  ||0;
+        }
       });
+      h.classList.toggle('d-none', !groupVisible);
     });
-    document.getElementById('externalBody').innerHTML          = outE;
-    document.getElementById('externalReturnsFooter').textContent = eGroups.reduce((s,g)=>s+g.sums.returns,0);
-    document.getElementById('externalQtyFooter').textContent     = eGroups.reduce((s,g)=>s+g.sums.qty,0);
-    document.getElementById('externalFooter').textContent        = grandExt.toFixed(2);
 
-    // Expand/collapse logic
-    document.querySelectorAll('.group-header').forEach(row=>{
-      row.querySelector('.toggle-icon').onclick = () => {
-        const date = row.dataset.date;
-        const kids = document.querySelectorAll(`.group-${date}`);
-        const show = kids[0].style.display==='none';
-        kids.forEach(tr=>tr.style.display= show?'':'none');
-        row.querySelector('.toggle-icon')
-           .classList.toggle('bi-caret-down-fill', show);
-        row.querySelector('.toggle-icon')
-           .classList.toggle('bi-caret-right-fill', !show);
-      };
-    });
+    // update summaries
+    const grand = showSum + extSum;
+    sumShowEl.textContent = showSum.toFixed(2);
+    pctShowEl.textContent = grand? Math.round(showSum*100/grand)+'%' : '0%';
+    sumExtEl .textContent = extSum.toFixed(2);
+    pctExtEl .textContent = grand? Math.round(extSum*100/grand)+'%' : '0%';
+
+    // update footers
+    qtyShowEl.textContent   = qtySum;
+    soldShowEl.textContent  = soldSum;
+    reuseShowEl.textContent = reuseSum;
+    wasteShowEl.textContent = wasteSum;
+    footerShowEl.textContent= showSum.toFixed(2);
+
+    retExtEl .textContent   = retSum;
+    qtyExtEl .textContent   = extQtySum;
+    footerExtEl.textContent = extSum.toFixed(2);
   }
 
-  function debounce(fn,ms=200){
-    let t;
-    return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms) };
-  }
-
-  document.getElementById('filter_from') .addEventListener('change', render);
-  document.getElementById('filter_to')   .addEventListener('change', render);
-  document.getElementById('filter_recipe').addEventListener('input', debounce(render));
-  document.getElementById('filter_category')  .addEventListener('change', render);
-  document.getElementById('filter_department').addEventListener('change', render);
-
-  render();
-
-  // POST to income
-  document.getElementById('addToIncomeBtn').addEventListener('click', () => {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("income.addFiltered") }}';
-    form.style.display = 'none';
-    const token = document.createElement('input');
-    token.name  = '_token';
-    token.value = document.querySelector('meta[name="csrf-token"]').content;
-    form.appendChild(token);
-    window.lastShowGroups.forEach((g,i)=>{
-      ['date','amount'].forEach(k=>{
-        const inp = document.createElement('input');
-        inp.name  = `showcase[${i}][${k}]`;
-        inp.value = g[k];
-        form.appendChild(inp);
-      });
-    });
-    window.lastExtGroups.forEach((g,i)=>{
-      ['date','amount'].forEach(k=>{
-        const inp = document.createElement('input');
-        inp.name  = `external[${i}][${k}]`;
-        inp.value = g[k];
-        form.appendChild(inp);
-      });
-    });
-    document.body.appendChild(form);
-    form.submit();
+  // wire up
+  [fromIn,toIn,recIn,catIn,deptIn].forEach(el=>{
+    el.addEventListener('input',applyFilter);
+    el.addEventListener('change',applyFilter);
   });
+
+  applyFilter();
+
+  // group toggle
+  document.querySelectorAll('.toggle-arrow').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const tr   = btn.closest('tr');
+      const date = tr.dataset.date;
+      const icon = btn.querySelector('i');
+      document.querySelectorAll(`.group-${date}`).forEach(r=>{
+        r.classList.toggle('d-none');
+      });
+      icon.classList.toggle('bi-caret-right-fill');
+      icon.classList.toggle('bi-caret-down-fill');
+    });
+  });
+});
 </script>
 @endsection
-

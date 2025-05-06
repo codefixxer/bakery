@@ -11,10 +11,10 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run()
     {
-        // clear the permission cache (so new roles/permissions take effect immediately)
+        // 1) Clear Spatie’s cache so new roles/permissions take effect immediately
         Artisan::call('permission:cache-reset');
 
-        // 1) Define all the permissions your app uses:
+        // 2) Define all the permissions your app uses:
         $allPermissions = [
             'manage-users',
             'view users',
@@ -38,9 +38,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'news',
             'production',
             'labor cost',
+            'can add admin',
         ];
 
-        // 2) Create / update each permission
+        // 3) Create / update each permission
         foreach ($allPermissions as $perm) {
             Permission::firstOrCreate([
                 'name'       => $perm,
@@ -48,28 +49,34 @@ class RolesAndPermissionsSeeder extends Seeder
             ]);
         }
 
-        // 3) Fetch them back as a collection:
+        // 4) Fetch them back as a collection
         $perms = Permission::whereIn('name', $allPermissions)->get();
 
-        // 4) SUPER (super-admin) gets *all* permissions:
-        $super = Role::firstOrCreate(['name' => 'super', 'guard_name' => 'web']);
+        // 5) SUPER‑ADMIN gets *all* permissions
+        $super = Role::firstOrCreate(
+            ['name' => 'super-admin', 'guard_name' => 'web']
+        );
         $super->syncPermissions($perms);
 
-        // 5) ADMIN (all except “news”)
-       // … after you’ve built $perms as a Collection of Permission models …
+        // 6) ADMIN: everything except news, view roles, view permissions
+        $admin = Role::firstOrCreate(
+            ['name' => 'admin', 'guard_name' => 'web']
+        );
+        $adminPerms = $perms->reject(fn($p) =>
+            in_array($p->name, ['news', 'view roles', 'view permissions'])
+        );
+        $admin->syncPermissions($adminPerms);
 
-$admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-$remove = ['news', 'view roles', 'view permissions'];
-$adminPerms = $perms->reject(fn($perm) => in_array($perm->name, $remove));
-$admin->syncPermissions($adminPerms);
-
-
-        // 6) SHOP: only “showcase”
-        $shop = Role::firstOrCreate(['name' => 'shop', 'guard_name' => 'web']);
+        // 7) SHOP: only “showcase”
+        $shop = Role::firstOrCreate(
+            ['name' => 'shop', 'guard_name' => 'web']
+        );
         $shop->syncPermissions(['showcase']);
 
-        // 7) LAB:
-        $lab = Role::firstOrCreate(['name' => 'lab', 'guard_name' => 'web']);
+        // 8) LAB: recipe, ingredients, production, showcase, external supplies
+        $lab = Role::firstOrCreate(
+            ['name' => 'lab', 'guard_name' => 'web']
+        );
         $lab->syncPermissions([
             'recipe',
             'ingredients',
@@ -78,10 +85,22 @@ $admin->syncPermissions($adminPerms);
             'external supplies',
         ]);
 
-        // 8) MASTER (everything except sale comparison, costs, income)
-        $master = Role::firstOrCreate(['name' => 'master', 'guard_name' => 'web']);
+        // 9) MASTER: everything except sale comparison, costs, income, news, manage-users, view roles, view permissions
+        $master = Role::firstOrCreate(
+            ['name' => 'master', 'guard_name' => 'web']
+        );
         $master->syncPermissions(
-            $perms->reject(fn($p) => in_array($p->name, ['sale comparison', 'costs', 'income','news' ,'manage-user','view roles','view permissions']))
+            $perms->reject(fn($p) =>
+                in_array($p->name, [
+                    'sale comparison',
+                    'costs',
+                    'income',
+                    'news',
+                    'manage-users',
+                    'view roles',
+                    'view permissions',
+                ])
+            )
         );
     }
 }
