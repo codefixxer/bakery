@@ -10,18 +10,20 @@ return new class extends Migration
      * Run the migrations.
      */
 // database/migrations/xxxx_xx_xx_xxxxxx_create_notifications_table.php
-public function up()
-{
-    Schema::create('notifications', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
-        $table->string('title');
-        $table->text('message');
-        $table->boolean('is_new')->default(true); 
-        $table->boolean('is_read')->default(false); 
-        $table->timestamps();
-    });
-}
+public function up(): void
+    {
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('news_id');
+            $table->boolean('is_read')->default(false);
+            $table->timestamps();
+            
+            // Foreign Keys
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('news_id')->references('id')->on('news');
+        });
+    }
 
 
     /**

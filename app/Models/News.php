@@ -4,23 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 class News extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'title',
-        'content',
-        'event_date',
-        'is_active',
-        'user_id', // ✅ Add this to support user ownership
-    ];
+    protected $fillable = ['title', 'content', 'is_active'];
 
-    // ✅ Relationship: News belongs to a user
-    public function user()
+    // Relationship to Notifications
+    public function notifications()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Notification::class);
     }
 }

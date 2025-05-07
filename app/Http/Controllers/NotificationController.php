@@ -1,4 +1,5 @@
 <?php
+// In the NotificationController
 
 namespace App\Http\Controllers;
 
@@ -8,57 +9,69 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    /**
-     * Display a listing of the logged‑in user’s new notifications.
-     */
+    // Fetch unread notifications for the logged-in user
     public function index()
     {
-        $notifications = Notification::where('user_id', Auth::id())
-                                     ->where('is_new', true)
-                                     ->get();
+        $notifications = Notification::where('user_id', Auth::id())  // Filter by logged-in user's ID
+            ->where('is_read', false)  // Fetch only unread notifications
+            ->latest()
+            ->get();
 
         return view('frontend.notifications.index', compact('notifications'));
     }
 
-    /**
-     * Mark a single notification as read.
-     */
-    public function markAsRead($id)
+    // Mark a specific notification as read
+ // In NotificationController.php
+
+// In NotificationController.php
+
+public function markAsRead($notificationId)
+{
+    // Ensure notification belongs to the logged-in user
+    $notification = Notification::where('user_id', Auth::id())
+                                ->where('id', $notificationId)
+                                ->firstOrFail();  // If notification doesn't exist, throw error
+    
+    // Mark as read and update status
+    $notification->update(['is_read' => true]);
+
+    // Redirect to the blogs page
+    return redirect()->route('blogs');
+}
+
+
+
+// In NotificationController.php
+
+public function markAllAsRead()
+{
+    // Mark all unread notifications for the logged-in user as read
+    Notification::where('user_id', Auth::id())
+                ->where('is_read', false)  // Only mark unread notifications
+                ->update(['is_read' => true]);
+
+    // Redirect to the blogs page
+    return redirect()->route('blogs');
+}
+
+
+    // Fetch unread notifications for the logged-in user
+    public function unread(Request $request)
     {
-        $notification = Notification::findOrFail($id);
+        $userId = Auth::id();
+        $notifications = Notification::where('user_id', $userId)  // Ensure notifications are for the logged-in user
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'title', 'message', 'created_at']);
 
-        // Only allow the owner to mark it
-        if ($notification->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $notification->update([
-            'is_read' => true,
-            'is_new'  => false,
+        return response()->json([
+            'count' => $notifications->count(),
+            'items' => $notifications->map(fn($n) => [
+                'id'      => $n->id,
+                'title'   => $n->title,
+                'message' => $n->message,
+                'time'    => $n->created_at->diffForHumans(),
+            ]),
         ]);
-
-        return redirect()->route('notifications.index');
-    }
-
-    /**
-     * Store a newly created notification for the current user.
-     */
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'title'   => 'required|string|max:255',
-            'message' => 'required|string',
-        ]);
-
-        // stamp with the authenticated user's ID
-        $data['user_id'] = Auth::id();
-
-        // store as new and unread
-        Notification::create(array_merge($data, [
-            'is_new'  => true,
-            'is_read' => false,
-        ]));
-
-        return back()->with('success', 'Notification created successfully');
     }
 }

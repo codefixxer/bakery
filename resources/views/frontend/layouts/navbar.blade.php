@@ -295,53 +295,70 @@
 
 
 
+                
+
+
+
+
+
+                {{-- resources/views/frontend/notifications/index.blade.php --}}
                 @php
-                // Fetch notifications for the logged-in user
-                $notifications = \App\Models\Notification::where('is_new', true)
+                // Ensure notifications are passed from the controller
+                $notifications = \App\Models\Notification::with('news')  // Eager load the related news content
+                                                          ->where('is_read', false)  // Fetch unread notifications
+                                                          ->where('user_id', Auth::id())  // Filter by logged-in user
+                                                          ->latest()
                                                           ->get();
-                                                          // where('user_id', auth()->id())
-                                                          // ->
-            @endphp
-            
-            <div class="dropdown">
-                <button type="button" class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center {{ count($notifications) > 0 ? 'blink' : '' }}" data-bs-toggle="dropdown">
-                    <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
-                </button>
-            
-                <div class="dropdown-menu to-top dropdown-menu-lg p-0">
-                    <div class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
-                        <div>
-                            <h6 class="text-lg text-primary-light fw-semibold mb-0">Notifications</h6>
+                @endphp
+                
+                <div class="dropdown">
+                    <button type="button"
+                        class="btn btn-light rounded-circle d-flex justify-content-center align-items-center position-relative {{ $notifications->count() > 0 ? 'blink' : '' }}"
+                        data-bs-toggle="dropdown">
+                        <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
+                
+                        @if($notifications->count())
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $notifications->count() }}
+                            </span>
+                        @endif
+                    </button>
+                
+                    <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 380px;">
+                        <div class="px-4 py-3 bg-primary-light text-white rounded-top">
+                            <h6 class="mb-0">Notifications</h6>
+                            <small class="badge bg-dark">{{ $notifications->count() }} Unread</small>
                         </div>
-                        <span class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">{{ count($notifications) }}</span>
-                    </div>
-            
-                    <div class="max-h-400-px overflow-y-auto scroll-sm pe-4">
-                        @foreach ($notifications as $notification)
-                            <a href="javascript:void(0)" class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                    <span class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                        <iconify-icon icon="bitcoin-icons:verify-outline" class="icon text-xxl"></iconify-icon>
+                
+                        <div class="max-h-400px overflow-auto p-3">
+                            @foreach($notifications as $n)
+                                <a href="{{ route('notifications.markAsRead', $n->id) }}"
+                                    class="px-3 py-2 d-flex align-items-center gap-3 mb-2 text-decoration-none text-dark hover-bg-light rounded">
+                                    <span class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center">
+                                        <iconify-icon icon="bitcoin-icons:verify-outline" class="text-xl"></iconify-icon>
                                     </span>
                                     <div>
-                                        <h6 class="text-md fw-semibold mb-4">{{ $notification->title }}</h6>
-                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px">{{ $notification->message }}</p>
+                                        <h6 class="text-md fw-semibold mb-1">{{ $n->news->title }}</h6>
+                                        <p class="mb-0 text-muted text-truncate" style="max-width: 200px;">
+                                            {{ Str::limit($n->news->content, 100) }}...
+                                        </p>
                                     </div>
-                                </div>
-                                <span class="text-sm text-secondary-light flex-shrink-0">Just Now</span>
-                            </a>
-                        @endforeach
-                    </div>
-            
-                    <div class="text-center py-12 px-16">
-                        <a href="{{ route('notifications.index') }}" class="text-primary-600 fw-semibold text-md">See All Notifications</a>
+                                    <span class="text-sm text-secondary-light">{{ $n->created_at->diffForHumans() }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                
+                        <div class="text-center py-3 border-top">
+                            <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-primary btn-sm px-4 py-2 rounded-pill">
+                                    Mark All as Read
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-
-
-
+                
 
 
 

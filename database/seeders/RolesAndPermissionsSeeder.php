@@ -39,6 +39,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'production',
             'labor cost',
             'can add admin',
+            'blogs',  // blogs permission added here
         ];
 
         // 3) Create / update each permission
@@ -67,13 +68,13 @@ class RolesAndPermissionsSeeder extends Seeder
         );
         $admin->syncPermissions($adminPerms);
 
-        // 7) SHOP: only “showcase”
+        // 7) SHOP: only “showcase” and "blogs" permission
         $shop = Role::firstOrCreate(
             ['name' => 'shop', 'guard_name' => 'web']
         );
-        $shop->syncPermissions(['showcase']);
+        $shop->syncPermissions(['showcase', 'blogs']);  // Allow "blogs" permission
 
-        // 8) LAB: recipe, ingredients, production, showcase, external supplies
+        // 8) LAB: recipe, ingredients, production, showcase, external supplies, and "blogs" permission
         $lab = Role::firstOrCreate(
             ['name' => 'lab', 'guard_name' => 'web']
         );
@@ -83,6 +84,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'production',
             'showcase',
             'external supplies',
+            'blogs',  // Allow "blogs" permission
         ]);
 
         // 9) MASTER: everything except sale comparison, costs, income, news, manage-users, view roles, view permissions
@@ -101,6 +103,7 @@ class RolesAndPermissionsSeeder extends Seeder
                     'view permissions',
                 ])
             )
+            ->push('blogs') // Include "blogs" permission for master
         );
     }
 }

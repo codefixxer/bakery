@@ -1,87 +1,109 @@
 <?php
 
-namespace App\Http\Controllers;
+    namespace App\Http\Controllers;
 
-use App\Models\News;
-use App\Models\Notification;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Events\NewsNotificationCreated;
+    use App\Models\News;
+    use App\Models\User;
+    use App\Models\Notification;
+    use Illuminate\Http\Request;
+    use Illuminate\Support\Facades\Auth;
+    use App\Events\NewsNotificationCreated;
 
-class NewsController extends Controller
+    class NewsController extends Controller
+    {
+
+
+        public function show($id)
+        {
+            // Find the news by its ID, or fail if not found
+            $news = News::findOrFail($id);
+        
+            // Pass the news data to the 'frontend.news.show' view
+            return view('frontend.news.show', compact('news'));
+        }
+        // public function __construct()
+        // {
+        //     $this->middleware('role:super');
+        // }
+        public function index()
+        {
+            // Fetch all active news
+            $news = News::latest()
+                        ->where('is_active', true)
+                        ->get();
+
+            return view('frontend.news.index', compact('news'));
+        }
+        public function blogs()
+        {
+         
+            $news = News::latest()
+            ->where('is_active', true)
+            ->get();
+
+            return view('frontend.news.blogs', compact('news'));
+        }
+
+        public function create()
+        {
+            return view('frontend.news.create');
+        }
+
+     // In the NewsController (store method)
+public function store(Request $request)
 {
-    public function index()
-    {
-        // Fetch all active news
-        $news = News::latest()
-                    ->where('is_active', true)
-                    ->get();
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+    ]);
 
-        return view('frontend.news.index', compact('news'));
-    }
+    $news = News::create([
+        'title' => $request->title,
+        'content' => $request->content,
+    ]);
 
-    public function create()
-    {
-        return view('frontend.news.create');
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title'      => 'required|string|max:255',
-            'content'    => 'required|string',
-            'event_date' => 'required|date',
-        ]);
-
-        // stamp with the current user's ID
-        $validated['user_id'] = Auth::id();
-
-        // Store the news
-        $news = News::create($validated);
-
-        // Create a notification for the news
+    // Create notifications for all users
+    $users = User::all();
+    foreach ($users as $user) {
         Notification::create([
-            'title'   => 'New Event: ' . $news->title,
-            'message' => 'A new event has been added: ' . $news->content,
-            'user_id' => Auth::id(),           // if you also want to track who created the notification
+            'user_id' => $user->id,  // Store the user_id for each notification
+            'news_id' => $news->id,
+            'is_read' => false,
         ]);
-
-        // Broadcast the event to notify all users
-        broadcast(new NewsNotificationCreated($news));
-
-        return redirect()
-            ->route('news.index')
-            ->with('success', 'News created successfully.');
     }
 
-    public function edit(News $news)
-    {
-        return view('frontend.news.edit', compact('news'));
-    }
-
-    public function update(Request $request, News $news)
-    {
-        $validated = $request->validate([
-            'title'      => 'required|string|max:255',
-            'content'    => 'required|string',
-            'event_date' => 'required|date',
-        ]);
-
-        $news->update($validated);
-
-        return redirect()
-            ->route('news.index')
-            ->with('success', 'News updated successfully.');
-    }
-
-    public function destroy(News $news)
-    {
-        $news->delete();
-
-        return redirect()
-            ->route('news.index')
-            ->with('success', 'News deleted successfully.');
-    }
+    return redirect()->route('news.index');
 }
+
+
+        public function edit(News $news)
+        {
+            return view('frontend.news.edit', compact('news'));
+        }
+
+        public function update(Request $request, News $news)
+        {
+            $validated = $request->validate([
+                'title'      => 'required|string|max:255',
+                'content'    => 'required|string',
+                'event_date' => 'required|date',
+            ]);
+
+            $news->update($validated);
+
+            return redirect()
+                ->route('news.index')
+                ->with('success', 'News updated successfully.');
+        }
+
+        public function destroy(News $news)
+        {
+            $news->delete();
+
+            return redirect()
+                ->route('news.index')
+                ->with('success', 'News deleted successfully.');
+        }
+    }
 
 

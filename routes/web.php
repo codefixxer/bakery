@@ -119,16 +119,53 @@ Route::middleware('auth')->group(function(){
     Route::resource('departments', DepartmentController::class)
          ->middleware('can:departments');
 
-    // News & Notifications
-    Route::resource('news', NewsController::class)
-         ->middleware('can:news');
-    Route::post('notifications/{id}/mark-as-read',
-         [NotificationController::class,'markAsRead'])
-         ->name('notifications.markAsRead')
-         ->middleware('can:news');
-    Route::resource('notifications', NotificationController::class)
-         ->only(['index','show'])
-         ->middleware('can:news');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         Route::get('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])
+         ->name('notifications.markAllAsRead')
+         ->middleware('auth');
+
+     Route::get('/notifications/unread', [NotificationController::class, 'unread']);
+
+
+     Route::resource('news', NewsController::class)
+    ;
+
+     Route::get('blogs', [NewsController::class,'blogs'])
+     ->name('blogs');
+     
+                   
+                     
+                   
+                    Route::resource('notifications', NotificationController::class)
+                         
+                         ->middleware('can:news');
+
+                        
+
+
+
+
+
+
+
+
+
 
     // Standalone Income resource
     Route::resource('incomes', IncomeController::class)

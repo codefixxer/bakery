@@ -88,7 +88,7 @@
                                             <td>
                                                 <select name="ingredients[{{ $i }}][id]"
                                                     class="form-select ingredient-select" required>
-                                                    <option value="">Select ingredient…</option>
+                                                    <option value="" selected>Select ingredient…</option>
                                                     @foreach ($ingredients as $ing)
                                                         <option value="{{ $ing->id }}"
                                                             data-price="{{ $ing->price_per_kg }}"
@@ -423,43 +423,44 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const addForm           = document.getElementById('addIngredientForm');
-    const modalEl           = document.getElementById('addIngredientModal');
-    const vatRateEl         = document.getElementById('vatRate');
-    const shopRateEl        = document.getElementById('shopRate');
-    const externalRateEl    = document.getElementById('externalRate');
-    const costModeShop      = document.getElementById('costModeShop');
-    const costModeExternal  = document.getElementById('costModeExternal');
-    const laborTimeInput    = document.getElementById('laborTimeInput');
-    const costPerMinIn      = document.getElementById('costPerMin');
-    const laborCostIn       = document.getElementById('laborCost');
-    const laborIncidenceIn  = document.getElementById('laborIncidence');
-    const pricePerPiece     = document.getElementById('pricePerPiece');
-    const pricePerKg        = document.getElementById('pricePerKg');
-    const modePiece         = document.getElementById('modePiece');
-    const modeKg            = document.getElementById('modeKg');
-    const totalPiecesIn     = document.getElementById('totalPieces');
-    const weightPerPieceIn  = document.getElementById('weightPerPiece');
-    const weightWithLossIn  = document.getElementById('weightWithLoss');
-    const tableBody         = document.getElementById('ingredientsTable');
-    const totalCostIn       = document.getElementById('totalCostFooter');
-    const totalIncidenceIn  = document.getElementById('totalIncidenceFooter');
-    const totalWeightFt     = document.getElementById('totalWeightFooter');
-    const hiddenTotalWt     = document.getElementById('ingredientsTotalWeightHidden');
-    const packingCostIn     = document.getElementById('packingCost');
-    const prodCostKgIn      = document.getElementById('prodCostKg');
-    const totalExpenseIn    = document.getElementById('totalExpense');
-    const potentialMargin   = document.getElementById('potentialMargin');
-    const potentialInput    = document.getElementById('potentialMarginInput');
-    let   weightLossTouched = false;
-    let   idx               = {{ isset($recipe) ? $recipe->ingredients->count() : 1 }};
+    const addForm            = document.getElementById('addIngredientForm');
+    const modalEl            = document.getElementById('addIngredientModal');
+    const vatRateEl          = document.getElementById('vatRate');
+    const shopRateEl         = document.getElementById('shopRate');
+    const externalRateEl     = document.getElementById('externalRate');
+    const costModeShop       = document.getElementById('costModeShop');
+    const costModeExternal   = document.getElementById('costModeExternal');
+    const laborTimeInput     = document.getElementById('laborTimeInput');
+    const costPerMinIn       = document.getElementById('costPerMin');
+    const laborCostIn        = document.getElementById('laborCost');
+    const laborIncidenceIn   = document.getElementById('laborIncidence');
+    const pricePerPiece      = document.getElementById('pricePerPiece');
+    const pricePerKg         = document.getElementById('pricePerKg');
+    const modePiece          = document.getElementById('modePiece');
+    const modeKg             = document.getElementById('modeKg');
+    const totalPiecesIn      = document.getElementById('totalPieces');
+    const weightPerPieceIn   = document.getElementById('weightPerPiece');
+    const weightWithLossIn   = document.getElementById('weightWithLoss');
+    const tableBody          = document.getElementById('ingredientsTable');
+    const totalCostIn        = document.getElementById('totalCostFooter');
+    const totalIncidenceIn   = document.getElementById('totalIncidenceFooter');
+    const totalWeightFt      = document.getElementById('totalWeightFooter');
+    const hiddenTotalWt      = document.getElementById('ingredientsTotalWeightHidden');
+    const packingCostIn      = document.getElementById('packingCost');
+    const prodCostKgIn       = document.getElementById('prodCostKg');
+    const totalExpenseIn     = document.getElementById('totalExpense');
+    const potentialMargin    = document.getElementById('potentialMargin');
+    const potentialInput     = document.getElementById('potentialMarginInput');
+    let weightLossTouched = false;
+    let idx = {{ isset($recipe) ? $recipe->ingredients->count() : 1 }};
 
-    // 1) AJAX to add new ingredient
+    // 1) AJAX “Add Ingredient”
     addForm.addEventListener('submit', async e => {
         e.preventDefault();
         const fd = new FormData(addForm);
+
         try {
-            const res  = await fetch(addForm.action, {
+            const res = await fetch(addForm.action, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -468,195 +469,271 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: fd
             });
             const json = await res.json();
+
             if (!res.ok) {
-                const msg = json.errors
-                    ? Object.values(json.errors).flat().join('\n')
-                    : 'Failed to save ingredient.';
-                return alert(msg);
+                alert(
+                    json.errors ?
+                    Object.values(json.errors).flat().join('\n') :
+                    'Failed to save ingredient.'
+                );
+                return;
             }
+
+            // build new <option>
             const opt = document.createElement('option');
-            opt.value         = json.id;
-            opt.textContent   = `${json.ingredient_name} (€${json.price_per_kg}/kg)`;
+            opt.value = json.id;
+            opt.textContent = `${json.ingredient_name} (€${json.price_per_kg}/kg)`;
             opt.dataset.price = json.price_per_kg;
+
             document.querySelectorAll('.ingredient-select').forEach(sel => {
-                const newOpt = opt.cloneNode(true);
-                const label  = newOpt.textContent.toLowerCase();
+                // remember current selection
+                const prev = sel.value;
+
+                // insert in sorted order
+                const clone = opt.cloneNode(true);
+                const newName = json.ingredient_name.toLowerCase().trim();
                 let inserted = false;
-                Array.from(sel.options).some(existing => {
-                    if (existing.textContent.toLowerCase() > label) {
-                        sel.insertBefore(newOpt, existing);
+                for (let i = 1; i < sel.options.length; i++) {
+                    const existingName = sel.options[i].textContent
+                        .split('(')[0]
+                        .toLowerCase()
+                        .trim();
+                    if (newName.localeCompare(existingName) < 0) {
+                        sel.insertBefore(clone, sel.options[i]);
                         inserted = true;
-                        return true;
+                        break;
                     }
-                    return false;
-                });
-                if (!inserted) sel.appendChild(newOpt);
+                }
+                if (!inserted) {
+                    sel.appendChild(clone);
+                }
+
+                // restore placeholder at front
+                const placeholder = sel.querySelector('option[value=""]');
+                sel.removeChild(placeholder);
+                sel.insertBefore(placeholder, sel.firstChild);
+
+                // restore previous selection
+                if (prev) {
+                    sel.value = prev;
+                    if (sel.value !== prev) sel.selectedIndex = 0;
+                } else {
+                    sel.selectedIndex = 0;
+                }
             });
+
+            // hide modal & reset form
             bootstrap.Modal.getInstance(modalEl).hide();
             addForm.reset();
+
         } catch (err) {
             console.error(err);
             alert('Unexpected error while saving ingredient.');
         }
     });
 
-    // 2) Convert gross to net price
+    // 2) gross → net (VAT)
     function netPrice(gross) {
         const vat = parseFloat(vatRateEl.value) || 0;
         return gross / (1 + vat / 100);
     }
 
-    // 3) Calculate grams per piece
+    // 3) grams per piece — NOW based on total weight WITH LOSS
     function calcWeightPerPiece() {
-        const pcs = parseFloat(totalPiecesIn.value) || 0;
-        weightPerPieceIn.value = pcs > 0 ? (1000 / pcs).toFixed(2) : '';
+        const pcs    = parseFloat(totalPiecesIn.value)    || 0;
+        const totalG = parseFloat(weightWithLossIn.value) || 0;
+        weightPerPieceIn.value = pcs > 0
+            ? (totalG / pcs).toFixed(2)
+            : '';
     }
 
-    // 4) Update cost per minute
+    // 4) cost-per-min toggle
     function updateCostPerMin() {
         const rate = costModeShop.checked
-            ? parseFloat(shopRateEl.value) || 0
+            ? parseFloat(shopRateEl.value)     || 0
             : parseFloat(externalRateEl.value) || 0;
         costPerMinIn.value = rate.toFixed(4);
         updateLaborCost();
     }
 
-    // 5) Compute labor cost
+    // 5) labor cost
     function updateLaborCost() {
         const mins = parseFloat(laborTimeInput.value) || 0;
-        const rate = parseFloat(costPerMinIn.value) || 0;
+        const rate = parseFloat(costPerMinIn.value)   || 0;
         laborCostIn.value = (mins * rate).toFixed(2);
         calculateLaborIncidence();
-        recalcMargin();
+        recalcTotals();
     }
 
-    // 6) Labor incidence per kg
+    // 6) labor incidence %
     function calculateLaborIncidence() {
-        const laborCost = parseFloat(laborCostIn.value) || 0;
-        const weightG   = parseFloat(weightWithLossIn.value) || parseFloat(totalWeightFt.value) || 0;
-        const weightKg  = weightG / 1000;
-        const grossSell = modePiece.checked
-            ? (parseFloat(totalPiecesIn.value)||0) * (parseFloat(pricePerPiece.value)||0)
-            : parseFloat(pricePerKg.value)||0;
-        if (weightKg > 0 && grossSell > 0) {
-            const costPerKg = laborCost / weightKg;
-            const inc       = (costPerKg / netPrice(grossSell)) * 100;
-            laborIncidenceIn.value = inc.toFixed(2);
-        } else {
-            laborIncidenceIn.value = '0.00';
-        }
+        const lc   = parseFloat(laborCostIn.value)        || 0;
+        const g    = parseFloat(weightWithLossIn.value)   || 0;
+        const kg   = g / 1000;
+        const sell = modePiece.checked
+            ? (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0)
+            : parseFloat(pricePerKg.value) || 0;
+
+        laborIncidenceIn.value = (kg > 0 && sell > 0
+            ? ((lc / kg) / netPrice(sell)) * 100
+            : 0
+        ).toFixed(2);
     }
 
-    // 7) Recalculate one ingredient row
+    // 7) recalc one ingredient row
     function recalcRow(row) {
-        const price    = parseFloat(row.querySelector('.ingredient-select').selectedOptions[0]?.dataset.price) || 0;
-        const qty      = parseFloat(row.querySelector('.ingredient-quantity').value) || 0;
-        const cost     = (price / 1000) * qty;
+        const price = parseFloat(
+            row.querySelector('.ingredient-select').selectedOptions[0]?.dataset.price
+        ) || 0;
+        const qty  = parseFloat(
+            row.querySelector('.ingredient-quantity').value
+        ) || 0;
+        const cost = price / 1000 * qty;
         row.querySelector('.ingredient-cost').value = cost.toFixed(2);
 
-        const weightG   = parseFloat(weightWithLossIn.value) || parseFloat(totalWeightFt.value) || 0;
-        const weightKg  = weightG / 1000;
-        const grossSell = modePiece.checked
-            ? (parseFloat(totalPiecesIn.value)||0)*(parseFloat(pricePerPiece.value)||0)
-            : parseFloat(pricePerKg.value)||0;
-        if (weightKg > 0 && grossSell > 0) {
-            const costPerKg = cost / weightKg;
-            const inc       = (costPerKg / netPrice(grossSell)) * 100;
-            row.querySelector('.ingredient-incidence').value = inc.toFixed(2);
-        } else {
-            row.querySelector('.ingredient-incidence').value = '0.00';
-        }
+        const g    = parseFloat(weightWithLossIn.value) || 0;
+        const kg   = g / 1000;
+        const sell = modePiece.checked
+            ? (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0)
+            : parseFloat(pricePerKg.value) || 0;
+
+        row.querySelector('.ingredient-incidence').value = (
+            kg > 0 && sell > 0
+                ? ((cost / kg) / netPrice(sell)) * 100
+                : 0
+        ).toFixed(2);
     }
 
-    // 8) Recalculate totals for ingredients
+    // 8) recalc all ingredient totals
     function recalcTotals() {
-        let sumCost = 0, sumW = 0, sumInc = 0;
+        let sW = 0, sC = 0, sI = 0;
         document.querySelectorAll('.ingredient-row').forEach(r => {
-            sumW   += parseFloat(r.querySelector('.ingredient-quantity').value)   || 0;
-            sumCost+= parseFloat(r.querySelector('.ingredient-cost').value)       || 0;
-            sumInc += parseFloat(r.querySelector('.ingredient-incidence').value)  || 0;
+            sW += parseFloat(r.querySelector('.ingredient-quantity').value) || 0;
+            sC += parseFloat(r.querySelector('.ingredient-cost').value)     || 0;
+            sI += parseFloat(r.querySelector('.ingredient-incidence').value)|| 0;
         });
-        totalWeightFt.value    = sumW;
-        totalCostIn.value      = sumCost.toFixed(2);
-        totalIncidenceIn.value = sumInc.toFixed(2);
 
-        if (!weightLossTouched) weightWithLossIn.value = sumW;
-        hiddenTotalWt.value = weightWithLossIn.value;
+        totalWeightFt.value  = sW;
+        totalCostIn.value    = sC.toFixed(2);
+        totalIncidenceIn.value = sI.toFixed(2);
 
-        updateLaborCost();
+        if (!weightLossTouched) weightWithLossIn.value = sW;
+        hiddenTotalWt.value  = weightWithLossIn.value;
+
         recalcExpense();
         recalcMargin();
     }
 
-    // 9) Calculate cost per kg before/after packing
+    // 9) cost before/after packing — NOW packing cost is divided by number of pieces
     function recalcExpense() {
-        const ingCost = parseFloat(totalCostIn.value)   || 0;
-        const labCost = parseFloat(laborCostIn.value)   || 0;
-        const rawCost = ingCost + labCost;
-        const pack    = parseFloat(packingCostIn.value) || 0;
+        const ing = parseFloat(totalCostIn.value)    || 0;
+        const lab = parseFloat(laborCostIn.value)    || 0;
+        const raw = ing + lab;
+        const pack = parseFloat(packingCostIn.value) || 0;
 
-        const weightG  = parseFloat(weightWithLossIn.value) || parseFloat(totalWeightFt.value) || 0;
-        const weightKg = weightG / 1000;
-
-        const before = weightKg > 0 ? rawCost / weightKg : 0;
-        prodCostKgIn.value = before.toFixed(2);
-
-        const after  = weightKg > 0 ? (rawCost + pack) / weightKg : 0;
-        totalExpenseIn.value = after.toFixed(2);
-
-        recalcMargin();
-        calculateLaborIncidence();
+        if (modePiece.checked) {
+            const pcs    = parseFloat(totalPiecesIn.value) || 0;
+            const before = pcs > 0 ? raw / pcs : 0;
+            const packPerPiece = pcs > 0 ? pack / pcs : 0;
+            prodCostKgIn.value = before.toFixed(2);
+            totalExpenseIn.value = (before + packPerPiece).toFixed(2);
+        } else {
+            const g    = parseFloat(weightWithLossIn.value) || 0;
+            const kg   = g / 1000;
+            const before = kg > 0 ? raw / kg : 0;
+            prodCostKgIn.value = before.toFixed(2);
+            totalExpenseIn.value = (before + pack).toFixed(2);
+        }
     }
 
-    // 10) Compute potential margin
+    // 10) potential margin
     function recalcMargin() {
-        const weightG      = parseFloat(weightWithLossIn.value) || parseFloat(totalWeightFt.value) || 0;
-        const weightKg     = weightG / 1000;
-        const ingCostTotal = parseFloat(totalCostIn.value) || 0;
-        const labCostTotal = parseFloat(laborCostIn.value) || 0;
-        const packTotal    = parseFloat(packingCostIn.value) || 0;
+        const ingTot  = parseFloat(totalCostIn.value)    || 0;
+        const labTot  = parseFloat(laborCostIn.value)    || 0;
+        const packIn  = parseFloat(packingCostIn.value)  || 0;
 
         if (modePiece.checked) {
             const sellP = parseFloat(pricePerPiece.value) || 0;
             const netSP = netPrice(sellP);
             const pcs   = parseFloat(totalPiecesIn.value) || 0;
-            const ingPP = pcs > 0 ? ingCostTotal / pcs : 0;
-            const labPP = pcs > 0 ? labCostTotal / pcs : 0;
-            const packPP= pcs > 0 ? packTotal / pcs    : 0;
-            const m     = netSP - ingPP - labPP - packPP;
-            const pct   = netSP > 0 ? (m*100/netSP) : 0;
+            const ingPP = pcs > 0 ? ingTot / pcs : 0;
+            const labPP = pcs > 0 ? labTot / pcs : 0;
+            const m     = netSP - ingPP - labPP - packIn;
+            const pct   = netSP > 0 ? (m * 100 / netSP) : 0;
+
             potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / piece`;
             potentialInput.value      = m.toFixed(2);
         } else {
-            const sellKg = parseFloat(pricePerKg.value) || 0;
-            const netSKg = netPrice(sellKg);
-            const ingKg  = weightKg>0 ? ingCostTotal / weightKg : 0;
-            const labKg  = weightKg>0 ? labCostTotal / weightKg : 0;
-            const packKg = weightKg>0 ? packTotal    / weightKg : 0;
-            const m      = netSKg - ingKg - labKg - packKg;
-            const pct    = netSKg>0 ? (m*100/netSKg) : 0;
+            const g     = parseFloat(weightWithLossIn.value) || 0;
+            const kg    = g / 1000;
+            const sellK = parseFloat(pricePerKg.value)        || 0;
+            const netSK = netPrice(sellK);
+            const ingKg = kg > 0 ? ingTot / kg : 0;
+            const labKg = kg > 0 ? labTot / kg : 0;
+            const m     = netSK - ingKg - labKg - packIn;
+            const pct   = netSK > 0 ? (m * 100 / netSK) : 0;
+
             potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / kg`;
             potentialInput.value      = m.toFixed(2);
         }
     }
 
-    // 11) Toggle piece vs kg inputs
+    // 11) mode toggle & label swapping (also re-calc gram-per-piece)
     function updateMode() {
-        document.getElementById('pieceInputs').classList.toggle('d-none', !modePiece.checked);
-        document.getElementById('kgInputs'   ).classList.toggle('d-none',  modePiece.checked);
-        recalcMargin();
-        calculateLaborIncidence();
-        document.querySelectorAll('.ingredient-row').forEach(r=>recalcRow(r));
+        const beforeLabel = prodCostKgIn.closest('.input-group')
+                              .querySelector('.input-group-text');
+        const afterLabel  = totalExpenseIn.closest('.input-group')
+                              .querySelector('.input-group-text');
+
+        if (modePiece.checked) {
+            beforeLabel.textContent = 'Cost / pc Before Packing';
+            afterLabel .textContent = 'Cost / pc After Packing';
+        } else {
+            beforeLabel.textContent = 'Cost / kg Before Packing';
+            afterLabel .textContent = 'Cost / kg After Packing';
+        }
+
+        document.getElementById('pieceInputs')
+            .classList.toggle('d-none', !modePiece.checked);
+        document.getElementById('kgInputs')
+            .classList.toggle('d-none',  modePiece.checked);
+
         recalcTotals();
+        if (modePiece.checked) {
+            calcWeightPerPiece();
+        }
     }
 
-    // ─── Event listeners ───
-    costModeShop.addEventListener('change', updateCostPerMin);
+    // ——————————————
+    // Wire up all listeners
+    // ——————————————
+
+    costModeShop.addEventListener('change',  updateCostPerMin);
     costModeExternal.addEventListener('change', updateCostPerMin);
-    laborTimeInput.addEventListener('input', updateLaborCost);
-    vatRateEl.addEventListener('change', recalcTotals);
-    packingCostIn.addEventListener('input', recalcExpense);
-    weightWithLossIn.addEventListener('input', () => { weightLossTouched = true; recalcTotals(); });
+    laborTimeInput.addEventListener('input',  updateLaborCost);
+    vatRateEl.addEventListener('change',      recalcTotals);
+    packingCostIn.addEventListener('input',   recalcExpense);
+
+    // **Re-calc gram-per-piece whenever total weight changes**
+    weightWithLossIn.addEventListener('input', () => {
+        weightLossTouched = true;
+        recalcTotals();
+        calcWeightPerPiece();
+    });
+
+    pricePerPiece.addEventListener('input',    recalcMargin);
+    pricePerKg.addEventListener('input',       recalcMargin);
+
+    totalPiecesIn.addEventListener('input',    () => {
+        calcWeightPerPiece();
+        updateMode();
+    });
+    modePiece.addEventListener('change',       () => {
+        calcWeightPerPiece();
+        updateMode();
+    });
+    modeKg.addEventListener('change',          updateMode);
+
     ['input','change'].forEach(evt => {
         tableBody.addEventListener(evt, e => {
             if (e.target.matches('.ingredient-select, .ingredient-quantity')) {
@@ -666,21 +743,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    pricePerPiece.addEventListener('input', () => { recalcMargin(); calculateLaborIncidence(); recalcTotals(); });
-    pricePerKg.addEventListener('input',    () => { recalcMargin(); calculateLaborIncidence(); recalcTotals(); });
-    totalPiecesIn.addEventListener('input', () => { calcWeightPerPiece(); updateMode(); });
-    modePiece.addEventListener('change',     () => { calcWeightPerPiece(); updateMode(); });
-    modeKg.addEventListener('change',        updateMode);
 
     document.getElementById('addIngredientBtn').addEventListener('click', e => {
         e.preventDefault();
         const first = tableBody.querySelector('.ingredient-row');
         const clone = first.cloneNode(true);
-        const newIdx= idx++;
-        clone.querySelectorAll('select[name],input[name]').forEach(el => {
+        const newIdx = idx++;
+        clone.querySelectorAll('select[name], input[name]').forEach(el => {
             el.name = el.name.replace(/\[\d+\]/, `[${newIdx}]`);
-            if(el.tagName==='SELECT') el.selectedIndex=0;
-            else el.value = el.classList.contains('ingredient-quantity')?'0':'';
+            if (el.tagName === 'SELECT') el.selectedIndex = 0;
+            else el.value = el.classList.contains('ingredient-quantity') ? '0' : '';
         });
         tableBody.appendChild(clone);
         recalcRow(clone);
@@ -688,18 +760,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     tableBody.addEventListener('click', e => {
-        if(e.target.closest('.remove-ingredient') && tableBody.children.length>1) {
+        if (e.target.closest('.remove-ingredient') 
+            && tableBody.children.length > 1) {
             e.target.closest('.ingredient-row').remove();
             recalcTotals();
         }
     });
 
-    // ─── Initial boot ───
-    document.querySelectorAll('.ingredient-row').forEach(r=>recalcRow(r));
+    // ——————————————
+    // Initial bootstrap
+    // ——————————————
+    document.querySelectorAll('.ingredient-row').forEach(r => recalcRow(r));
     calcWeightPerPiece();
     updateMode();
     updateCostPerMin();
     recalcTotals();
 });
 </script>
+
 @endsection
+

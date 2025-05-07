@@ -89,6 +89,14 @@
       @endcan
 
       {{-- Ingredients --}}
+      @can('blogs')
+      <li>
+        <a href="{{ route('blogs') }}">
+          <iconify-icon icon="mdi:silverware-fork-knife" class="menu-icon"></iconify-icon>
+          <span>Blog</span>
+        </a>
+      </li>
+      @endcan
       @can('ingredients')
       <li>
         <a href="{{ route('ingredients.index') }}">
