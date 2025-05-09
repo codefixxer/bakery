@@ -171,7 +171,7 @@
         }
 
         .sidebar-logo {
-            border-right: 7px solid white;
+            border-right: 6px solid white;
         }
 
         .logout-btn {

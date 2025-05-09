@@ -24,7 +24,7 @@
       {{ $laborCost->user->name }}
     </span>
   </div>
-@endif\
+@endif
         {{-- 1) Top inputs --}}
         <div class="row g-3 mb-3">
           <div class="col-md-4">
