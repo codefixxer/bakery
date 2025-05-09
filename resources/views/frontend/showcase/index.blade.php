@@ -30,6 +30,7 @@
           <tr>
             
             <th>Date</th>
+            <th>Name</th>
             <th>Break-even (€)</th>
             <th>Total Revenue (€)</th>
             <th>Potential Avg (€)</th>
@@ -45,6 +46,7 @@
             <tr>
               
               <td style="white-space: nowrap;">{{ \Carbon\Carbon::parse($s->showcase_date)->format('Y-m-d') }}</td>
+              <td>{{  ($s->showcase_name) }}</td>
               <td>{{ number_format($s->break_even, 2) }}</td>
               <td>{{ number_format($s->total_revenue, 2) }}</td>
               <td>{{ number_format($s->potential_income_average, 2) }}</td>
@@ -142,7 +144,7 @@
         pageLength: 10,
         order: [[1, 'desc']],
         columnDefs: [
-          { orderable: false, targets: [9] }
+          { orderable: false, targets: [8] }
         ],
         language: {
           search: "Search:",

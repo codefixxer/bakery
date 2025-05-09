@@ -94,7 +94,7 @@
       
           <button type="submit" 
           class="btn btn-lg" 
-          style="background-color: #e2ae76; color: #041930;">
+          style="background-color: #e2ae76; color: #041930; border:#e2ae76;">
       <i class="bi bi-save2 me-2" style="color: #041930;"></i>
       {{ isset($ingredient) && $ingredient ? 'Update Ingredient' : 'Save Ingredient' }}
   </button>

@@ -15,7 +15,7 @@
       </div>
       
 
-    <div class="card border-primary shadow-sm">
+    <div class="card border-primary shadow-sm mt-50">
         <div class="card-header d-flex align-items-center" style="background-color: #041930;">
             <i class="bi bi-newspaper fs-4 me-2" style="color: #e2ae76;"></i>
             <h5 class="mb-0 fw-bold" style="color: #e2ae76;">News List</h5>

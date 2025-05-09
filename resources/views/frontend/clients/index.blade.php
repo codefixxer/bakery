@@ -75,7 +75,7 @@
               <th>Phone</th>
               <th>Email</th>
               <th>Notes</th>
-              <th>Created By</th>
+             
               <th>Actions</th>
             </tr>
           </thead>
@@ -87,14 +87,7 @@
                 <td>{{ $client->phone }}</td>
                 <td>{{ $client->email }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($client->notes, 50) }}</td>
-                <td>
-                  @php $creator = $client->user; @endphp
-                  @if($creator && is_null($creator->created_by))
-                    <span class="badge bg-dark text-white">{{ $creator->name }}</span>
-                  @else
-                    <span class="badge bg-light text-dark">{{ $creator->name ?? '—' }}</span>
-                  @endif
-                </td>
+             
                 <td>
                   <a href="{{ route('clients.show', $client) }}" class="btn btn-sm btn-deepblue me-1" title="View">
                     <i class="bi bi-eye"></i>
@@ -191,7 +184,7 @@
         ordering: true,
         responsive: true,
         pageLength: $('#clientsTable').data('page-length'),
-        columnDefs: [{ orderable: false, targets: 6 }]
+        columnDefs: [{ orderable: false, targets: 10 }]
       });
     }
 

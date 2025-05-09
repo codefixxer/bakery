@@ -60,7 +60,7 @@
         <table id="categoryTable" class="table table-bordered table-striped table-hover align-middle mb-0 text-center" data-page-length="10">
           <thead style="background-color: #e2ae76; color: #041930;">
             <tr>
-              <th>Created By</th>
+             
               <th>Name</th>
               <th>Last Updated</th>
               <th>Actions</th>
@@ -69,15 +69,8 @@
           <tbody>
             @foreach($categories as $cat)
               <tr>
-                <td>
-                  <span class="badge bg-light text-dark">
-                    @if(optional($cat->user)?->hasRole('super'))
-                      Default
-                    @else
-                      {{ $cat->user->name ?? '—' }}
-                    @endif
-                  </span>
-                </td>
+             
+                  
                 <td>{{ $cat->name }}</td>
                 <td>{{ $cat->updated_at->format('Y-m-d H:i') }}</td>
                 <td>

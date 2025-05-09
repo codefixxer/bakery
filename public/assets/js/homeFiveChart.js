@@ -19,7 +19,7 @@
               show: false,
           },
       }, 
-      colors: ["#487FFF", "#EF4A00"],
+      colors: ["#041930", "#EF4A00"],
       plotOptions: {
           bar: {
               columnWidth: "8",
@@ -134,7 +134,7 @@
                 shade: 'dark',
                 type: 'horizontal',
                 shadeIntensity: 0.5,
-                gradientToColors: ['#487FFF'],
+                gradientToColors: ['#041930'],
                 inverseColors: true,
                 opacityFrom: 1,
                 opacityTo: 1,
@@ -377,7 +377,7 @@
   // ================================ My Portfolio Donut chart Start ================================ 
     var options = { 
       series: [70, 30],
-      colors: ['#FF9F29', '#487FFF'],
+      colors: ['#FF9F29', '#041930'],
       labels: ['Female', 'Male'] ,
       legend: {
           show: false 
@@ -476,11 +476,11 @@
       series: {
           regions: [{
               values: {
-                  "US": '#487FFF ',
-                  "SA": '#487FFF',
-                  "AU": '#487FFF',
-                  "CN": '#487FFF',
-                  "GB": '#487FFF',
+                  "US": '#041930 ',
+                  "SA": '#041930',
+                  "AU": '#041930',
+                  "CN": '#041930',
+                  "GB": '#041930',
               },
               attribute: 'fill'
           }]

@@ -387,7 +387,7 @@
         plotOptions: {
             candlestick: {
                 colors: {
-                    upward: '#487FFF',  // Color for bullish candles (green)
+                    upward: '#041930',  // Color for bullish candles (green)
                     downward: '#C0D9FD',  // Color for bearish candles (red)
                     downward: '#FF9F29'  // Color for bearish candles (red)
                 },
@@ -547,7 +547,7 @@
   // ================================ User Activities Donut chart End ================================ 
     var options = { 
       series: [30, 25],
-      colors: ['#FF9F29', '#487FFF'],
+      colors: ['#FF9F29', '#041930'],
       labels: ['Female', 'Male'] ,
       legend: {
           show: false 

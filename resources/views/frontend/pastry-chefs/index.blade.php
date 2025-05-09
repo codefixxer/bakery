@@ -189,7 +189,7 @@ table tbody td {
       ordering: true,
       responsive: true,
       pageLength: $('#pastryChefsTable').data('page-length'),
-      columnDefs: [{ orderable: false, targets: 4 }]
+      columnDefs: [{ orderable: false, targets: 1 }]
     });
 
     const forms = document.querySelectorAll('.needs-validation');

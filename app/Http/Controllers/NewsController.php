@@ -78,7 +78,7 @@ public function store(Request $request)
 
         public function edit(News $news)
         {
-            return view('frontend.news.edit', compact('news'));
+            return view('frontend.news.create', compact('news'));
         }
 
         public function update(Request $request, News $news)

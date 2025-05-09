@@ -1,31 +1,4 @@
 @auth
-<style>
-  /* Logout Button */
-.sidebar-logout {
-  margin-top: auto; /* Push logout button to the bottom */
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  background-color: #ff4d4d; /* Red background for logout */
-  color: white;
-  border-radius: 6px;
-  transition: background-color 0.3s ease;
-  text-decoration: none;
-}
-
-.logout-btn:hover {
-  background-color: #e63946; /* Darker red on hover */
-}
-
-.logout-icon {
-  margin-right: 8px;
-  font-size: 20px;
-}
-
-</style>
 
 <aside class="sidebar">
   <button type="button" class="sidebar-close-btn">
@@ -33,9 +6,9 @@
   </button>
   <div>
     <a href="{{ route('dashboard') }}" class="sidebar-logo">
-      <img src="{{ asset('assets/images/logo.png') }}" alt="site logo" class="light-logo">
-      <img src="{{ asset('assets/images/logo-light.png') }}" alt="site logo" class="dark-logo">
-      <img src="{{ asset('assets/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
+      <img src="{{ asset('assets/images/asset/logo.jpg') }}" alt="site logo" class="light-logo">
+      <img src="{{ asset('assets/images/asset/logo.jpg') }}" alt="site logo" class="dark-logo">
+      <img src="{{ asset('assets/images/asset/logo.jpg') }}" alt="site logo" class="logo-icon">
     </a>
   </div>
 
@@ -97,8 +70,8 @@
       @can('blogs')
       <li>
         <a href="{{ route('blogs') }}">
-          <iconify-icon icon="mdi:silverware-fork-knife" class="menu-icon"></iconify-icon>
-          <span>Blog</span>
+          <iconify-icon icon="mdi:silverware-fork-knife" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
+          <span style="color: #e2ae76;">Blog</span>
         </a>
       </li>
       @endcan
@@ -157,10 +130,22 @@
       {{-- Recipe --}}
       @can('recipe')
       <li class="dropdown">
-        <a href="javascript:void(0)">
-          <iconify-icon icon="mdi:food-variant" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
+        <a href="javascript:void(0)" class="d-flex align-items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            style="width: 1.25em; height: 1.25em; fill: #e2ae76; margin-right: .5em;"
+          >
+            <path d="M356.334,494.134c43.124-12.321,153.745-52.878,155.636-110.035c1.88-57.184-85.049-58.301-139.549-49.294L356.334,494.134z"/>
+            <path d="M17.864,155.664l159.328-16.088c9.01-54.497,7.893-141.426-49.291-139.546C70.742,1.918,30.184,112.54,17.864,155.664z"/>
+            <path d="M182.525,479.291c17.563,9.501,39.263,18.014,58.835,23.244c44.236,11.799,107.683,14.791,113.83-4.066c6.165-18.838,22.757-161.567,15.537-175.497c-7.204-13.913-32.605-22.372-47.628-26.378c-5.971-1.59-13.743-3.393-21.822-4.467L182.525,479.291z"/>
+            <path d="M9.466,270.641c5.227,19.569,13.741,41.27,23.244,58.835l187.165-118.752c-1.076-8.081-2.879-15.851-4.47-21.824c-4.015-15.03-12.462-40.422-26.375-47.626c-13.93-7.219-156.661,9.37-175.497,15.537C-5.325,162.957-2.332,226.404,9.466,270.641z"/>
+            <path d="M277.509,234.492c-10.833-10.833-30.659-28.329-46.765-27.786C214.616,207.227,48.711,314.21,34.496,328.424c-14.223,14.223,18.794,66.572,50.651,98.429c31.855,31.855,84.205,64.874,98.429,50.651c14.215-14.215,121.194-180.123,121.717-196.251C305.836,265.147,288.341,245.322,277.509,234.492z"/>
+          </svg>
           <span style="color: #e2ae76;">Recipe</span>
         </a>
+      
+      
         <ul class="sidebar-submenu">
           <li>
             <a href="{{ route('recipes.create') }}">

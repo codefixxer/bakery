@@ -9,7 +9,7 @@
             show: false // This will remove the white border
         },
         labels: ['Team A', 'Team B', 'Team C', 'Team D'],
-        colors: ['#487FFF', "#FF9F29", '#45B369', '#EF4A00'],
+        colors: ['#041930', "#FF9F29", '#45B369', '#EF4A00'],
         plotOptions: {
             pie: {
                 dataLabels: {
@@ -51,7 +51,7 @@
                 height: 264,
                 type: 'donut',
             },
-            colors: ['#16a34a', '#487fff', '#2563eb', '#dc2626', '#f86624', '#ffc107'],
+            colors: ['#16a34a', '#041930', '#2563eb', '#dc2626', '#f86624', '#ffc107'],
             dataLabels: {
                 enabled: false
             },
@@ -88,7 +88,7 @@
           name: 'Product 2',
           data: [80, 60, 80, 70, 68, 60, 56, 50, 40, 45],
         }],
-        colors: ['#FF9F29', '#487FFF'],
+        colors: ['#FF9F29', '#041930'],
         chart: {
             height: 264,
             type: 'radar',
@@ -131,9 +131,9 @@
           height: 264,
         },
         labels: ['Product 1', 'Product 2', 'Product 3', 'Product 4'],
-        colors: ['#487FFF', '#FF9F29', '#9935FE', '#EF4A00'], 
+        colors: ['#041930', '#FF9F29', '#9935FE', '#EF4A00'], 
         stroke: {
-            colors: ['#487FFF', '#FF9F29', '#9935FE', '#EF4A00'], 
+            colors: ['#041930', '#FF9F29', '#9935FE', '#EF4A00'], 
         },
         fill: {
           opacity: 0.8

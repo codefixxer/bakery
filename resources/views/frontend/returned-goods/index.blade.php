@@ -149,20 +149,24 @@
             <table class="table table-striped mb-0">
               <thead class="bg-gold text-dark">
                 <tr>
-                  <th>Date</th><th>Supply (€)</th>
-                  <th>Returned (€)</th><th>Net (€)</th>
+                  
+                  <th>Date</th>
+                  <th>Supply (€)</th>
+                  <th>Returned (€)</th>
+                  <th>Net (€)</th>
                 </tr>
               </thead>
               <tbody>
                 @forelse($supsByDate as $d)
                   <tr>
-                    <td>{{ $d->date }}</td>
-                    <td>€{{ number_format($d->total_supply,2) }}</td>
-                    <td class="{{ $d->total_return>0?'text-danger':'text-success' }}">
-                      €{{ number_format($d->total_return,2) }}
+                   
+                    <td>{{ \Carbon\Carbon::parse($row->date)->format('Y-m-d') }}</td>
+                    <td>€{{ number_format($row->total_supply, 2) }}</td>
+                    <td class="{{ $row->total_return > 0 ? 'text-danger' : 'text-success' }}">
+                      €{{ number_format($row->total_return, 2) }}
                     </td>
-                    <td class="{{ ($d->total_supply-$d->total_return)>=0?'text-success':'text-danger' }}">
-                      €{{ number_format($d->total_supply-$d->total_return,2) }}
+                    <td class="{{ $row->net >= 0 ? 'text-success' : 'text-danger' }}">
+                      €{{ number_format($row->net, 2) }}
                     </td>
                   </tr>
                 @empty

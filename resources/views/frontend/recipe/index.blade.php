@@ -4,11 +4,13 @@
 
 @section('content')
 <div class="container py-5">
+
   <!-- Header -->
-  <div class="card mb-4 shadow-sm border-primary">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">All Recipes</h5>
-      <small>Quickly search, sort, and filter all your recipes below.</small>
+  <div class="page-header d-flex align-items-center mb-4 p-4 rounded" style="background-color: #041930;">
+    <i class="bi bi-bookmark-star-fill me-3 fs-3" style="color: #e2ae76;"></i>
+    <div>
+      <h2 class="mb-0 fw-bold" style="color: #e2ae76;">All Recipes</h2>
+      <small class="d-block text-light">Quickly search, sort, and filter all your recipes below.</small>
     </div>
   </div>
 
@@ -16,15 +18,13 @@
   <div class="card shadow-sm">
     <div class="card-body">
       <div class="table-responsive">
-        <table
-          id="recipesTable"
-          class="table table-striped table-hover table-bordered mb-0"
-          style="width:100%;"
-        >
-          <thead class="table-primary">
-            <tr>
-              <th>Created By</th>
-              <th style="width:1%"></th>
+        <table id="recipesTable" class="table table-striped table-hover table-bordered mb-0" style="width:100%;">
+          <thead class="custom-recipe-head">
+
+
+            <tr class="text-center">
+             
+             
               <th>Name</th>
               <th>Category</th>
               <th>Department</th>
@@ -60,63 +60,57 @@
               @endphp
 
               <tr class="dt-control" data-ingredients='@json($ingredientsData)'>
-                <td>{{ optional($r->user)->name ?? '—' }}</td>
-                <td></td>
+               
+               
                 <td>{{ $r->recipe_name }}</td>
                 <td>{{ $r->category->name ?? '—' }}</td>
                 <td>{{ $r->department->name ?? '—' }}</td>
                 <td>
-                  <span class="badge bg-secondary text-uppercase">
-                    {{ $r->sell_mode }}
-                  </span>
+                  <span class="badge bg-secondary text-uppercase">{{ $r->sell_mode }}</span>
                 </td>
                 <td class="text-end">€{{ number_format($sell, 2) }}</td>
-                <td class="text-end">
-                  €{{ number_format($ingCost, 2) }}
-                  <small class="text-muted">({{ $ingPct }}%)</small>
-                </td>
-                <td class="text-end">
-                  €{{ number_format($labCost, 2) }}
-                  <small class="text-muted">({{ $labPct }}%)</small>
-                </td>
-                <td class="text-end">
-                  €{{ number_format($totalCosts, 2) }}
-                  <small class="text-muted">({{ $costPct }}%)</small>
-                </td>
+                <td class="text-end">€{{ number_format($ingCost, 2) }} <small class="text-muted">({{ $ingPct }}%)</small></td>
+                <td class="text-end">€{{ number_format($labCost, 2) }} <small class="text-muted">({{ $labPct }}%)</small></td>
+                <td class="text-end">€{{ number_format($totalCosts, 2) }} <small class="text-muted">({{ $costPct }}%)</small></td>
                 <td class="text-end">
                   @if($marVal >= 0)
-                    <span class="text-success">
-                      €{{ number_format($marVal, 2) }}
-                      <small>({{ $marPct }}%)</small>
-                    </span>
+                    <span class="text-success">€{{ number_format($marVal, 2) }} <small>({{ $marPct }}%)</small></span>
                   @else
-                    <span class="text-danger">
-                      €{{ number_format($marVal, 2) }}
-                      <small>({{ $marPct }}%)</small>
-                    </span>
+                    <span class="text-danger">€{{ number_format($marVal, 2) }} <small>({{ $marPct }}%)</small></span>
                   @endif
                 </td>
                 <td class="text-center">
-                  <a href="{{ route('recipes.edit',  $r->id) }}"
-                     class="btn btn-sm btn-outline-light bg-primary text-white me-1"
+                  {{-- Edit --}}
+                  <a href="{{ route('recipes.edit', $r->id) }}"
+                     class="btn btn-sm border-2"
+                     style="border-color: #e2ae76; color: #041930;"
                      title="Edit">
-                    <i class="bi bi-pencil"></i>
+                    <i class="bi bi-pencil me-1" style="color: #041930;"></i> Edit
                   </a>
-                  <a href="{{ route('recipes.show',  $r->id) }}"
-                     class="btn btn-sm btn-outline-light bg-info text-white me-1"
+                
+                  {{-- View --}}
+                  <a href="{{ route('recipes.show', $r->id) }}"
+                     class="btn btn-sm"
+                     style="background-color: #041930; color: #e2ae76;"
                      title="View">
-                    <i class="bi bi-eye"></i>
+                    <i class="bi bi-eye me-1" style="color: #e2ae76;"></i> View
                   </a>
+                
+                  {{-- Delete --}}
                   <form action="{{ route('recipes.destroy', $r->id) }}"
                         method="POST"
                         class="d-inline"
                         onsubmit="return confirm('Delete this recipe?');">
-                    @csrf @method('DELETE')
-                    <button class="btn btn-sm btn-outline-light bg-danger text-white">
-                      <i class="bi bi-trash"></i>
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            class="btn btn-sm border-2"
+                            style="border-color: red; color: red;">
+                      <i class="bi bi-trash me-1"></i> Delete
                     </button>
                   </form>
                 </td>
+                
               </tr>
             @endforeach
           </tbody>
@@ -127,6 +121,41 @@
 </div>
 @endsection
 
+
+<style>
+  .btn-sm:hover {
+  opacity: 0.9;
+  transition: 0.2s ease-in-out;
+}
+
+
+table.dataTable thead th.sorting:after,
+table.dataTable thead th.sorting_asc:after,
+table.dataTable thead th.sorting_desc:after {
+  color: #041930 !important; /* dark blue */
+  opacity: 1 !important;
+}
+
+ /* Custom recipe table header style */
+table#recipesTable thead.custom-recipe-head th {
+  background-color: #e2ae76 !important;
+  color: #041930 !important;
+  text-align: center;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* Force sorting arrows to appear with correct color */
+table.dataTable thead th.sorting:after,
+table.dataTable thead th.sorting_asc:after,
+table.dataTable thead th.sorting_desc:after {
+  color: #041930 !important;
+  opacity: 1 !important;
+}
+
+</style>
+
+
 @section('scripts')
 <script>
   $(function() {
@@ -135,10 +164,8 @@
       ordering: true,
       responsive: true,
       pageLength: 10,
-      order: [[2, 'asc']],   // sort by Name
-      columnDefs: [
-        { orderable: false, targets: [0, 1] }
-      ]
+      order: [[0, 'asc']], // sort by "Name"
+      columnDefs: [] // no disabled columns now
     });
 
     $('#recipesTable tbody').on('click', 'td.dt-control', function () {
@@ -170,3 +197,6 @@
   });
 </script>
 @endsection
+
+
+

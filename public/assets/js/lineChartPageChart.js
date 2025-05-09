@@ -19,7 +19,7 @@
         },
         stroke: {
             curve: 'smooth',
-            colors: ['#487FFF'],
+            colors: ['#041930'],
             width: 4
         },
         markers: {
@@ -83,7 +83,7 @@
             //     },
             //     fill: {
             //         type: 'solid',
-            //         color: '#487FFF40',
+            //         color: '#04193040',
             //         // gradient: {
             //         //   colorFrom: '#D8E3F0',
             //         //   // colorTo: '#BED1E6',
@@ -229,7 +229,7 @@
     var chart = new ApexCharts(document.querySelector(`#${chartId}`), options);
     chart.render();
   }
-  createChartTwo('zoomAbleLineChart', '#487fff');
+  createChartTwo('zoomAbleLineChart', '#041930');
   // =========================== Zoom able Line Chart End ===============================
 
   // =========================== Line Chart With Data labels Start ===============================
@@ -249,7 +249,7 @@
                 show: false
             },
         },
-        colors: ['#487FFF'],  // Set the color of the series
+        colors: ['#041930'],  // Set the color of the series
         dataLabels: {
           enabled: true
         },
@@ -276,7 +276,7 @@
         },
         // Customize the circle marker color on hover
         markers: {
-            colors: '#487FFF',
+            colors: '#041930',
             strokeWidth: 3,
             size: 0,
             hover: {
@@ -335,7 +335,7 @@
               bottom: 0
           }
       },
-      colors: ['#487FFF', '#FF9F29'],  // Set the color of the series
+      colors: ['#041930', '#FF9F29'],  // Set the color of the series
       dataLabels: {
           enabled: false
       },
@@ -424,7 +424,7 @@
     var chart = new ApexCharts(document.querySelector(`#${chartId}`), options);
     chart.render();
   }
-  createLineChart('doubleLineChart', '#487fff');
+  createLineChart('doubleLineChart', '#041930');
   // =========================== Double Line Chart End ===============================
 
   
@@ -444,7 +444,7 @@
         stroke: {
           curve: 'stepline',
         },
-        colors: ['#487FFF'],  // Set the color of the series
+        colors: ['#041930'],  // Set the color of the series
         dataLabels: {
           enabled: false
         },

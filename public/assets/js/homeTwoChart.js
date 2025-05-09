@@ -116,7 +116,7 @@
   }
 
   // Call the function for each chart with the desired ID and color
-  createChart('new-user-chart', '#487fff');
+  createChart('new-user-chart', '#041930');
   createChart('active-user-chart', '#45b369');
   createChart('total-sales-chart', '#f4941e');
   createChart('conversion-user-chart', '#8252e9');
@@ -250,7 +250,7 @@
     var chart = new ApexCharts(document.querySelector(`#${chartId}`), options);
     chart.render();
   }
-  createChartTwo('revenue-chart', '#487fff');
+  createChartTwo('revenue-chart', '#041930');
   // ================================ Revenue Growth Area Chart End ================================ 
 
   // ================================ Earning Statistics bar chart Start ================================ 
@@ -315,12 +315,12 @@
       },
       fill: {
           type: 'gradient',
-          colors: ['#487FFF'], // Set the starting color (top color) here
+          colors: ['#041930'], // Set the starting color (top color) here
           gradient: {
               shade: 'light', // Gradient shading type
               type: 'vertical',  // Gradient direction (vertical)
               shadeIntensity: 0.5, // Intensity of the gradient shading
-              gradientToColors: ['#487FFF'], // Bottom gradient color (with transparency)
+              gradientToColors: ['#041930'], // Bottom gradient color (with transparency)
               inverseColors: false, // Do not invert colors
               opacityFrom: 1, // Starting opacity
               opacityTo: 1,  // Ending opacity
@@ -360,7 +360,7 @@
   // ================================ Custom Overview Donut chart Start ================================ 
     var options = { 
       series: [500, 500, 500],
-      colors: ['#45B369', '#FF9F29', '#487FFF'],
+      colors: ['#45B369', '#FF9F29', '#041930'],
       labels: ['Active', 'New', 'Total'] ,
       legend: {
           show: false 
@@ -551,11 +551,11 @@
       series: {
           regions: [{
               values: {
-                  "US": '#487FFF ',
-                  "SA": '#487FFF',
-                  "AU": '#487FFF',
-                  "CN": '#487FFF',
-                  "GB": '#487FFF',
+                  "US": '#041930 ',
+                  "SA": '#041930',
+                  "AU": '#041930',
+                  "CN": '#041930',
+                  "GB": '#041930',
               },
               attribute: 'fill'
           }]

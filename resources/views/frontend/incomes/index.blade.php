@@ -52,7 +52,7 @@
         </div>
 
         <div class="col-12 text-end">
-          <button type="submit" class="btn btn-success btn-lg">
+          <button type="submit" class="btn btn-gold-save btn-lg">
             <i class="bi bi-save2 me-1"></i>
             {{ isset($income) ? 'Update Income' : 'Save Income' }}
           </button>
@@ -128,12 +128,17 @@
   }
   .btn-gold {
     border: 1px solid #e2ae76 !important;
-    color: #e2ae76 !important;
+    color: #041930 !important;
     background-color: transparent !important;
   }
   .btn-gold:hover {
     background-color: #e2ae76 !important;
     color: white !important;
+  }
+  .btn-gold-save{
+    border: 1px solid #e2ae76 !important;
+    color: #041930 !important;
+    background-color:  #e2ae76 !important;
   }
   .btn-deepblue {
     border: 1px solid #041930 !important;

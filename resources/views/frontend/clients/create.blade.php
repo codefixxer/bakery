@@ -55,9 +55,7 @@
           <button type="submit" class="btn btn-gold btn-lg">
             <i class="bi bi-save2 me-1"></i> {{ isset($client) ? 'Update Client' : 'Save Client' }}
           </button>
-          <a href="{{ route('clients.index') }}" class="btn btn-deepblue btn-lg ms-2">
-            <i class="bi bi-x-circle me-1"></i> Cancel
-          </a>
+         
         </div>
       </form>
     </div>
@@ -69,23 +67,17 @@
 <style>
   .btn-gold {
     border: 1px solid #e2ae76 !important;
-    color: #e2ae76 !important;
-    background-color: transparent !important;
-  }
-  .btn-gold:hover {
+    color:  #041930  !important;
     background-color: #e2ae76 !important;
-    color: white !important;
+    
   }
-
+  
   .btn-deepblue {
     border: 1px solid #041930 !important;
     color: #041930 !important;
     background-color: transparent !important;
   }
-  .btn-deepblue:hover {
-    background-color: #041930 !important;
-    color: white !important;
-  }
+ 
 
   .btn-gold i,
   .btn-deepblue i {

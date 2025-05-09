@@ -164,7 +164,7 @@
   --primary-300: #6BB1FF;
   --primary-400: #519FFF;
   --primary-500: #458EFF;
-  --primary-600: #487FFF;
+  --primary-600: #041930;
   --primary-700: #486CEA;
   --primary-800: #4759D6;
   --primary-900: #4536B6;
@@ -3598,7 +3598,7 @@ html[data-theme=dark] .bg-warning-light-two {
 
 /* Stroke Class */
 .stroke-blue {
-  stroke: #487FFF !important;
+  stroke: #041930 !important;
 }
 
 .stroke-red {
@@ -15326,8 +15326,7 @@ td.fc-header-center {
 }
 
 .sidebar-logo {
-  height: 4.5rem;
-  padding: 0.875rem 1rem;
+  height: 6rem;
   border-inline-end: 1px solid var(--neutral-200);
   border-block-end: 1px solid var(--neutral-200);
   display: flex;
@@ -15336,7 +15335,8 @@ td.fc-header-center {
 }
 
 .sidebar-logo img {
-  max-height: 3.4375rem;
+  height: 100%;
+  width: 100%;
 }
 
 .sidebar-logo img.dark-logo {

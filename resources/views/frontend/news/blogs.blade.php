@@ -24,8 +24,8 @@
                     <div class="card-body">
                         <p class="text-muted">{{ Str::limit($item->content, 150) }}</p>
                     </div>
-                    <div class="card-footer text-end">
-                        <a href="{{ route('news.show', $item->id) }}" class="btn btn-primary btn-sm">Read More</a>
+                    <div class="card-footer text-end"  ">
+                        <a href="{{ route('news.show', $item->id) }}" class="btn btn-primary btn-sm " style="background-color:#e2ae76 ; color:#041930; border:#e2ae76">Read More</a>
                     </div>
                 </div>
             </div>

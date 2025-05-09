@@ -23,13 +23,13 @@
         opacity: 0.1,
       },
     },
-    colors: ['#487FFF'], // Set color for series
+    colors: ['#041930'], // Set color for series
     dataLabels: {
       enabled: false
     },
     stroke: {
       curve: 'smooth',
-      colors: ['#487FFF'], // Specify the line color here
+      colors: ['#041930'], // Specify the line color here
       width: 3
     },
     markers: {
@@ -93,7 +93,7 @@
         },
         fill: {
           type: 'solid',
-          color: '#487FFF40',
+          color: '#04193040',
           // gradient: {
           //   colorFrom: '#D8E3F0',
           //   // colorTo: '#BED1E6',
@@ -198,7 +198,7 @@
     // ================================ Users Overview Donut chart Start ================================ 
     var options = { 
       series: [500, 500, 500],
-      colors: ['#FF9F29', '#487FFF', '#E4F1FF'],
+      colors: ['#FF9F29', '#041930', '#E4F1FF'],
       labels: ['Active', 'New', 'Total'] ,
       legend: {
           show: false 
@@ -254,7 +254,7 @@
         name: 'Revenue',
         data: [15000, 18000, 19000, 20000, 35000, 20000, 18000, 13000, 18000, 38000, 14000, 16000]
       }],
-      colors: ['#487FFF', '#FF9F29'],
+      colors: ['#041930', '#FF9F29'],
       labels: ['Active', 'New', 'Total'],
       legend: {
           show: false 
@@ -354,11 +354,11 @@
       series: {
           regions: [{
               values: {
-                  "US": '#487FFF ',
-                  "SA": '#487FFF',
-                  "AU": '#487FFF',
-                  "CN": '#487FFF',
-                  "GB": '#487FFF',
+                  "US": '#041930 ',
+                  "SA": '#041930',
+                  "AU": '#041930',
+                  "CN": '#041930',
+                  "GB": '#041930',
               },
               attribute: 'fill'
           }]
