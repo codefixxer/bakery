@@ -19,9 +19,9 @@ class ExternalSuppliesController extends Controller
     {
         $user = Auth::user();
 
-        // 1) Build your two‑level group of user IDs
+        // 1) Build your two-level visibility group
         if (is_null($user->created_by)) {
-            // Top‑level: yourself + anyone you created
+            // Top-level: yourself + anyone you created
             $visibleUserIds = User::where('created_by', $user->id)
                                   ->pluck('id')
                                   ->push($user->id)
@@ -31,7 +31,7 @@ class ExternalSuppliesController extends Controller
             $visibleUserIds = collect([$user->id, $user->created_by])->unique();
         }
 
-        // 2) Load supplies & returns only from that group
+        // 2) Load supplies & returns for that group
         $supplies = ExternalSupply::with(['client','recipes.recipe','user'])
                         ->whereIn('user_id', $visibleUserIds)
                         ->get();
@@ -40,7 +40,7 @@ class ExternalSuppliesController extends Controller
                         ->whereIn('user_id', $visibleUserIds)
                         ->get();
 
-        // 3) Flatten into one collection for the accordion
+        // 3) Flatten into one collection
         $all = collect();
 
         foreach ($supplies as $supply) {
@@ -73,10 +73,16 @@ class ExternalSuppliesController extends Controller
             ]);
         }
 
+        // 4) Group by client, then sort & group by date chronologically
         $grouped = $all
-            ->sortByDesc('date')
             ->groupBy('client')
-            ->map(fn($byClient) => $byClient->groupBy('date'));
+            ->map(function ($byClient) {
+                return $byClient
+                    // change to sortBy('date') for oldest→newest,
+                    // or sortByDesc('date') for newest→oldest
+                    ->sortByDesc('date')
+                    ->groupBy('date');
+            });
 
         return view('frontend.external-supplies.index', ['all' => $grouped]);
     }
@@ -88,7 +94,6 @@ class ExternalSuppliesController extends Controller
     return view('frontend.external-supplies.show', compact('externalSupply'));
 }
 
-    
     
     
 
