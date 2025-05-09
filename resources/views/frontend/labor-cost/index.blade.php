@@ -18,6 +18,7 @@
       <div class="card-body">
 
         @if($laborCost && $laborCost->user)
+<<<<<<< Updated upstream
         <div class="mb-3">
           <strong>Updated By:</strong>
           <span class="badge bg-light text-dark">
@@ -26,6 +27,15 @@
         </div>
         @endif
 
+=======
+  <div class="mb-3">
+    <strong>Updated By:</strong>
+    <span class="badge bg-light text-dark">
+      {{ $laborCost->user->name }}
+    </span>
+  </div>
+@endif\
+>>>>>>> Stashed changes
         {{-- 1) Top inputs --}}
         <div class="row g-3 mb-3">
           <div class="col-md-4">

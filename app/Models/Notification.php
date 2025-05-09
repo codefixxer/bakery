@@ -1,20 +1,19 @@
 <?php
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    protected $fillable = [
-        'title',
-        'message',
-        'user_id', // assuming notifications are user-specific
-        'is_read', // to keep track of read/unread status
-        'is_new',  // to track new/unread notifications
-    ];
+    use HasFactory;
 
-    public function user()
+    protected $fillable = ['user_id', 'news_id', 'is_read'];
+
+    // Relationship to News
+    public function news()
     {
-        return $this->belongsTo(User::class); // Assuming each notification belongs to a user
+        return $this->belongsTo(News::class);
     }
 }
