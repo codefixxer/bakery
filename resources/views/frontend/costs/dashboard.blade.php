@@ -1,3 +1,4 @@
+{{-- resources/views/frontend/costs/dashboard.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'Monthly Costs & Income Dashboard')
@@ -14,7 +15,6 @@
     font-size: 1rem;
     border-radius: 0.5rem 0.5rem 0 0;
   }
-
   .mini-card {
     padding: 0.75rem;
     font-size: 0.8rem;
@@ -24,50 +24,35 @@
     transition: all 0.3s ease-in-out;
     border: 1px solid #dee2e6;
   }
-
-  .mini-card h3 {
-    font-size: 1.2rem;
-    margin: 0.2rem 0;
-  }
-
-  .mini-card i {
-    font-size: 1.4rem;
-    margin-bottom: 0.2rem;
-  }
-
+  .mini-card h3 { font-size: 1.2rem; margin: 0.2rem 0; }
+  .mini-card i  { font-size: 1.4rem; margin-bottom: 0.2rem; }
   .mini-card:hover {
     transform: scale(1.05);
     box-shadow: 0 0 10px rgba(0,0,0,0.15);
   }
-
-  .month-tabs .nav-link {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.75rem;
-  }
-
+  .month-tabs .nav-link { font-size: 0.75rem; padding: 0.25rem 0.75rem; }
   .table thead th {
     background-color: #e2ae76;
     color: #041930;
     text-align: center;
     vertical-align: middle;
   }
-
   .table td, .table th {
     text-align: center;
     vertical-align: middle;
   }
-
-  .row .col-md-3, .row .col-md-4 {
-    padding: 0.25rem;
-  }
+  .row .col-md-3, .row .col-md-4 { padding: 0.25rem; }
 </style>
 
 <div class="container py-4">
 
-  <!-- Header -->
+  <!-- Header + Year Selector -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0 text-primary"><i class="bi bi-speedometer2 me-2"></i>{{ Carbon::create($year, $month, 1)->format('F Y') }}</h4>
-    <select id="yearSelector" name="year" class="form-select form-select-sm w-auto">
+    <h4 class="mb-0 text-primary">
+      <i class="bi bi-speedometer2 me-2"></i>
+      {{ Carbon::create($year, $month, 1)->format('F Y') }}
+    </h4>
+    <select id="yearSelector" class="form-select form-select-sm w-auto">
       @foreach($availableYears as $availableYear)
         <option value="{{ $availableYear }}" {{ $availableYear == $year ? 'selected' : '' }}>
           {{ $availableYear }}
@@ -81,7 +66,7 @@
     @for($m = 1; $m <= 12; $m++)
       <li class="nav-item">
         <a class="nav-link {{ $m == $month ? 'active' : '' }}"
-           href="{{ route('costs.dashboard', ['m' => $m, 'y' => $year]) }}">
+           href="{{ route('costs.dashboard', ['y' => $year, 'm' => $m]) }}">
           {{ Carbon::create($year, $m, 1)->format('M') }}
         </a>
       </li>
@@ -107,10 +92,20 @@
       <i class="bi bi-bar-chart-line me-2"></i>Monthly Comparison ({{ $year }})
     </div>
     <div class="card-body p-3">
+      {{-- Best / Worst alert --}}
       <div class="alert alert-info mb-3 small">
-        <strong>Best month:</strong> {{ Carbon::create($year,$bestMonth,1)->format('F') }} (€{{ number_format($bestNet,2) }}) &nbsp;&nbsp;
-        <strong>Worst month:</strong> {{ Carbon::create($year,$worstMonth,1)->format('F') }} (€{{ number_format($worstNet,2) }})
+        <strong>Best month:</strong>
+          {{ Carbon::create($year, $bestMonth, 1)->format('F') }}
+          (€{{ number_format($bestNet, 2) }})
+        &nbsp;&nbsp;
+        <strong>Worst month:</strong>
+          {{-- show “—” if all months tie --}}
+          {{ $worstMonth
+             ? Carbon::create($year, $worstMonth, 1)->format('F')
+             : '—' }}
+          (€{{ number_format($worstNet, 2) }})
       </div>
+
       <div class="table-responsive small">
         <table class="table table-bordered align-middle">
           <thead>
@@ -126,29 +121,41 @@
             </tr>
           </thead>
           <tbody>
-            @for($m=1; $m<=12; $m++)
+            @for($m = 1; $m <= 12; $m++)
               @php
-                $c1 = $costsThisYear[$m] ?? 0; $i1 = $incomeThisYearMonthly[$m] ?? 0; $n1 = $i1 - $c1;
-                $c2 = $costsLastYear[$m] ?? 0; $i2 = $incomeLastYearMonthly[$m] ?? 0; $n2 = $i2 - $c2;
+                $c1 = $costsThisYear[$m] ?? 0;
+                $i1 = $incomeThisYearMonthly[$m] ?? 0;
+                $n1 = $i1 - $c1;
+                $c2 = $costsLastYear[$m] ?? 0;
+                $i2 = $incomeLastYearMonthly[$m] ?? 0;
+                $n2 = $i2 - $c2;
               @endphp
               <tr>
-                <td class="text-start">{{ Carbon::create($year,$m,1)->format('F') }}</td>
-                <td>€{{ number_format($c1,2) }}</td>
-                <td>€{{ number_format($i1,2) }}</td>
-                <td class="{{ $n1>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($n1,2) }}</td>
-                <td>€{{ number_format($c2,2) }}</td>
-                <td>€{{ number_format($i2,2) }}</td>
-                <td class="{{ $n2>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($n2,2) }}</td>
+                <td class="text-start">{{ Carbon::create($year, $m, 1)->format('F') }}</td>
+                <td>€{{ number_format($c1, 2) }}</td>
+                <td>€{{ number_format($i1, 2) }}</td>
+                <td class="{{ $n1 >= 0 ? 'text-success' : 'text-danger' }}">
+                  €{{ number_format($n1, 2) }}
+                </td>
+                <td>€{{ number_format($c2, 2) }}</td>
+                <td>€{{ number_format($i2, 2) }}</td>
+                <td class="{{ $n2 >= 0 ? 'text-success' : 'text-danger' }}">
+                  €{{ number_format($n2, 2) }}
+                </td>
               </tr>
             @endfor
             <tr class="fw-bold bg-light">
               <td>Total</td>
-              <td>€{{ number_format($totalCostYear,2) }}</td>
-              <td>€{{ number_format($totalIncomeYear,2) }}</td>
-              <td class="{{ $netYear>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($netYear,2) }}</td>
-              <td>€{{ number_format($totalCostLastYear,2) }}</td>
-              <td>€{{ number_format($totalIncomeLastYear,2) }}</td>
-              <td class="{{ $netLastYear>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($netLastYear,2) }}</td>
+              <td>€{{ number_format($totalCostYear, 2) }}</td>
+              <td>€{{ number_format($totalIncomeYear, 2) }}</td>
+              <td class="{{ $netYear >= 0 ? 'text-success' : 'text-danger' }}">
+                €{{ number_format($netYear, 2) }}
+              </td>
+              <td>€{{ number_format($totalCostLastYear, 2) }}</td>
+              <td>€{{ number_format($totalIncomeLastYear, 2) }}</td>
+              <td class="{{ $netLastYear >= 0 ? 'text-success' : 'text-danger' }}">
+                €{{ number_format($netLastYear, 2) }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -156,7 +163,7 @@
     </div>
   </div>
 
-  <!-- Summary Cards -->
+  <!-- Summary Mini-Cards -->
   <div class="row g-3 text-center mb-4">
     <div class="col-6 col-md-3">
       <div class="mini-card border border-success">
@@ -203,11 +210,9 @@
 
 @section('scripts')
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('yearSelector').addEventListener('change', function () {
-      const y = this.value, m = {{ $month }};
-      window.location.href = `?y=${y}&m=${m}`;
-    });
+  document.getElementById('yearSelector').addEventListener('change', function () {
+    const y = this.value, m = {{ $month }};
+    window.location.href = `?y=${y}&m=${m}`;
   });
 </script>
 @endsection

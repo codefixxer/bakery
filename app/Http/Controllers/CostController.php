@@ -152,95 +152,84 @@ class CostController extends Controller
     /**
      * Dashboard showing cost/income summaries.
      */
-    public function dashboard(Request $request)
+
+     
+
+
+
+
+
+public function dashboard(Request $request)
     {
         $user = Auth::user();
 
-        //
-        // 1) Build the list of visible user IDs:
-        //
+        // 1) Build visible user IDs
         if (is_null($user->created_by)) {
-            // Root user: themselves + any direct children they created
             $children = User::where('created_by', $user->id)->pluck('id');
             $visibleUserIds = $children->isEmpty()
                 ? collect([$user->id])
                 : $children->push($user->id);
         } else {
-            // Child user: themselves + their creator
             $visibleUserIds = collect([$user->id, $user->created_by]);
         }
 
-        //
         // 2) Year / month filters
-        //
-        $year     = $request->query('y', now()->year);
-        $month    = $request->query('m', now()->month);
+        $year     = (int)$request->query('y', now()->year);
+        $month    = (int)$request->query('m', now()->month);
         $lastYear = $year - 1;
 
-        //
-        // 3) Categories limited to your group
-        //
+        // 3) Categories
         $categories = CostCategory::whereIn('user_id', $visibleUserIds)
-            ->orderBy('name')
-            ->get();
+                        ->orderBy('name')->get();
 
-        //
-        // 4) Available years for which this group has costs
-        //
+        // 4) Available years
         $availableYears = Cost::whereIn('user_id', $visibleUserIds)
             ->selectRaw('YEAR(due_date) as year')
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year');
 
-        //
-        // 5) Cost summary by category for selected month
-        //
+        // 5) Category summary for selected month
         $raw = Cost::whereIn('user_id', $visibleUserIds)
             ->whereYear('due_date', $year)
             ->whereMonth('due_date', $month)
             ->selectRaw('category_id, SUM(amount) as total')
             ->groupBy('category_id')
-            ->pluck('total', 'category_id');
+            ->pluck('total','category_id');
 
-        //
-        // 6) Monthly cost totals for this year & last year
-        //
+        // 6) Monthly cost totals
         $costsThisYear = Cost::whereIn('user_id', $visibleUserIds)
             ->whereYear('due_date', $year)
             ->selectRaw('MONTH(due_date) as month, SUM(amount) as total')
             ->groupBy('month')
-            ->pluck('total', 'month');
+            ->pluck('total','month');
 
         $costsLastYear = Cost::whereIn('user_id', $visibleUserIds)
             ->whereYear('due_date', $lastYear)
             ->selectRaw('MONTH(due_date) as month, SUM(amount) as total')
             ->groupBy('month')
-            ->pluck('total', 'month');
+            ->pluck('total','month');
 
         $totalCostYear     = $costsThisYear->sum();
         $totalCostLastYear = $costsLastYear->sum();
 
-        //
-        // 7) Build incomes & net by month arrays
-        //
+        // 7) Incomes & net by month
         $incomeThisYearMonthly = [];
         $incomeLastYearMonthly = [];
         $netByMonth            = [];
 
         for ($m = 1; $m <= 12; $m++) {
-            $income     = Income::whereIn('user_id', $visibleUserIds)
-                ->whereYear('date', $year)
-                ->whereMonth('date', $m)
-                ->sum('amount');
-            $incomeLast = Income::whereIn('user_id', $visibleUserIds)
-                ->whereYear('date', $lastYear)
-                ->whereMonth('date', $m)
+            $i1 = Income::whereIn('user_id', $visibleUserIds)
+                ->whereYear('date', $year)->whereMonth('date', $m)
                 ->sum('amount');
 
-            $incomeThisYearMonthly[$m] = $income;
-            $incomeLastYearMonthly[$m] = $incomeLast;
-            $netByMonth[$m]            = $income - ($costsThisYear[$m] ?? 0);
+            $i2 = Income::whereIn('user_id', $visibleUserIds)
+                ->whereYear('date', $lastYear)->whereMonth('date', $m)
+                ->sum('amount');
+
+            $incomeThisYearMonthly[$m] = $i1;
+            $incomeLastYearMonthly[$m] = $i2;
+            $netByMonth[$m]            = $i1 - ($costsThisYear[$m] ?? 0);
         }
 
         $totalIncomeYear     = array_sum($incomeThisYearMonthly);
@@ -248,35 +237,37 @@ class CostController extends Controller
         $netYear             = $totalIncomeYear - $totalCostYear;
         $netLastYear         = $totalIncomeLastYear - $totalCostLastYear;
 
-        //
-        // 8) Best / worst month
-        //
-        $bestMonth  = collect($netByMonth)->sortDesc()->keys()->first();
-        $bestNet    = $netByMonth[$bestMonth] ?? 0;
-        $worstMonth = collect($netByMonth)->sort()->keys()->first();
-        $worstNet   = $netByMonth[$worstMonth] ?? 0;
+        // 8) Best / worst month logic
+        $bestNet  = max($netByMonth);
+        $worstNet = min($netByMonth);
+        $bestMonth  = array_search($bestNet, $netByMonth, true);
+        $worstMonth = array_search($worstNet, $netByMonth, true);
 
-        //
-        // 9) Current month and last‐year‐same‐month incomes
-        //
-        $incomeThisMonth    = Income::whereIn('user_id', $visibleUserIds)
-            ->whereYear('date', $year)
-            ->whereMonth('date', $month)
-            ->sum('amount');
+        // If all months tie, show no “worst”
+        if (count(array_unique($netByMonth)) === 1) {
+            $worstMonth = null;
+            $worstNet   = $bestNet;
+        }
 
-        $incomeLastYearSame = Income::whereIn('user_id', $visibleUserIds)
-            ->whereYear('date', $lastYear)
-            ->whereMonth('date', $month)
-            ->sum('amount');
+        // 9) Current & last‐year same‐month incomes
+        $incomeThisMonth    = $incomeThisYearMonthly[$month] ?? 0;
+        $incomeLastYearSame = $incomeLastYearMonthly[$month] ?? 0;
 
         return view('frontend.costs.dashboard', compact(
-            'availableYears', 'year', 'month', 'lastYear', 'categories',
-            'raw', 'incomeThisMonth', 'incomeLastYearSame',
-            'costsThisYear', 'costsLastYear', 'netByMonth',
-            'incomeThisYearMonthly', 'incomeLastYearMonthly',
-            'totalCostYear', 'totalIncomeYear', 'netYear',
-            'totalCostLastYear', 'totalIncomeLastYear', 'netLastYear',
-            'bestMonth', 'bestNet', 'worstMonth', 'worstNet'
+            'availableYears','year','month','lastYear','categories',
+            'raw','incomeThisMonth','incomeLastYearSame',
+            'costsThisYear','costsLastYear','netByMonth',
+            'incomeThisYearMonthly','incomeLastYearMonthly',
+            'totalCostYear','totalIncomeYear','netYear',
+            'totalCostLastYear','totalIncomeLastYear','netLastYear',
+            'bestMonth','bestNet','worstMonth','worstNet'
         ));
     }
+
+
+
+
+
+
+
 }

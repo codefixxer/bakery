@@ -37,13 +37,46 @@ class ProductionController extends Controller
         return response()->json($details);
     }
 
-    public function show(Production $production)
+   public function show(Request $request, Production $production)
     {
-        $equipmentMap = \App\Models\Equipment::pluck('name', 'id')->toArray();
-    
-        return view('frontend.production.show', compact('production', 'equipmentMap'));
+        // Map equipment ids → names
+        $equipmentMap = Equipment::pluck('name', 'id')->toArray();
+
+        // Gather all chefs used in this production record
+        $allChefs = $production->details
+            ->map->chef
+            ->unique('id')
+            ->pluck('name','id')
+            ->toArray();
+
+        // Start with full collection of details
+        $details = $production->details;
+
+        // 1) Filter by chef if requested
+        if ($request->filled('chef_id')) {
+            $details = $details->where('chef_id', $request->chef_id);
+        }
+
+        // 2) Sort by chef name if requested
+        if ($request->input('sort') === 'chef') {
+            $direction = $request->input('direction','asc');
+            $details = $details->sortBy(
+                fn($d) => $d->chef->name,
+                SORT_REGULAR,
+                $direction === 'desc'
+            );
+        }
+
+        // Pass everything to the view
+        return view('frontend.production.show', [
+            'production'   => $production,
+            'equipmentMap' => $equipmentMap,
+            'allChefs'     => $allChefs,
+            'details'      => $details,
+            'selectedChef' => $request->chef_id,
+            'sortDir'      => $request->input('direction','asc'),
+        ]);
     }
-    
 
     public function index(Request $request)
     {

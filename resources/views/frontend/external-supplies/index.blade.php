@@ -41,8 +41,8 @@
   <!-- Accordion Display -->
   <div class="accordion" id="reportAccordion">
     @php $grp = 0; @endphp
-    @foreach($all as $client => $byDates)
-    @foreach($byDates->sortKeysDesc() as $date => $entries)
+@foreach($all as $client => $byDates)
+  @foreach($byDates->sortKeysDesc() as $date => $entries)
         @php
           $revenue    = $entries->sum('revenue');
           $cost       = $entries

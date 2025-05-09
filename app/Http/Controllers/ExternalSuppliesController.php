@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class ExternalSuppliesController extends Controller
 {
 
-    public function index()
+ public function index()
     {
         $user = Auth::user();
 

@@ -15,75 +15,101 @@ use Carbon\Carbon;
 
 class ReturnedGoodController extends Controller
 {
-    public function index(Request $request)
+
+
+
+
+
+
+ public function index(Request $request)
     {
-        $user = Auth::user();
+        $user        = Auth::user();
         $groupRootId = $user->created_by ?? $user->id;
 
+        // → two-level visibility group
         $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
             ->pluck('id')
             ->push($groupRootId);
 
+        // 1) clients dropdown
         $clients = Client::whereIn('user_id', $groupUserIds)
-            ->orderBy('name')
-            ->get();
+                         ->orderBy('name')
+                         ->get();
 
-        $rgQuery = ReturnedGood::with(['client', 'externalSupply', 'recipes'])
-            ->whereIn('user_id', $groupUserIds);
+        // 2) base queries
+        $suppliesQ = ExternalSupply::with('client')
+                          ->whereIn('user_id', $groupUserIds);
+        $returnsQ  = ReturnedGood::with('client','recipes')
+                          ->whereIn('user_id', $groupUserIds);
 
+        // 3) apply same filters
         if ($request->filled('client_id')) {
-            $rgQuery->where('client_id', $request->client_id);
+            $suppliesQ->where('client_id', $request->client_id);
+            $returnsQ->where('client_id',  $request->client_id);
         }
-
         if ($request->filled('start_date')) {
-            $rgQuery->where('return_date', '>=', $request->start_date);
+            $suppliesQ->where('supply_date', '>=', $request->start_date);
+            $returnsQ->where('return_date', '>=', $request->start_date);
         }
-
         if ($request->filled('end_date')) {
-            $rgQuery->where('return_date', '<=', $request->end_date);
+            $suppliesQ->where('supply_date', '<=', $request->end_date);
+            $returnsQ->where('return_date', '<=', $request->end_date);
         }
 
-        $returnedGoods = $rgQuery->orderBy('return_date', 'desc')->paginate(15);
+        // 4) fetch *and sort* descending
+        $supplies      = $suppliesQ->orderBy('supply_date', 'desc')->get();
+        $returnedGoods = $returnsQ->orderBy('return_date','desc')->get();
 
-        $sups = ExternalSupply::whereIn('user_id', $groupUserIds)
-            ->selectRaw('supply_date as date, SUM(total_amount) as total_supply')
-            ->groupBy('supply_date')
-            ->get();
+        // map returns by supply
+        $returnsBySupply = $returnedGoods
+            ->groupBy('external_supply_id')
+            ->map(fn($group) => $group->sum('total_amount'));
 
-        $returnsByDate = $returnedGoods->groupBy(fn($rg) => Carbon::parse($rg->return_date)->format('Y-m-d'));
+        // 5) daily comparison (already sorted by supply_date desc)
+        $supsByDate = $supplies
+            ->groupBy(fn($s) => $s->supply_date->toDateString())
+            ->map(fn($group,$date) => (object)[
+                'date'         => $date,
+                'total_supply' => $group->sum('total_amount'),
+                'total_return' => $returnedGoods
+                                   ->where('return_date',$date)
+                                   ->sum('total_amount'),
+            ])
+            ->sortByDesc('date');
 
-        $report = $sups->map(function ($s) use ($returnsByDate) {
-            $dateKey = Carbon::parse($s->date)->format('Y-m-d');
-            $totalReturn = 0;
-
-            if ($returnsByDate->has($dateKey)) {
-                $returnedGoodsOnDate = $returnsByDate->get($dateKey);
-
-                $totalReturn = $returnedGoodsOnDate
-                    ->flatMap(function ($rg) {
-                        return $rg->recipes;
-                    })
-                    ->sum('total_amount');
-            }
-
-            return (object)[
-                'date'         => $s->date,
-                'total_supply' => $s->total_supply,
-                'total_return' => $totalReturn,
-                'net'          => $s->total_supply - $totalReturn,
-            ];
-        });
-
-        $grandSupply = $sups->sum('total_supply');
-        $grandReturn = collect($returnedGoods->items())
-            ->flatMap->recipes
-            ->sum('total_amount');
-        $grandNet = $grandSupply - $grandReturn;
+        // grand totals *after* filters
+        $grandSupply = $supplies->sum('total_amount');
+        $grandReturn = $returnedGoods->sum('total_amount');
+        $grandNet    = $grandSupply - $grandReturn;
 
         return view('frontend.returned-goods.index', compact(
-            'clients', 'returnedGoods', 'report', 'grandSupply', 'grandReturn', 'grandNet'
+            'clients',
+            'supplies',
+            'returnedGoods',
+            'returnsBySupply',
+            'supsByDate',
+            'grandSupply',
+            'grandReturn',
+            'grandNet'
         ));
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function create(Request $request)
     {
