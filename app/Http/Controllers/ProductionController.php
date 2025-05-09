@@ -39,9 +39,11 @@ class ProductionController extends Controller
 
     public function show(Production $production)
     {
-        $equipmentMap = config('production.equipment_map');
+        $equipmentMap = \App\Models\Equipment::pluck('name', 'id')->toArray();
+    
         return view('frontend.production.show', compact('production', 'equipmentMap'));
     }
+    
 
     public function index(Request $request)
     {

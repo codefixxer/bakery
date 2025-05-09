@@ -23,4 +23,8 @@ class News extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected $casts = [
+        'event_date' => 'date',    // now $news->event_date is a Carbon instance
+    ];
 }

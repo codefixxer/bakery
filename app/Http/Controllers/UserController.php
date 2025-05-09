@@ -136,6 +136,15 @@ class UserController extends Controller
             ->with('success', 'User updated successfully.');
     }
 
+    public function show(User $user)
+{
+    // Only allow logged-in user to see their own details
+   
+
+    return view('frontend.user-management.users.show', compact('user'));
+}
+
+
     public function destroy(User $user)
     {
         $user->delete();

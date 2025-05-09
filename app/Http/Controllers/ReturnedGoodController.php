@@ -170,17 +170,20 @@ class ReturnedGoodController extends Controller
         if ($returnedGood->user_id !== Auth::id()) {
             abort(Response::HTTP_FORBIDDEN);
         }
-
+    
         $userId = Auth::id();
-
+    
         $clients = Client::where('user_id', $userId)->orderBy('name')->get();
         $recipes = Recipe::where('user_id', $userId)->orderBy('recipe_name')->get();
-
+    
+        // Load the associated external supply (needed in the form)
+        $externalSupply = $returnedGood->externalSupply;
+    
         return view('frontend.returned-goods.form', compact(
-            'returnedGood', 'clients', 'recipes'
+            'returnedGood', 'clients', 'recipes', 'externalSupply'
         ));
     }
-
+    
     public function update(Request $request, ReturnedGood $returnedGood)
     {
         if ($returnedGood->user_id !== Auth::id()) {

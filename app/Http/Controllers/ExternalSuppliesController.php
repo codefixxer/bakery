@@ -80,6 +80,14 @@ class ExternalSuppliesController extends Controller
 
         return view('frontend.external-supplies.index', ['all' => $grouped]);
     }
+
+    public function show(ExternalSupply $externalSupply)
+{
+    $externalSupply->load(['client', 'recipes.recipe', 'user']);
+
+    return view('frontend.external-supplies.show', compact('externalSupply'));
+}
+
     
     
     

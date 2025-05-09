@@ -75,13 +75,17 @@ class PastryChefController extends Controller
      * Show the form for editing the specified chef (only if it belongs to the user).
      */
     public function edit(PastryChef $pastryChef)
-    {
-        if ($pastryChef->user_id !== Auth::id()) {
-            abort(Response::HTTP_FORBIDDEN);
-        }
+{
+    $user = Auth::user();
 
-        return view('frontend.pastry-chefs.create', compact('pastryChef'));
+    // Allow super admin OR the creator of this chef
+    if (!$user->hasRole('super') && $pastryChef->user_id !== $user->id) {
+        abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
     }
+
+    return view('frontend.pastry-chefs.create', compact('pastryChef'));
+}
+
     
     /**
      * Update the specified chef (only if it belongs to the user).

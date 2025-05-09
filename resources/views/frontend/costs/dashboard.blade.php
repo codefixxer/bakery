@@ -1,4 +1,3 @@
-{{-- resources/views/frontend/costs/dashboard.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'Monthly Costs & Income Dashboard')
@@ -6,25 +5,79 @@
 @section('content')
 @php use \Carbon\Carbon; @endphp
 
-<div class="container py-5">
+<style>
+  .card-custom-header {
+    background-color: #041930;
+    color: #e2ae76;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
 
-  {{-- Header with Year Selector --}}
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>{{ Carbon::create($year, $month, 1)->format('F Y') }}</h3>
-    <div class="w-auto">
-      <label for="yearSelector" class="form-label visually-hidden">Select Year</label>
-      <select id="yearSelector" name="year" class="form-select form-select-sm">
-        @foreach($availableYears as $availableYear)
-          <option value="{{ $availableYear }}" {{ $availableYear == $year ? 'selected' : '' }}>
-            {{ $availableYear }}
-          </option>
-        @endforeach
-      </select>
-    </div>
+  .mini-card {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    background-color: #fff;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid #dee2e6;
+  }
+
+  .mini-card h3 {
+    font-size: 1.2rem;
+    margin: 0.2rem 0;
+  }
+
+  .mini-card i {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .mini-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+
+  .month-tabs .nav-link {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+  }
+
+  .table thead th {
+    background-color: #e2ae76;
+    color: #041930;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .table td, .table th {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .row .col-md-3, .row .col-md-4 {
+    padding: 0.25rem;
+  }
+</style>
+
+<div class="container py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 text-primary"><i class="bi bi-speedometer2 me-2"></i>{{ Carbon::create($year, $month, 1)->format('F Y') }}</h4>
+    <select id="yearSelector" name="year" class="form-select form-select-sm w-auto">
+      @foreach($availableYears as $availableYear)
+        <option value="{{ $availableYear }}" {{ $availableYear == $year ? 'selected' : '' }}>
+          {{ $availableYear }}
+        </option>
+      @endforeach
+    </select>
   </div>
 
-  {{-- Month Tabs --}}
-  <ul class="nav nav-pills mb-5">
+  <!-- Month Tabs -->
+  <ul class="nav nav-pills mb-4 month-tabs">
     @for($m = 1; $m <= 12; $m++)
       <li class="nav-item">
         <a class="nav-link {{ $m == $month ? 'active' : '' }}"
@@ -35,40 +88,38 @@
     @endfor
   </ul>
 
-  {{-- 1) Per-category Costs --}}
-  <div class="row mb-5">
+  <!-- Category Summary -->
+  <div class="row mb-4 g-3">
     @foreach($categories as $cat)
-      <div class="col-md-4">
-        <div class="card border-warning shadow-sm mb-4">
-          <div class="card-body text-center">
-            <i class="bi bi-tag fs-3 text-warning mb-2"></i>
-            <h6 class="text-uppercase text-muted">{{ $cat->name }}</h6>
-            <h3 class="fw-bold">€{{ number_format($raw[$cat->id] ?? 0, 2) }}</h3>
-          </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="mini-card text-center border border-warning">
+          <i class="bi bi-tag text-warning"></i>
+          <div class="text-muted small">{{ $cat->name }}</div>
+          <h3>€{{ number_format($raw[$cat->id] ?? 0, 2) }}</h3>
         </div>
       </div>
     @endforeach
   </div>
 
-  {{-- 2) Yearly Cost Comparison --}}
-  <div class="card mb-5 shadow-sm">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Monthly Comparison ({{ $year }})</h5>
+  <!-- Monthly Comparison -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-custom-header">
+      <i class="bi bi-bar-chart-line me-2"></i>Monthly Comparison ({{ $year }})
     </div>
-    <div class="card-body">
-      <div class="alert alert-info">
+    <div class="card-body p-3">
+      <div class="alert alert-info mb-3 small">
         <strong>Best month:</strong> {{ Carbon::create($year,$bestMonth,1)->format('F') }} (€{{ number_format($bestNet,2) }}) &nbsp;&nbsp;
         <strong>Worst month:</strong> {{ Carbon::create($year,$worstMonth,1)->format('F') }} (€{{ number_format($worstNet,2) }})
       </div>
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered align-middle mb-0">
-          <thead class="table-light text-center">
+      <div class="table-responsive small">
+        <table class="table table-bordered align-middle">
+          <thead>
             <tr>
               <th>Month</th>
               <th colspan="3">This Year ({{ $year }})</th>
               <th colspan="3">Last Year ({{ $lastYear }})</th>
             </tr>
-            <tr class="text-nowrap text-center">
+            <tr>
               <th></th>
               <th>Cost (€)</th><th>Income (€)</th><th>Net (€)</th>
               <th>Cost (€)</th><th>Income (€)</th><th>Net (€)</th>
@@ -80,24 +131,24 @@
                 $c1 = $costsThisYear[$m] ?? 0; $i1 = $incomeThisYearMonthly[$m] ?? 0; $n1 = $i1 - $c1;
                 $c2 = $costsLastYear[$m] ?? 0; $i2 = $incomeLastYearMonthly[$m] ?? 0; $n2 = $i2 - $c2;
               @endphp
-              <tr class="text-center">
+              <tr>
                 <td class="text-start">{{ Carbon::create($year,$m,1)->format('F') }}</td>
                 <td>€{{ number_format($c1,2) }}</td>
                 <td>€{{ number_format($i1,2) }}</td>
-                <td class="{{ $n1>=0?'text-success':'text-danger' }}">€{{ number_format($n1,2) }}</td>
+                <td class="{{ $n1>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($n1,2) }}</td>
                 <td>€{{ number_format($c2,2) }}</td>
                 <td>€{{ number_format($i2,2) }}</td>
-                <td class="{{ $n2>=0?'text-success':'text-danger' }}">€{{ number_format($n2,2) }}</td>
+                <td class="{{ $n2>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($n2,2) }}</td>
               </tr>
             @endfor
-            <tr class="fw-bold bg-light text-center">
+            <tr class="fw-bold bg-light">
               <td>Total</td>
               <td>€{{ number_format($totalCostYear,2) }}</td>
               <td>€{{ number_format($totalIncomeYear,2) }}</td>
-              <td class="{{ $netYear>=0?'text-success':'text-danger' }}">€{{ number_format($netYear,2) }}</td>
+              <td class="{{ $netYear>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($netYear,2) }}</td>
               <td>€{{ number_format($totalCostLastYear,2) }}</td>
               <td>€{{ number_format($totalIncomeLastYear,2) }}</td>
-              <td class="{{ $netLastYear>=0?'text-success':'text-danger' }}">€{{ number_format($netLastYear,2) }}</td>
+              <td class="{{ $netLastYear>=0 ? 'text-success' : 'text-danger' }}">€{{ number_format($netLastYear,2) }}</td>
             </tr>
           </tbody>
         </table>
@@ -105,58 +156,44 @@
     </div>
   </div>
 
-  {{-- 3) This Month’s Income --}}
-  <div class="row mb-5">
-    <div class="col-md-6">
-      <div class="card border-success shadow-sm">
-        <div class="card-body text-center">
-          <i class="bi bi-wallet2 fs-3 text-success mb-2"></i>
-          <h6 class="text-uppercase text-muted">Income ({{ Carbon::create($year, $month, 1)->format('F') }} {{ $year }})</h6>
-          <h3 class="fw-bold">€{{ number_format($incomeThisMonth, 2) }}</h3>
-        </div>
+  <!-- Summary Cards -->
+  <div class="row g-3 text-center mb-4">
+    <div class="col-6 col-md-3">
+      <div class="mini-card border border-success">
+        <i class="bi bi-wallet2 text-success"></i>
+        <div>Income ({{ Carbon::create($year, $month, 1)->format('F Y') }})</div>
+        <h3>€{{ number_format($incomeThisMonth, 2) }}</h3>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card border-secondary shadow-sm">
-        <div class="card-body text-center">
-          <i class="bi bi-wallet fs-3 text-secondary mb-2"></i>
-          <h6 class="text-uppercase text-muted">Income ({{ Carbon::create($lastYear, $month, 1)->format('F') }} {{ $lastYear }})</h6>
-          <h3 class="fw-bold">€{{ number_format($incomeLastYearSame, 2) }}</h3>
-        </div>
+    <div class="col-6 col-md-3">
+      <div class="mini-card border border-secondary">
+        <i class="bi bi-wallet text-secondary"></i>
+        <div>Income ({{ Carbon::create($lastYear, $month, 1)->format('F Y') }})</div>
+        <h3>€{{ number_format($incomeLastYearSame, 2) }}</h3>
       </div>
     </div>
-  </div>
-
-  {{-- 4) Year-to-date Totals --}}
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card border-primary shadow-sm mb-4">
-        <div class="card-body text-center">
-          <i class="bi bi-receipt fs-3 text-primary mb-2"></i>
-          <h6 class="text-uppercase text-muted">Total Costs ({{ $year }})</h6>
-          <h3 class="fw-bold">€{{ number_format($totalCostYear, 2) }}</h3>
-        </div>
+    <div class="col-6 col-md-3">
+      <div class="mini-card border border-primary">
+        <i class="bi bi-receipt text-primary"></i>
+        <div>Total Costs ({{ $year }})</div>
+        <h3>€{{ number_format($totalCostYear, 2) }}</h3>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card border-success shadow-sm mb-4">
-        <div class="card-body text-center">
-          <i class="bi bi-cash-stack fs-3 text-success mb-2"></i>
-          <h6 class="text-uppercase text-muted">Total Income ({{ $year }})</h6>
-          <h3 class="fw-bold">€{{ number_format($totalIncomeYear, 2) }}</h3>
-        </div>
+    <div class="col-6 col-md-3">
+      <div class="mini-card border border-success">
+        <i class="bi bi-cash-stack text-success"></i>
+        <div>Total Income ({{ $year }})</div>
+        <h3>€{{ number_format($totalIncomeYear, 2) }}</h3>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card border-danger shadow-sm mb-4">
-        <div class="card-body text-center">
-          <i class="bi bi-percent fs-3 text-danger mb-2"></i>
-          <h6 class="text-uppercase text-muted">Net ({{ $year }})</h6>
-          @php $net = $totalIncomeYear - $totalCostYear; @endphp
-          <h3 class="fw-bold {{ $net >= 0 ? 'text-success' : 'text-danger' }}">
-            €{{ number_format($net, 2) }}
-          </h3>
-        </div>
+    <div class="col-12 col-md-4 offset-md-4">
+      <div class="mini-card border border-danger">
+        <i class="bi bi-percent text-danger"></i>
+        <div>Net ({{ $year }})</div>
+        @php $net = $totalIncomeYear - $totalCostYear; @endphp
+        <h3 class="{{ $net >= 0 ? 'text-success' : 'text-danger' }}">
+          €{{ number_format($net, 2) }}
+        </h3>
       </div>
     </div>
   </div>

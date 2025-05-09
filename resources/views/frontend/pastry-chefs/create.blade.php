@@ -1,14 +1,15 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Add Pastry Chef')
-
+@section('title', isset($pastryChef) ? 'Edit Pastry Chef' : 'Add Pastry Chef')
 
 @section('content')
-<div class="container py-5">
-  <div class="card border-success shadow-sm">
-    <div class="card-header bg-success text-white d-flex align-items-center">
-      <i class="bi bi-box-seam fs-4 me-2"></i>
-      <h5 class="mb-0">{{ isset($pastryChef) ? 'Edit Pastry Chef' : 'Add Pastry Chef' }}</h5>
+<div class="container py-5 px-md-5">
+  <div class="card border-primary shadow-sm">
+    <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+      <i class="bi bi-egg-fried fs-4 me-2" style="color: #e2ae76;"></i>
+      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+        {{ isset($pastryChef) ? 'Edit Pastry Chef' : 'Add Pastry Chef' }}
+      </h5>
     </div>
     <div class="card-body">
       <form 
@@ -18,11 +19,8 @@
         novalidate
       >
         @csrf
-        @if(isset($pastryChef))
-          @method('PUT')
-        @endif
+        @if(isset($pastryChef)) @method('PUT') @endif
 
-        <!-- Chef Name -->
         <div class="col-md-6">
           <label for="Name" class="form-label fw-semibold">Chef Name</label>
           <input type="text"
@@ -37,7 +35,6 @@
           </div>
         </div>
 
-        <!-- Email -->
         <div class="col-md-6">
           <label for="Email" class="form-label fw-semibold">Chef Email</label>
           <input type="email"
@@ -52,7 +49,6 @@
           </div>
         </div>
 
-        <!-- Phone -->
         <div class="col-md-6">
           <label for="phone" class="form-label fw-semibold">Chef Phone Number</label>
           <input type="number"
@@ -67,9 +63,8 @@
           </div>
         </div>
 
-        <!-- Submit Button -->
         <div class="col-12 text-end">
-          <button type="submit" class="btn btn-lg btn-success">
+          <button type="submit" class="btn btn-gold-filled btn-lg">
             <i class="bi bi-save2 me-2"></i> {{ isset($pastryChef) ? 'Update Chef' : 'Save Chef' }}
           </button>
         </div>
@@ -77,10 +72,44 @@
     </div>
   </div>
 </div>
-
 @endsection
 
+<style>
+  .btn-gold-filled {
+    background-color: #e2ae76 !important;
+    color: #041930 !important;
+    border: none !important;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 12px;
+    transition: background-color 0.2s ease;
+  }
+
+  .btn-gold-filled:hover {
+    background-color: #d89d5c !important;
+    color: white !important;
+  }
+
+  .btn-gold-filled i {
+    color: inherit !important;
+  }
+</style>
 
 
-
- 
+@section('scripts')
+<script>
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+@endsection

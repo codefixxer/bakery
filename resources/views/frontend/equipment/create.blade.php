@@ -1,45 +1,44 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Add Equipment  ')
-
+@section('title', isset($equipment) ? 'Edit Equipment' : 'Add Equipment')
 
 @section('content')
-<div class="container py-5">
-  <div class="card border-success shadow-sm">
-    <div class="card-header bg-success text-white d-flex align-items-center">
-      <i class="bi bi-box-seam fs-4 me-2"></i>
-      <h5 class="mb-0">{{ isset($equipment) ? 'Edit Equipment' : 'Add Equipment' }}</h5>
+<div class="container py-5 px-md-5">
+  <div class="card border-primary shadow-sm rounded-3">
+    
+    <!-- Header -->
+    <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+      <i class="bi bi-tools fs-4 me-2" style="color: #e2ae76;"></i>
+      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+        {{ isset($equipment) ? 'Edit Equipment' : 'Add Equipment' }}
+      </h5>
     </div>
+
     <div class="card-body">
       <form 
         action="{{ isset($equipment) ? route('equipment.update', $equipment->id) : route('equipment.store') }}" 
         method="POST" 
-        class="row g-3 needs-validation" 
-        novalidate
-      >
+        class="needs-validation row g-3" 
+        novalidate>
+        
         @csrf
-        @if(isset($equipment))
-          @method('PUT')
-        @endif
+        @if(isset($equipment)) @method('PUT') @endif
 
-        <!-- Chef Name -->
-        <div class="col-md-6">
-          <label for="Name" class="form-label fw-semibold">Equipment Name</label>
-          <input type="text"
-                 id="Name"
-                 name="name"
-                 class="form-control form-control-lg"
-                 value="{{ old('name', $equipment->name ?? '') }}"
-                 placeholder="Add Equipment Name"
-                 required>
-          <div class="invalid-feedback">
-            Please provide a Equipment name.
-          </div>
+        <div class="col-md-8">
+          <label for="name" class="form-label fw-semibold">Equipment Name</label>
+          <input 
+            type="text"
+            id="name"
+            name="name"
+            class="form-control form-control-lg"
+            placeholder="e.g. Mixer, Oven"
+            value="{{ old('name', $equipment->name ?? '') }}"
+            required>
+          <div class="invalid-feedback">Please enter equipment name.</div>
         </div>
 
-        <!-- Submit Button -->
         <div class="col-12 text-end">
-          <button type="submit" class="btn btn-lg btn-success">
+          <button type="submit" class="btn btn-gold-filled btn-lg">
             <i class="bi bi-save2 me-2"></i> {{ isset($equipment) ? 'Update Equipment' : 'Save Equipment' }}
           </button>
         </div>
@@ -47,10 +46,46 @@
     </div>
   </div>
 </div>
-
 @endsection
 
 
+<style>
+  .btn-gold-filled {
+    background-color: #e2ae76 !important;
+    color: #041930 !important;
+    border: none !important;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 12px;
+    transition: background-color 0.2s ease;
+  }
+
+  .btn-gold-filled:hover {
+    background-color: #d89d5c !important;
+    color: white !important;
+  }
+
+  .btn-gold-filled i {
+    color: inherit !important;
+  }
+</style>
 
 
- 
+@section('scripts')
+<script>
+  // Bootstrap validation
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+@endsection

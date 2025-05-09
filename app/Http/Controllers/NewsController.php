@@ -12,7 +12,6 @@ class NewsController extends Controller
 {
     public function index()
     {
-        // Fetch all active news
         $news = News::latest()
                     ->where('is_active', true)
                     ->get();
@@ -22,6 +21,7 @@ class NewsController extends Controller
 
     public function create()
     {
+        // No $news—fresh form
         return view('frontend.news.create');
     }
 
@@ -33,21 +33,16 @@ class NewsController extends Controller
             'event_date' => 'required|date',
         ]);
 
-        // stamp with the current user's ID
         $validated['user_id'] = Auth::id();
-
-        // Store the news
         $news = News::create($validated);
 
-        // Create a notification for the news
-        Notification::create([
+        $notification = Notification::create([
             'title'   => 'New Event: ' . $news->title,
             'message' => 'A new event has been added: ' . $news->content,
-            'user_id' => Auth::id(),           // if you also want to track who created the notification
+            'user_id' => Auth::id(),
         ]);
 
-        // Broadcast the event to notify all users
-        broadcast(new NewsNotificationCreated($news));
+        broadcast(new NewsNotificationCreated($notification));
 
         return redirect()
             ->route('news.index')
@@ -56,7 +51,8 @@ class NewsController extends Controller
 
     public function edit(News $news)
     {
-        return view('frontend.news.edit', compact('news'));
+        // Reuse the same view, passing in $news
+        return view('frontend.news.create', compact('news'));
     }
 
     public function update(Request $request, News $news)
@@ -83,5 +79,3 @@ class NewsController extends Controller
             ->with('success', 'News deleted successfully.');
     }
 }
-
-

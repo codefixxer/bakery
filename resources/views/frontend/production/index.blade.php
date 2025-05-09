@@ -1,10 +1,82 @@
+{{-- resources/views/frontend/production/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'All Production Records')
 
-@section('styles')
 <style>
-  /* Filter card */
+  .btn-gold {
+    border: 1px solid #e2ae76 !important;
+    color: #e2ae76 !important;
+    background-color: transparent !important;
+  }
+  .btn-gold:hover {
+    background-color: #e2ae76 !important;
+    color: white !important;
+  }
+  .btn-deepblue {
+    border: 1px solid #041930 !important;
+    color: #041930 !important;
+    background-color: transparent !important;
+  }
+  .btn-deepblue:hover {
+    background-color: #041930 !important;
+    color: white !important;
+  }
+  .btn-red {
+    border: 1px solid red !important;
+    color: red !important;
+    background-color: transparent !important;
+  }
+  .btn-red:hover {
+    background-color: red !important;
+    color: white !important;
+  }
+
+  .page-header {
+    background-color: #041930;
+    color: #e2ae76;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .page-header i {
+    font-size: 2rem;
+    color: #e2ae76;
+  }
+
+  .filter-chip {
+    display: inline-block;
+    background: #e2ae76;
+    color: #041930;
+    padding: .25em .6em;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-right: 0.25rem;
+    margin-top: 0.25rem;
+  }
+
+  .revenue-card {
+    background: linear-gradient(to right, #041930 0%, #e2ae76 100%);
+    color: #fff;
+    border-radius: 0.75rem;
+  }
+
+  .revenue-card .card-body i {
+    color: #e2ae76;
+  }
+
+  .revenue-card .h5,
+  .revenue-card .h3 {
+    color: #fff;
+  }
+
   .filter-card {
     background: #fff;
     border: 1px solid #e0e0e0;
@@ -15,26 +87,19 @@
     overflow-y: auto;
     border-radius: .5rem;
   }
-  .filter-chip {
-    display: inline-block;
-    background: #0d6efd;
-    color: #fff;
-    padding: .25em .5em;
-    border-radius: .5rem;
-    margin: .15em .15em 0 0;
-    font-size: .875rem;
-  }
-  /* Revenue card */
-  .revenue-card {
-    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-  }
-  /* Table styling */
   .production-table {
     border-radius: .5rem;
     overflow: hidden;
   }
-  .production-table thead {
-    background: #f8f9fa;
+  .production-table thead th {
+    background-color: #e2ae76 !important;
+    color: #041930 !important;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .production-table tbody td {
+    text-align: center;
+    vertical-align: middle;
   }
   .production-table tbody tr:hover {
     background: rgba(13,110,253,.05);
@@ -49,32 +114,20 @@
     transform: rotate(90deg);
   }
 </style>
-@endsection
 
 @section('content')
 @php
   use Illuminate\Support\Str;
-  $allRecipes = $productions
-    ->flatMap(fn($p) => $p->details->pluck('recipe.recipe_name'))
-    ->unique()
-    ->sort();
-  $allChefs = $productions
-    ->flatMap(fn($p) => $p->details->pluck('chef.name'))
-    ->unique()
-    ->sort();
+  $allRecipes = $productions->flatMap(fn($p) => $p->details->pluck('recipe.recipe_name'))->unique()->sort();
+  $allChefs    = $productions->flatMap(fn($p) => $p->details->pluck('chef.name'))->unique()->sort();
 @endphp
 
 <div class="container py-5">
-
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3><i class="bi bi-gear-fill me-2"></i>Production Records</h3>
-    <a href="{{ route('production.create') }}" class="btn btn-primary">
-      <i class="bi bi-plus-circle me-1"></i>New Production
-    </a>
+  <div class="page-header">
+    <i class="bi bi-gear-fill"></i>
+    Production Records
   </div>
 
-  <!-- Filters + Total -->
   <div class="card mb-4 shadow-sm filter-card p-3">
     <div class="row g-3 align-items-end">
       <div class="col-md-3">
@@ -87,8 +140,7 @@
             @foreach($allRecipes as $r)
               @php $slug = Str::slug($r,'_') @endphp
               <div class="form-check mb-1">
-                <input class="form-check-input recipe-checkbox" type="checkbox"
-                       value="{{ strtolower($r) }}" id="recipe_{{ $slug }}">
+                <input class="form-check-input recipe-checkbox" type="checkbox" value="{{ strtolower($r) }}" id="recipe_{{ $slug }}">
                 <label class="form-check-label" for="recipe_{{ $slug }}">{{ $r }}</label>
               </div>
             @endforeach
@@ -106,8 +158,7 @@
             @foreach($allChefs as $c)
               @php $slug = Str::slug($c,'_') @endphp
               <div class="form-check mb-1">
-                <input class="form-check-input chef-checkbox" type="checkbox"
-                       value="{{ strtolower($c) }}" id="chef_{{ $slug }}">
+                <input class="form-check-input chef-checkbox" type="checkbox" value="{{ strtolower($c) }}" id="chef_{{ $slug }}">
                 <label class="form-check-label" for="chef_{{ $slug }}">{{ $c }}</label>
               </div>
             @endforeach
@@ -134,19 +185,17 @@
       </div>
     </div>
 
-    <!-- Active filter chips -->
     <div id="activeFilters" class="mt-3"></div>
 
-    <!-- Total card -->
     <div class="row mt-4">
       <div class="col-12">
-        <div class="card revenue-card shadow-sm">
+        <div class="card shadow-sm revenue-card">
           <div class="card-body d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
               <i class="bi bi-cash-stack fs-2 me-3"></i>
               <div>
-                <div class="small text-opacity-75">Total Potential</div>
-                <div class="h5 fw-semibold mb-0">Revenue</div>
+                <div class="small">Total Potential</div>
+                <div class="h5 fw-bold mb-0">Revenue</div>
               </div>
             </div>
             <div id="totalRevenue" class="h3 fw-bold">$0.00</div>
@@ -156,14 +205,12 @@
     </div>
   </div>
 
-  <!-- Production Records Table -->
   <div class="card shadow-sm production-table">
     <div class="card-body table-responsive p-0">
       <table class="table mb-0" id="productionTable">
         <thead>
           <tr>
             <th style="width:48px"></th>
-            <th>Created by</th>
             <th>Date</th>
             <th>Items</th>
             <th>Potential</th>
@@ -185,44 +232,42 @@
                 data-recipes="{{ strtolower($p->details->pluck('recipe.recipe_name')->join(' ')) }}"
                 data-chefs="{{ strtolower($p->details->pluck('chef.name')->join(' ')) }}"
                 data-equipment="{{ strtolower($equipNames) }}"
-                data-date="{{ $p->production_date }}"
-            >
+                data-date="{{ $p->production_date }}">
               <td>
                 <button class="btn btn-sm btn-outline-secondary toggle-btn">
                   <i class="bi bi-caret-right-fill"></i>
                 </button>
               </td>
-              <td><span class="badge bg-light text-dark">{{ $p->user->name ?? '—' }}</span></td>
               <td>{{ $p->production_date }}</td>
               <td>{{ $p->details->count() }}</td>
               <td data-potential="{{ $p->total_potential_revenue }}">
                 ${{ number_format($p->total_potential_revenue, 2) }}
               </td>
               <td class="text-center">
-                <a href="{{ route('production.show', $p) }}" class="btn btn-sm btn-outline-info me-1">
+                <a href="{{ route('production.show', $p) }}" class="btn btn-sm btn-deepblue me-1" title="View">
                   <i class="bi bi-eye"></i>
                 </a>
-                <a href="{{ route('production.edit', $p) }}" class="btn btn-sm btn-outline-primary me-1">
+                <a href="{{ route('production.edit', $p) }}" class="btn btn-sm btn-gold me-1" title="Edit">
                   <i class="bi bi-pencil"></i>
                 </a>
                 <form action="{{ route('production.destroy', $p) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this record?');">
                   @csrf @method('DELETE')
-                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                  <button class="btn btn-sm btn-red" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </form>
               </td>
             </tr>
 
             <tr class="detail-row" style="display:none">
-              <td colspan="6" class="p-3">
+              <td colspan="5" class="p-3">
                 <ul class="mb-0">
                   @foreach($p->details as $d)
                     @php
                       $ids   = array_filter(explode(',', $d->equipment_ids));
                       $names = collect($ids)->map(fn($id) => $equipmentMap[$id] ?? '')->filter()->implode(', ');
                     @endphp
-                    <li data-recipe="{{ strtolower($d->recipe->recipe_name) }}"
-                        data-chef="{{ strtolower($d->chef->name) }}"
-                        data-potential="{{ $d->potential_revenue }}">
+                    <li>
                       <strong>{{ $d->recipe->recipe_name }}</strong>
                       × {{ $d->quantity }} — Chef: {{ $d->chef->name }}, {{ $d->execution_time }}m,
                       <i class="bi bi-tools"></i> {{ $names ?: '—' }}
@@ -236,99 +281,108 @@
       </table>
     </div>
   </div>
-
 </div>
 @endsection
 
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const recipeCBs  = document.querySelectorAll('.recipe-checkbox');
-  const chefCBs    = document.querySelectorAll('.chef-checkbox');
-  const equipIn    = document.getElementById('filterEquipment');
-  const startIn    = document.getElementById('filterStartDate');
-  const endIn      = document.getElementById('filterEndDate');
-  const rows       = document.querySelectorAll('#productionTable .prod-row');
-  const details    = document.querySelectorAll('#productionTable .detail-row');
-  const totalRev   = document.getElementById('totalRevenue');
-  const activeTags = document.getElementById('activeFilters');
+  const recipeCBs    = document.querySelectorAll('.recipe-checkbox');
+  const chefCBs      = document.querySelectorAll('.chef-checkbox');
+  const equipInput   = document.getElementById('filterEquipment');
+  const startInput   = document.getElementById('filterStartDate');
+  const endInput     = document.getElementById('filterEndDate');
+  const rows         = document.querySelectorAll('#productionTable .prod-row');
+  const detailRows   = document.querySelectorAll('#productionTable .detail-row');
+  const totalRevElem = document.getElementById('totalRevenue');
+  const activeTags   = document.getElementById('activeFilters');
 
-  // toggle detail rows
+  // Hide details when toggling
   document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const tr   = btn.closest('tr');
-      const det  = tr.nextElementSibling;
+      const tr = btn.closest('tr');
+      const det = tr.nextElementSibling;
       btn.classList.toggle('open');
       det.style.display = det.style.display === 'none' ? '' : 'none';
     });
   });
 
-  function updateActiveFilters(selR, selC, eqF, from, to) {
+  function updateActiveFilters(recipes, chefs, equip, from, to) {
     activeTags.innerHTML = '';
-    // recipes
-    if (selR.length) selR.forEach(r => activeTags.insertAdjacentHTML('beforeend',
-      `<span class="filter-chip">${r}</span>`));
-    else activeTags.insertAdjacentHTML('beforeend', `<span class="filter-chip">All Recipes</span>`);
-    // chefs
-    if (selC.length) selC.forEach(c => activeTags.insertAdjacentHTML('beforeend',
-      `<span class="filter-chip">${c}</span>`));
-    else activeTags.insertAdjacentHTML('beforeend', `<span class="filter-chip">All Chefs</span>`);
-    // equipment
-    activeTags.insertAdjacentHTML('beforeend',
-      `<span class="filter-chip">${eqF||'All Equipment'}</span>`);
-    // dates
-    activeTags.insertAdjacentHTML('beforeend',
-      `<span class="filter-chip">${from||'Any'}→${to||'Any'}</span>`);
+    recipes.forEach(r => {
+      const span = document.createElement('span');
+      span.className = 'filter-chip';
+      span.textContent = r;
+      activeTags.appendChild(span);
+    });
+    chefs.forEach(c => {
+      const span = document.createElement('span');
+      span.className = 'filter-chip';
+      span.textContent = c;
+      activeTags.appendChild(span);
+    });
+    if (equip) {
+      const span = document.createElement('span');
+      span.className = 'filter-chip';
+      span.textContent = equip;
+      activeTags.appendChild(span);
+    }
+    if (from || to) {
+      const span = document.createElement('span');
+      span.className = 'filter-chip';
+      span.textContent = `${from || '...'} → ${to || '...'}`;
+      activeTags.appendChild(span);
+    }
   }
 
   function filterTable() {
-    const selR = [...recipeCBs].filter(cb => cb.checked).map(cb => cb.value);
-    const selC = [...chefCBs]  .filter(cb => cb.checked).map(cb => cb.value);
-    const eqF  = equipIn.value.trim().toLowerCase();
-    const from = startIn.value, to = endIn.value;
-    let sum    = 0;
+    const selRecipes = [...recipeCBs].filter(cb => cb.checked).map(cb => cb.value);
+    const selChefs   = [...chefCBs].filter(cb => cb.checked).map(cb => cb.value);
+    const equipVal   = equipInput.value.trim().toLowerCase();
+    const fromDate   = startInput.value;
+    const toDate     = endInput.value;
 
-    updateActiveFilters(selR, selC, eqF, from, to);
+    updateActiveFilters(selRecipes, selChefs, equipVal, fromDate, toDate);
 
-    rows.forEach((row,i) => {
+    let sum = 0;
+
+    detailRows.forEach(dr => dr.style.display = 'none');
+
+    rows.forEach(row => {
       const recs = row.dataset.recipes;
       const chfs = row.dataset.chefs;
-      const eqs  = (row.dataset.equipment||'').toLowerCase();
+      const eqs  = row.dataset.equipment;
       const date = row.dataset.date;
 
-      const okDate = (!from||date>=from) && (!to||date<=to);
-      const okEq   = !eqF || eqs.includes(eqF);
-      const okR    = !selR.length || selR.some(r => recs.includes(r));
-      const okC    = !selC.length || selC.some(c => chfs.includes(c));
+      const okDate = (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
+      const okEq   = !equipVal || eqs.includes(equipVal);
+      const okR    = !selRecipes.length || selRecipes.some(r => recs.includes(r));
+      const okC    = !selChefs.length   || selChefs.some(c => chfs.includes(c));
       const show   = okDate && okEq && okR && okC;
 
-      row.style.display        = show ? '' : 'none';
-      details[i].style.display = 'none';
+      row.style.display = show ? '' : 'none';
 
       if (show) {
-        // sum only matching detail-items
-        details[i].querySelectorAll('li').forEach(li => {
-          const r = li.dataset.recipe,
-                c = li.dataset.chef,
-                p = parseFloat(li.dataset.potential) || 0;
-          if ((!selR.length||selR.includes(r)) && (!selC.length||selC.includes(c))) {
-            sum += p;
-          }
-        });
+        const pCell = row.querySelector('td[data-potential]');
+        const val   = pCell ? parseFloat(pCell.dataset.potential) : 0;
+        sum += val;
       }
     });
 
-    totalRev.textContent = `$${sum.toFixed(2)}`;
+    totalRevElem.textContent = `$${sum.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
   }
 
-  // wire up
+  // Wire up filters
   recipeCBs.forEach(cb => cb.addEventListener('change', filterTable));
-  chefCBs  .forEach(cb => cb.addEventListener('change', filterTable));
-  equipIn  .addEventListener('input',   filterTable);
-  startIn  .addEventListener('change',  filterTable);
-  endIn    .addEventListener('change',  filterTable);
+  chefCBs.forEach(cb => cb.addEventListener('change', filterTable));
+  equipInput.addEventListener('input', filterTable);
+  startInput.addEventListener('change', filterTable);
+  endInput.addEventListener('change', filterTable);
 
-  // initial run
+  // Initial calculation
   filterTable();
 });
 </script>

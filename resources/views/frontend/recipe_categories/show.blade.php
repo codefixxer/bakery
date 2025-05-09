@@ -4,32 +4,35 @@
 @section('title', $recipeCategory->name)
 
 @section('content')
-<div class="container py-5">
-  <div class="card border-primary shadow-lg rounded-3 overflow-hidden">
-    <!-- Header with icon and title -->
-    <div class="card-header bg-primary text-white d-flex align-items-center">
-      <iconify-icon icon="lucide:tag" class="fs-2 me-3"></iconify-icon>
-      <h4 class="mb-0">{{ $recipeCategory->name }}</h4>
+<div class="container py-5 px-md-5">
+  <div class="card border-primary shadow-sm rounded-3 overflow-hidden">
+    
+    <!-- Header -->
+    <div class="card-header d-flex align-items-center justify-content-between" style="background-color: #041930;">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-tags fs-4 me-2" style="color: #e2ae76;"></i>
+        <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+         {{ $recipeCategory->name }}
+        </h5>
+      </div>
+      <small class="text-muted" style="font-size: 0.85rem;">
+        ID: {{ $recipeCategory->id }}
+      </small>
     </div>
 
+    <!-- Body -->
     <div class="card-body">
-      <!-- Details in a responsive 2-column grid -->
-      <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+      <div class="row row-cols-1 row-cols-md-2 g-4 mb-4" style="width: 60%;">
         <div class="col">
           <h6 class="text-uppercase text-muted small mb-1">Category Name</h6>
           <p class="fs-3 fw-bold mb-0">{{ $recipeCategory->name }}</p>
         </div>
-        <div class="col">
-          <h6 class="text-uppercase text-muted small mb-1">Category ID</h6>
-          <p class="fs-5 mb-0">{{ $recipeCategory->id }}</p>
-        </div>
-        <div class="col">
-          <h6 class="text-uppercase text-muted small mb-1">Created At</h6>
-          <p class="fs-5 mb-0">{{ optional($recipeCategory->created_at)->format('Y-m-d H:i') ?? '—' }}</p>
-        </div>
+
+       
+
         <div class="col">
           <h6 class="text-uppercase text-muted small mb-1">Last Updated</h6>
-          <p class="fs-5 mb-0">{{ optional($recipeCategory->updated_at)->format('Y-m-d H:i') ?? '—' }}</p>
+          <p class="fs-5 mb-0">{{ $recipeCategory->updated_at->format('Y-m-d H:i') }}</p>
         </div>
       </div>
 
@@ -37,24 +40,19 @@
 
       <!-- Action Buttons -->
       <div class="d-flex justify-content-end gap-2">
-        <a href="{{ route('recipe-categories.edit', $recipeCategory) }}" class="btn btn-outline-primary btn-lg">
-          <iconify-icon icon="lucide:edit" class="me-1"></iconify-icon>
-          Edit
+        <a href="{{ route('recipe-categories.edit', $recipeCategory) }}" class="btn btn-gold btn-lg">
+          <i class="bi bi-pencil me-1"></i> Edit
         </a>
-
-        <a href="{{ route('recipe-categories.index') }}" class="btn btn-outline-secondary btn-lg">
-          <iconify-icon icon="lucide:arrow-left" class="me-1"></iconify-icon>
-          Back to List
+        <a href="{{ route('recipe-categories.index') }}" class="btn btn-deepblue btn-lg">
+          <i class="bi bi-arrow-left me-1"></i> Back to List
         </a>
-
         <form action="{{ route('recipe-categories.destroy', $recipeCategory) }}"
               method="POST"
-              onsubmit="return confirm('Delete this category?');">
+              onsubmit="return confirm('Delete this category?');" class="d-inline">
           @csrf
           @method('DELETE')
-          <button type="submit" class="btn btn-danger btn-lg">
-            <iconify-icon icon="mingcute:delete-2-line" class="me-1"></iconify-icon>
-            Delete
+          <button type="submit" class="btn btn-red btn-lg">
+            <i class="bi bi-trash me-1"></i> Delete
           </button>
         </form>
       </div>
@@ -62,3 +60,41 @@
   </div>
 </div>
 @endsection
+
+<style>
+  .btn-gold {
+    border: 1px solid #e2ae76 !important;
+    color: #e2ae76 !important;
+    background-color: transparent !important;
+  }
+  .btn-gold:hover {
+    background-color: #e2ae76 !important;
+    color: white !important;
+  }
+
+  .btn-deepblue {
+    border: 1px solid #041930 !important;
+    color: #041930;
+    background-color: transparent !important;
+  }
+  .btn-deepblue:hover {
+    background-color: #041930 !important;
+    color: white !important;
+  }
+
+  .btn-red {
+    border: 1px solid #ff0000 !important;
+    color: red;
+    background-color: transparent !important;
+  }
+  .btn-red:hover {
+    background-color: #ff0000 !important;
+    color: white !important;
+  }
+
+  .btn-gold i,
+  .btn-deepblue i,
+  .btn-red i {
+    color: inherit !important;
+  }
+</style>

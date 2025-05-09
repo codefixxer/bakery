@@ -4,28 +4,41 @@
 
 @section('content')
 <div class="container py-5">
-
-  {{-- Header --}}
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0">External Supplies & Returns</h4>
-    <div>
-      <a href="{{ route('external-supplies.create') }}" class="btn btn-primary me-2">
-        <i class="bi bi-truck me-1"></i> Add Supply
+  <!-- Header Card -->
+  <div class="card shadow-sm border-0 mb-4" style="background-color: #041930;">
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <h3 class="mb-0 text-uppercase fw-bold" style="color: #e2ae76;">
+        <i class="bi bi-box-seam me-2"></i>External Supplies & Returns
+      </h3>
+      <a href="{{ route('external-supplies.create') }}" class="btn btn-lg fw-semibold"
+         style="background-color: #e2ae76; color: #041930;">
+        <i class="bi bi-truck me-2" style="color: #041930;"></i> Add Supply
       </a>
     </div>
   </div>
 
-  {{-- Filters --}}
-  <div class="row mb-3 gx-2">
-    <div class="col-md-4">
-      <input id="filterClient" type="text" class="form-control" placeholder="Filter by client…">
-    </div>
-    <div class="col-md-4">
-      <input id="filterDate" type="date" class="form-control" placeholder="Filter by date…">
+  <!-- Filters -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label for="filterClient" class="form-label fw-semibold">Filter by Client</label>
+          <input id="filterClient" type="text" class="form-control form-control-lg" placeholder="e.g. Steel Reilly">
+        </div>
+        <div class="col-md-5">
+          <label for="filterDate" class="form-label fw-semibold">Filter by Date</label>
+          <input id="filterDate" type="date" class="form-control form-control-lg">
+        </div>
+        <div class="col-md-2 text-end">
+          <button class="btn btn-outline-secondary w-100" onclick="document.getElementById('filterClient').value=''; document.getElementById('filterDate').value=''; applyFilters();">
+            <i class="bi bi-x-circle me-1"></i> Clear
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  {{-- Accordion --}}
+  <!-- Accordion Display -->
   <div class="accordion" id="reportAccordion">
     @php $grp = 0; @endphp
     @foreach($all as $client => $byDates)
@@ -37,31 +50,39 @@
                           ->sum(fn($line) => ($line->recipe->production_cost_per_kg ?? 0)/1000 * $line->qty);
           $profit     = $revenue - $cost;
           $type       = $entries->first()['type'];
-          $collapseId = "grp{$grp}";
+          $collapseId = 'grp' . $grp;
         @endphp
 
-        <div class="accordion-item client-accordion" data-client="{{ strtolower($client) }}" data-date="{{ $date }}">
+        <div class="accordion-item client-accordion shadow-sm rounded-3 border-0 mb-3"
+             data-client="{{ strtolower($client) }}" data-date="{{ $date }}">
           <h2 class="accordion-header" id="heading{{ $grp }}">
-            <button class="accordion-button collapsed 
-                           {{ $type==='supply' ? 'bg-primary text-white' : 'bg-warning text-dark' }}"
+            <button class="accordion-button collapsed"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#{{ $collapseId }}"
-                    aria-expanded="false">
+                    aria-expanded="false"
+                    style="
+                      background-color: {{ $type === 'supply' ? '#041930' : '#e2ae76' }};
+                      color: {{ $type === 'supply' ? '#e2ae76' : '#041930' }};
+                      font-weight: bold;
+                      border-radius: .5rem;
+                    ">
               <div class="d-flex w-100 justify-content-between align-items-center">
                 <div>
-                  @if($type==='supply')
+                  @if($type === 'supply')
                     <i class="bi bi-truck me-1"></i>
                   @else
                     <i class="bi bi-arrow-counterclockwise me-1"></i>
                   @endif
-                  <strong>{{ ucfirst($type) }}</strong> — {{ $client }} on {{ $date }}
+                  {{ ucfirst($type) }} — {{ $client }} on {{ $date }}
                 </div>
                 <div class="text-end">
-                  <div>Revenue: <span class="badge bg-light text-dark">€{{ number_format($revenue,2) }}</span></div>
-                  <div>Profit: 
-                    <span class="badge {{ $profit>=0 ? 'bg-success' : 'bg-danger' }}">
-                      €{{ number_format($profit,2) }}
+                  <div>Revenue:
+                    <span class="badge bg-light text-dark">€{{ number_format($revenue, 2) }}</span>
+                  </div>
+                  <div>Profit:
+                    <span class="badge {{ $profit >= 0 ? 'bg-success' : 'bg-danger' }}">
+                      €{{ number_format($profit, 2) }}
                     </span>
                   </div>
                   <div class="progress mt-1" style="height:6px;">
@@ -80,61 +101,20 @@
 
           <div id="{{ $collapseId }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $grp }}" data-bs-parent="#reportAccordion">
             <div class="accordion-body bg-light">
-              <table class="table table-sm">
-                <thead>
+              <table class="table table-sm table-hover">
+                <thead class="table-light">
                   <tr>
-                    <th>Created_by</th>
+                    
+                    <th>Client</th>
                     <th>Recipe</th>
                     <th>Qty</th>
                     <th class="text-end">Line Rev (€)</th>
                     <th class="text-end">Line Cost (€)</th>
+                    <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach($entries as $entry)
-                    <tr>
-                      <td>
-                        <span class="badge bg-light text-dark">
-                          {{ $entry['created_by'] ?? '—' }}
-                        </span>
-                      </td>
-                      
-                      <td colspan="4">
-                        <strong>{{ $entry['client'] }}</strong> — {{ $entry['date'] }}
-                      </td>
-                      <td class="text-end">
-                        {{-- Return --}}
-                        <a href="{{ route('returned-goods.create', ['external_supply_id' => $entry['external_supply_id']]) }}"
-                           class="btn btn-sm btn-outline-warning me-1"
-                           title="Return">
-                          <i class="bi bi-arrow-counterclockwise"></i>
-                        </a>
-                        {{-- View --}}
-                        <a href="{{ route('external-supplies.show', $entry['external_supply_id']) }}"
-                           class="btn btn-sm btn-outline-info me-1"
-                           title="View">
-                          <i class="bi bi-eye"></i>
-                        </a>
-                        {{-- Edit --}}
-                        <a href="{{ route('external-supplies.edit', $entry['external_supply_id']) }}"
-                           class="btn btn-sm btn-outline-primary me-1"
-                           title="Edit">
-                          <i class="bi bi-pencil"></i>
-                        </a>
-                        {{-- Delete --}}
-                        <form action="{{ route('external-supplies.destroy', $entry['external_supply_id']) }}"
-                              method="POST"
-                              class="d-inline"
-                              onsubmit="return confirm('Delete this supply?');">
-                          @csrf
-                          @method('DELETE')
-                          <button class="btn btn-sm btn-outline-danger" title="Delete">
-                            <i class="bi bi-trash"></i>
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-
                     @php
                       $groupedLines = collect($entry['lines'])
                           ->groupBy(fn($line) => $line->recipe->id ?? 'unknown')
@@ -156,10 +136,35 @@
 
                     @foreach($groupedLines as $line)
                       <tr>
+                     
+                        <td>{{ $entry['client'] }}</td>
                         <td>{{ $line->name }}</td>
                         <td>{{ $line->qty }}</td>
                         <td class="text-end">{{ number_format($line->revenue, 2) }}</td>
                         <td class="text-end">{{ number_format($line->cost, 2) }}</td>
+                        <td class="text-end">
+                          <a href="{{ route('returned-goods.create', ['external_supply_id' => $entry['external_supply_id']]) }}"
+                             class="btn btn-sm btn-outline-warning me-1" title="Return">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                          </a>
+                          <a href="{{ route('external-supplies.show', $entry['external_supply_id']) }}"
+                             class="btn btn-sm btn-outline-info me-1" title="View">
+                            <i class="bi bi-eye"></i>
+                          </a>
+                          <a href="{{ route('external-supplies.edit', $entry['external_supply_id']) }}"
+                             class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                          </a>
+                          <form action="{{ route('external-supplies.destroy', $entry['external_supply_id']) }}"
+                                method="POST" class="d-inline"
+                                onsubmit="return confirm('Delete this supply?');">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-outline-danger" title="Delete">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </form>
+                        </td>
                       </tr>
                     @endforeach
                   @endforeach
@@ -183,7 +188,7 @@
     const dateFilter   = document.getElementById('filterDate');
     const items        = document.querySelectorAll('.client-accordion');
 
-    function applyFilters() {
+    window.applyFilters = function() {
       const c = clientFilter.value.trim().toLowerCase();
       const d = dateFilter.value;
       items.forEach(item => {

@@ -72,14 +72,25 @@ class DepartmentController extends Controller
     /**
      * Show the form for editing the specified department.
      */
-    public function edit(Department $department)
-    {
-        if ($department->user_id !== Auth::id()) {
-            abort(Response::HTTP_FORBIDDEN);
-        }
 
-        return view('frontend.departments.create', compact('department'));
+
+public function edit(Department $department)
+{
+    $user = Auth::user();
+
+    // Allow if user is the creator OR has admin or manager role
+    if (
+        $department->user_id !== $user->id &&
+        !$user->hasRole('admin') &&
+        !$user->hasRole('super') &&
+        !$user->hasRole('master')
+    ) {
+        abort(Response::HTTP_FORBIDDEN);
     }
+
+    return view('frontend.departments.create', compact('department'));
+}
+
 
     /**
      * Update the specified department (only if it belongs to the user).

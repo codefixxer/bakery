@@ -6,9 +6,10 @@
 @section('content')
 <div class="container py-5">
   <div class="card border-primary shadow-sm">
-    <div class="card-header bg-primary text-white d-flex align-items-center">
-      <i class="bi bi-calendar-plus fs-4 me-2"></i>
-      <h5 class="mb-0">{{ isset($production) ? 'Edit' : 'Create' }} Production Entry</h5>
+    <!-- Header with custom blue background and gold text -->
+    <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76;">
+      <i class="bi bi-calendar-plus fs-4 me-3"></i>
+      <h5 class="mb-0" style="color: #e2ae76;">{{ isset($production) ? 'Edit' : 'Create' }} Production Entry</h5>
     </div>
     <div class="card-body">
       <form method="POST"
@@ -153,7 +154,13 @@
         </table>
 
         <div class="mb-3">
-          <button type="button" class="btn btn-outline-primary" id="addRowBtn">+ Add Row</button>
+          <!-- Add Row button with gold border and blue text -->
+          <button type="button"
+                  id="addRowBtn"
+                  class="btn"
+                  style="border: 1px solid #e2ae76; color: #041930; background-color: transparent;">
+            + Add Row
+          </button>
         </div>
 
         {{-- Total Revenue --}}
@@ -168,7 +175,10 @@
         </div>
 
         <div class="text-end">
-          <button type="submit" class="btn btn-success btn-lg">
+          <!-- Save Production button with gold background and blue text -->
+          <button type="submit"
+                  class="btn btn-lg"
+                  style="background-color: #e2ae76; color: #041930; border: none;">
             <i class="bi bi-save2 me-1"></i>
             {{ isset($production) ? 'Update' : 'Save' }} Production
           </button>
@@ -177,6 +187,8 @@
     </div>
   </div>
 </div>
+
+
 
 <style>
 .selected-equipment span {

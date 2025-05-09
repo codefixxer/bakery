@@ -241,9 +241,12 @@ class ShowcaseController extends Controller
 
         return redirect()->route('showcase.index')->with('success', 'Showcase deleted successfully.');
     }
-
     public function show(Showcase $showcase)
     {
+        // Eager load the related recipes with all necessary attributes
+        $showcase->load('recipes.recipe', 'recipes.department');
+    
         return view('frontend.showcase.show', compact('showcase'));
     }
+    
 }
