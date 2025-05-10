@@ -1,3 +1,4 @@
+{{-- resources/views/frontend/incomes/index.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title','All Incomes')
@@ -8,8 +9,10 @@
   <!-- Add / Edit Income Card -->
   <div class="card mb-5 border-success shadow-sm">
     <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76;">
-      <i class="bi bi-currency-dollar fs-4 me-2" style="color: #e2ae76;"></i>
-      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">{{ isset($income) ? 'Edit' : 'Add' }} Income</h5>
+      <i class="bi bi-currency-dollar fs-4 me-2"></i>
+      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+        {{ isset($income) ? 'Edit' : 'Add' }} Income
+      </h5>
     </div>
     <div class="card-body">
       <form
@@ -34,7 +37,9 @@
               value="{{ old('amount', $income->amount ?? '') }}"
               required
             >
-            <div class="invalid-feedback">{{ $errors->first('amount', 'Please enter a valid amount.') }}</div>
+            <div class="invalid-feedback">
+              {{ $errors->first('amount', 'Please enter a valid amount.') }}
+            </div>
           </div>
         </div>
 
@@ -48,7 +53,9 @@
             value="{{ old('date', isset($income) ? $income->date->format('Y-m-d') : '') }}"
             required
           >
-          <div class="invalid-feedback">{{ $errors->first('date', 'Please pick a date.') }}</div>
+          <div class="invalid-feedback">
+            {{ $errors->first('date', 'Please pick a date.') }}
+          </div>
         </div>
 
         <div class="col-12 text-end">
@@ -64,7 +71,9 @@
   <!-- Recorded Incomes Table Card -->
   <div class="card border-success shadow-sm">
     <div class="card-header d-flex align-items-center justify-content-between" style="background-color: #041930; color: #e2ae76;">
-      <h5 class="mb-0 fw-bold" style="color: #e2ae76;"><i class="bi bi-list-ul me-2" style="color: #e2ae76;"></i>Recorded Incomes</h5>
+      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+        <i class="bi bi-list-ul me-2"></i>Recorded Incomes
+      </h5>
     </div>
     <div class="card-body table-responsive">
       <table
@@ -74,9 +83,9 @@
       >
         <thead>
           <tr>
-            <th class="text-center">Date</th>
-            <th class="text-center">Amount ($)</th>
-            <th class="text-center">Actions</th>
+            <th>Date</th>
+            <th>Amount ($)</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -101,7 +110,9 @@
             </tr>
           @empty
             <tr>
-              <td colspan="3" class="text-muted">No incomes recorded.</td>
+              <td></td>
+              <td></td>
+              <td class="text-muted">No incomes recorded.</td>
             </tr>
           @endforelse
         </tbody>
@@ -113,7 +124,6 @@
   </div>
 </div>
 @endsection
-
 
 <style>
   table th {
@@ -135,10 +145,10 @@
     background-color: #e2ae76 !important;
     color: white !important;
   }
-  .btn-gold-save{
+  .btn-gold-save {
     border: 1px solid #e2ae76 !important;
     color: #041930 !important;
-    background-color:  #e2ae76 !important;
+    background-color: #e2ae76 !important;
   }
   .btn-deepblue {
     border: 1px solid #041930 !important;
@@ -160,7 +170,6 @@
   }
 </style>
 
-
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -170,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
       ordering: true,
       responsive: true,
       pageLength: $('#incomesTable').data('page-length'),
-      columnDefs: [{ orderable: false, targets: 2 }]
+      columnDefs: [{ orderable: false, targets: -1 }]
     });
   }
 

@@ -101,14 +101,19 @@ class IngredientController extends Controller
     }
 
     public function destroy(Ingredient $ingredient)
-    {
-        // Prevent deleting others' ingredients
-        abort_unless($ingredient->user_id === Auth::id(), 403);
+{
+    // Prevent deleting others' ingredients
+    abort_unless($ingredient->user_id === Auth::id(), 403);
 
-        $ingredient->delete();
+    // 1) detach from any recipes
+    $ingredient->recipes()->detach();
 
-        return redirect()
-            ->route('ingredients.index')
-            ->with('success', 'Ingredient deleted successfully!');
-    }
+    // 2) now it’s safe to delete
+    $ingredient->delete();
+
+    return redirect()
+        ->route('ingredients.index')
+        ->with('success', 'Ingredient deleted successfully!');
+}
+
 }

@@ -18,12 +18,7 @@
       <div class="card-body">
 
         @if($laborCost && $laborCost->user)
-  <div class="mb-3">
-    <strong>Updated By:</strong>
-    <span class="badge bg-light text-dark">
-      {{ $laborCost->user->name }}
-    </span>
-  </div>
+  
 @endif
         {{-- 1) Top inputs --}}
         <div class="row g-3 mb-3">
@@ -98,11 +93,7 @@
                    class="form-control bg-light"
                    readonly>
             <div class="form-text">
-              <code>(
-                (Total − Ingredients − Van Rental − Driver Salary)
-                ÷ (Days × Hours × 60)
-                ÷ Chefs
-              ) ÷ 3 × 4</code>
+             
             </div>
           </div>
           <div class="col-md-6">
@@ -113,11 +104,7 @@
                    class="form-control bg-light"
                    readonly>
             <div class="form-text">
-              <code>(
-                (Total − Ingredients − Shop Assistants)
-                ÷ (Days × Hours × 60)
-                ÷ Chefs
-              ) ÷ 3 × 4</code>
+             
             </div>
           </div>
         </div>

@@ -9,7 +9,9 @@
   <div class="card mb-4 border-primary shadow-sm">
     <div class="card-header d-flex align-items-center" style="background-color: #041930;">
       <i class="bi bi-egg-fried fs-4 me-2" style="color: #e2ae76;"></i>
-      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">{{ isset($pastryChef) ? 'Edit Chef' : 'Add Chef' }}</h5>
+      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+        {{ isset($pastryChef) ? 'Edit Chef' : 'Add Chef' }}
+      </h5>
     </div>
     <div class="card-body">
       <form 
@@ -22,31 +24,47 @@
 
         <div class="col-md-4">
           <label for="Name" class="form-label fw-semibold">Chef Name</label>
-          <input type="text" id="Name" name="name" class="form-control form-control-lg"
-                 value="{{ old('name', $pastryChef->name ?? '') }}"
-                 placeholder="Add Chef Name" required>
+          <input 
+            type="text" 
+            id="Name" 
+            name="name" 
+            class="form-control form-control-lg"
+            value="{{ old('name', $pastryChef->name ?? '') }}"
+            placeholder="Add Chef Name" 
+            required>
           <div class="invalid-feedback">Please provide a Chef name.</div>
         </div>
 
         <div class="col-md-4">
           <label for="Email" class="form-label fw-semibold">Chef Email</label>
-          <input type="email" id="Email" name="email" class="form-control form-control-lg"
-                 value="{{ old('email', $pastryChef->email ?? '') }}"
-                 placeholder="Add Chef Email" required>
+          <input 
+            type="email" 
+            id="Email" 
+            name="email" 
+            class="form-control form-control-lg"
+            value="{{ old('email', $pastryChef->email ?? '') }}"
+            placeholder="Add Chef Email" 
+            required>
           <div class="invalid-feedback">Please provide a Chef email.</div>
         </div>
 
         <div class="col-md-4">
           <label for="Phone" class="form-label fw-semibold">Phone Number</label>
-          <input type="text" id="Phone" name="phone" class="form-control form-control-lg"
-                 value="{{ old('phone', $pastryChef->phone ?? '') }}"
-                 placeholder="Add Chef Phone" required>
+          <input 
+            type="text" 
+            id="Phone" 
+            name="phone" 
+            class="form-control form-control-lg"
+            value="{{ old('phone', $pastryChef->phone ?? '') }}"
+            placeholder="Add Chef Phone" 
+            required>
           <div class="invalid-feedback">Please provide a Chef phone.</div>
         </div>
 
         <div class="col-12 text-end">
           <button type="submit" class="btn btn-gold-filled btn-lg">
-            <i class="bi bi-save2 me-2"></i>{{ isset($pastryChef) ? 'Update Chef' : 'Save Chef' }}
+            <i class="bi bi-save2 me-2"></i>
+            {{ isset($pastryChef) ? 'Update Chef' : 'Save Chef' }}
           </button>
         </div>
       </form>
@@ -87,8 +105,11 @@
                 <a href="{{ route('pastry-chefs.edit', $chef) }}" class="btn btn-sm btn-gold me-1" title="Edit">
                   <i class="bi bi-pencil-square"></i>
                 </a>
-                <form action="{{ route('pastry-chefs.destroy', $chef) }}" method="POST" class="d-inline"
-                      onsubmit="return confirm('Delete this chef?');">
+                <form 
+                  action="{{ route('pastry-chefs.destroy', $chef) }}" 
+                  method="POST" 
+                  class="d-inline"
+                  onsubmit="return confirm('Delete this chef?');">
                   @csrf
                   @method('DELETE')
                   <button type="submit" class="btn btn-sm btn-red" title="Delete">
@@ -99,7 +120,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="5" class="text-muted">No chefs found.</td>
+              <td colspan="5" class="text-center text-muted">No chefs found.</td>
             </tr>
           @endforelse
         </tbody>
@@ -110,19 +131,19 @@
 </div>
 @endsection
 
+
 <style>
   table thead th {
-  background-color: #e2ae76 !important;
-  color: #041930 !important;
-  text-align: center !important;
-  vertical-align: middle !important;
-}
+    background-color: #e2ae76 !important;
+    color: #041930 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
 
-table tbody td {
-  text-align: center !important;
-  vertical-align: middle !important;
-}
-
+  table tbody td {
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
 
   .btn-gold-filled {
     background-color: #e2ae76 !important;
@@ -133,14 +154,13 @@ table tbody td {
     border-radius: 12px;
     transition: background-color 0.2s ease;
   }
-
   .btn-gold-filled:hover {
     background-color: #d89d5c !important;
     color: white !important;
   }
 
   .btn-gold, .btn-deepblue, .btn-red {
-    border: 1px solid;
+    border: 1px solid !important;
     font-weight: 500;
   }
 
@@ -148,7 +168,6 @@ table tbody td {
     border-color: #e2ae76 !important;
     color: #e2ae76 !important;
   }
-
   .btn-gold:hover {
     background-color: #e2ae76 !important;
     color: white !important;
@@ -158,7 +177,6 @@ table tbody td {
     border-color: #041930 !important;
     color: #041930 !important;
   }
-
   .btn-deepblue:hover {
     background-color: #041930 !important;
     color: white !important;
@@ -168,38 +186,40 @@ table tbody td {
     border-color: #ff0000 !important;
     color: red !important;
   }
-
   .btn-red:hover {
     background-color: #ff0000 !important;
     color: white !important;
   }
-
-  .btn-gold i,
-  .btn-deepblue i,
-  .btn-red i {
-    color: inherit !important;
-  }
 </style>
+
 
 @section('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    $('#pastryChefsTable').DataTable({
-      paging: true,
-      ordering: true,
-      responsive: true,
-      pageLength: $('#pastryChefsTable').data('page-length'),
-      columnDefs: [{ orderable: false, targets: 1 }]
-    });
+    if (window.$ && $.fn.DataTable) {
+      // suppress DataTables error alerts
+      $.fn.dataTable.ext.errMode = 'none';
 
+      $('#pastryChefsTable').DataTable({
+        paging:      true,
+        ordering:    true,
+        responsive:  true,
+        pageLength:  $('#pastryChefsTable').data('page-length') || 10,
+        columnDefs: [
+          { orderable: false, targets: -1 }  // only Actions column
+        ]
+      });
+    }
+
+    // Bootstrap client-side validation
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
-      form.addEventListener('submit', e => {
-        if (!form.checkValidity()) {
+      form.addEventListener('submit', function(e) {
+        if (!this.checkValidity()) {
           e.preventDefault();
           e.stopPropagation();
         }
-        form.classList.add('was-validated');
+        this.classList.add('was-validated');
       }, false);
     });
   });

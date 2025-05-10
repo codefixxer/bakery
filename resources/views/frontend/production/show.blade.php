@@ -1,3 +1,4 @@
+{{-- resources/views/frontend/production/show.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', 'Production: ' . $production->production_date)
@@ -19,7 +20,7 @@
     <div class="card-body">
 
       {{-- Summary Row --}}
-      <div class="row mb-4 align-items-center">
+      <div class="row mb-4">
         <div class="col-md-4">
           <h6 class="text-uppercase text-muted small">Items Produced</h6>
           <p class="fs-4 fw-bold mb-0">{{ $production->details->count() }}</p>
@@ -30,63 +31,29 @@
             €{{ number_format($production->total_potential_revenue, 2) }}
           </p>
         </div>
-        <div class="col-md-4 text-end">
-          <a href="{{ route('production.edit', $production) }}"
-             class="btn btn-gold btn-sm me-1">
-            <i class="bi bi-pencil me-1"></i>Edit
-          </a>
-          <a href="{{ route('production.index') }}"
-             class="btn btn-deepblue btn-sm me-1">
-            <i class="bi bi-arrow-left me-1"></i>Back
-          </a>
-          <form action="{{ route('production.destroy', $production) }}"
-                method="POST" class="d-inline"
-                onsubmit="return confirm('Delete this record?');">
-            @csrf @method('DELETE')
-            <button type="submit" class="btn btn-red btn-sm">
-              <i class="bi bi-trash me-1"></i>Delete
-            </button>
-          </form>
-        </div>
       </div>
 
       {{-- Filter / Sort / Print Controls --}}
       <form method="GET" class="row mb-3 gx-2 gy-2">
-        {{-- Filter by Chef --}}
         <div class="col-auto">
-          <select name="chef_id"
-                  class="form-select form-select-sm"
-                  onchange="this.form.submit()">
+          <select name="chef_id" class="form-select form-select-sm" onchange="this.form.submit()">
             <option value="">All Chefs</option>
             @foreach($allChefs as $id => $name)
-              <option value="{{ $id }}"
-                {{ $id == $selectedChef ? 'selected' : '' }}>
-                {{ $name }}
-              </option>
+              <option value="{{ $id }}" {{ $id == $selectedChef ? 'selected' : '' }}>{{ $name }}</option>
             @endforeach
           </select>
         </div>
-
-        {{-- Sort by Chef --}}
         <div class="col-auto">
           @php
-            $opposite = $sortDir==='asc' ? 'desc':'asc';
-            $qs = array_merge(request()->all(),[
-              'sort'=>'chef','direction'=>$opposite
-            ]);
+            $opposite = $sortDir==='asc' ? 'desc' : 'asc';
+            $qs = array_merge(request()->all(), ['sort'=>'chef','direction'=>$opposite]);
           @endphp
-          <a href="?{{ http_build_query($qs) }}"
-             class="btn btn-sm btn-outline-secondary">
-            Sort by Chef
-            @if($sortDir==='asc') ↑ @else ↓ @endif
+          <a href="?{{ http_build_query($qs) }}" class="btn btn-sm btn-outline-secondary">
+            Sort by Chef @if($sortDir==='asc') ↑ @else ↓ @endif
           </a>
         </div>
-
-        {{-- Print Table --}}
         <div class="col-auto">
-          <button type="button"
-                  class="btn btn-sm btn-outline-primary"
-                  onclick="window.print()">
+          <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()">
             Print table
           </button>
         </div>
@@ -107,30 +74,27 @@
           </thead>
           <tbody>
             @php
-              $totalQty       = 0;
-              $totalExecTime  = 0;
+              $totalQty = 0;
+              $totalExecTime = 0;
               $totalPotential = 0;
             @endphp
 
             @foreach($details as $detail)
               @php
-                // resolve equipment names
-                $ids   = is_array($detail->equipment_ids)
-                          ? $detail->equipment_ids
-                          : (strlen($detail->equipment_ids)
-                              ? explode(',', $detail->equipment_ids)
-                              : []);
+                $ids = is_array($detail->equipment_ids)
+                  ? $detail->equipment_ids
+                  : (strlen($detail->equipment_ids)
+                      ? explode(',', $detail->equipment_ids)
+                      : []);
                 $names = collect($ids)
-                         ->map(fn($i)=>($equipmentMap[trim($i)] ?? null))
-                         ->filter()->unique()->values();
+                  ->map(fn($i)=>($equipmentMap[trim($i)] ?? null))
+                  ->filter()->unique()->values();
                 $equip = $names->implode(', ');
 
-                // accumulate totals
-                $totalQty       += $detail->quantity;
-                $totalExecTime  += $detail->execution_time;
+                $totalQty += $detail->quantity;
+                $totalExecTime += $detail->execution_time;
                 $totalPotential += $detail->potential_revenue;
               @endphp
-
               <tr>
                 <td>{{ $detail->recipe->recipe_name }}</td>
                 <td>{{ $detail->chef->name }}</td>
@@ -141,7 +105,6 @@
               </tr>
             @endforeach
 
-            {{-- Totals Row --}}
             <tr class="fw-bold">
               <td colspan="2" class="text-end">Total:</td>
               <td>{{ $totalQty }}</td>
@@ -152,11 +115,31 @@
           </tbody>
         </table>
       </div>
+
+      {{-- Actions --}}
+      <div class="mt-4 text-end">
+        <a href="{{ route('production.edit', $production) }}" class="btn btn-gold me-2">
+          <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+        <a href="{{ route('production.index') }}" class="btn btn-deepblue me-2">
+          <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+        <form action="{{ route('production.destroy', $production) }}"
+              method="POST" class="d-inline"
+              onsubmit="return confirm('Delete this record?');">
+          @csrf
+          @method('DELETE')
+          <button class="btn btn-red" type="submit">
+            <i class="bi bi-trash me-1"></i> Delete
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
 </div>
 
-{{-- Button Styles --}}
+{{-- Button & Print Styles --}}
 <style>
   .btn-gold {
     border: 1px solid #e2ae76!important;
@@ -186,7 +169,6 @@
     color: #fff!important;
   }
 
-  /* --- PRINT STYLES --- */
   @media print {
     body * { visibility: hidden; }
     .print-only-table, .print-only-table * {
@@ -194,8 +176,7 @@
     }
     .print-only-table {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%;
+      top: 0; left: 0; width: 100%;
     }
   }
 </style>

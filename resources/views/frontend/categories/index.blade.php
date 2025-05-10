@@ -34,12 +34,13 @@
             required>
           <div class="invalid-feedback">Please enter a category name.</div>
         </div>
+
         <div class="col-12 text-end">
           <button type="submit" class="btn btn-gold-filled btn-lg">
-            <i class="bi bi-save2 me-2"></i>{{ isset($department) ? 'Update' : 'Save Category' }}
+            <i class="bi bi-save2 me-2"></i>
+            {{ isset($category) ? 'Update Category' : 'Save Category' }}
           </button>
         </div>
-        
       </form>
     </div>
   </div>
@@ -48,12 +49,14 @@
   <div class="card border-primary shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #041930;">
       <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
-        <i class="bi bi-list fs-4 me-2" style="color: #e2ae76;"></i> Cost Categories
+        <i class="bi bi-list fs-4 me-2"></i> Cost Categories
       </h5>
-      
     </div>
     <div class="card-body table-responsive">
-      <table id="categoriesTable" class="table table-bordered table-striped table-hover align-middle text-center mb-0" data-page-length="10">
+      <table
+        id="categoriesTable"
+        class="table table-bordered table-striped table-hover align-middle text-center mb-0"
+        data-page-length="10">
         <thead>
           <tr>
             <th class="text-center">Category Name</th>
@@ -78,7 +81,6 @@
                     <i class="bi bi-trash"></i>
                   </button>
                 </form>
-                
               </td>
             </tr>
           @empty
@@ -95,46 +97,38 @@
 
 
 <style>
+  .btn-gold {
+    border: 1px solid #e2ae76 !important;
+    color: #e2ae76 !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease-in-out;
+  }
+  .btn-gold:hover {
+    background-color: #e2ae76 !important;
+    color: white !important;
+  }
 
+  .btn-deepblue {
+    border: 1px solid #041930 !important;
+    color: #041930 !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease-in-out;
+  }
+  .btn-deepblue:hover {
+    background-color: #041930 !important;
+    color: white !important;
+  }
 
-.btn-gold {
-  border: 1px solid #e2ae76 !important;
-  color: #e2ae76 !important;
-  background-color: transparent !important;
-  transition: all 0.2s ease-in-out;
-}
-.btn-gold:hover {
-  background-color: #e2ae76 !important;
-  color: white !important;
-}
-
-.btn-deepblue {
-  border: 1px solid #041930 !important;
-  color: #041930 !important;
-  background-color: transparent !important;
-  transition: all 0.2s ease-in-out;
-}
-.btn-deepblue:hover {
-  background-color: #041930 !important;
-  color: white !important;
-}
-
-.btn-red {
-  border: 1px solid #ff0000 !important;
-  color: red !important;
-  background-color: transparent !important;
-  transition: all 0.2s ease-in-out;
-}
-.btn-red:hover {
-  background-color: #ff0000 !important;
-  color: white !important;
-}
-
-.btn-gold i,
-.btn-deepblue i,
-.btn-red i {
-  color: inherit !important;
-}
+  .btn-red {
+    border: 1px solid #ff0000 !important;
+    color: red !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease-in-out;
+  }
+  .btn-red:hover {
+    background-color: #ff0000 !important;
+    color: white !important;
+  }
 
   .btn-gold-filled {
     background-color: #e2ae76 !important;
@@ -145,14 +139,9 @@
     border-radius: 12px;
     transition: background-color 0.2s ease;
   }
-
   .btn-gold-filled:hover {
     background-color: #d89d5c !important;
     color: white !important;
-  }
-
-  .btn-gold-filled i {
-    color: inherit !important;
   }
 
   table th {
@@ -161,7 +150,6 @@
     text-align: center;
     vertical-align: middle;
   }
-
   table td {
     text-align: center;
     vertical-align: middle;
@@ -172,16 +160,22 @@
 @section('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    $('#categoriesTable').DataTable({
-      paging: true,
-      ordering: true,
-      responsive: true,
-      pageLength: $('#categoriesTable').data('page-length'),
-      columnDefs: [
-        { orderable: false, targets: 1 }
-      ]
-    });
+    if (window.$ && $.fn.DataTable) {
+      // suppress DataTables alert popups
+      $.fn.dataTable.ext.errMode = 'none';
 
+      $('#categoriesTable').DataTable({
+        paging:      true,
+        ordering:    true,
+        responsive:  true,
+        pageLength:  $('#categoriesTable').data('page-length') || 10,
+        columnDefs: [
+          { orderable: false, targets: -1 } // Actions column only
+        ]
+      });
+    }
+
+    // Bootstrap client-side validation
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
       form.addEventListener('submit', e => {

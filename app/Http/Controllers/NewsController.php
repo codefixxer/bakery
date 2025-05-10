@@ -98,12 +98,17 @@ public function store(Request $request)
 
         public function destroy(News $news)
         {
+            // 1) Remove all notifications tied to this news
+            $news->notifications()->delete();
+        
+            // 2) Now delete the news item
             $news->delete();
-
+        
             return redirect()
                 ->route('news.index')
-                ->with('success', 'News deleted successfully.');
+                ->with('success', 'News and related notifications deleted successfully.');
         }
+        
     }
 
 

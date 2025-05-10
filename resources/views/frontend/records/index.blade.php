@@ -6,9 +6,9 @@
 <div class="container py-5">
   {{-- Page Title --}}
   <div class="text-center mb-4">
-    <h1 class="d-inline-block px-4 py-2" style="background:#041930; color:#e2ae76; border-radius:.5rem;">
+    <h2 class="d-inline-block px-4 py-2" style="background:#041930; color:#e2ae76; border-radius:.5rem;">
       Showcase &amp; External Supply Records
-    </h1>
+    </h2>
   </div>
 
   {{-- Filters --}}
@@ -353,3 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endsection
+
+
+

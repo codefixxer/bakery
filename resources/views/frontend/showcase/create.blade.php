@@ -119,7 +119,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="input-group input-group-sm">
-                                                        <span class="input-group-text">€</span>
+                                                       
                                                         <input type="text" name="items[{{ $i }}][price]"
                                                             class="form-control form-control-sm text-end price-field"
                                                             readonly

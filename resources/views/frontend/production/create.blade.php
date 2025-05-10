@@ -191,6 +191,22 @@
 
 
 <style>
+
+    /* keep the Qty & Time columns from wrapping and respect the fixed width */
+    #recipeTable th:nth-child(3),
+  #recipeTable td:nth-child(3),
+  #recipeTable th:nth-child(4),
+  #recipeTable td:nth-child(4) {
+    min-width: 10px;
+    white-space: nowrap;
+  }
+
+  /* Recipe column min width */
+  #recipeTable th:first-child,
+  #recipeTable td:first-child {
+    white-space: nowrap;
+    min-width: 300px;
+  }
 .selected-equipment span {
   background: #e9ecef;
   border-radius: 15px;
@@ -209,6 +225,9 @@
 
 @section('scripts')
 <script>
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
   const tableBody         = document.querySelector('#recipeTable tbody');
   const addRowBtn         = document.getElementById('addRowBtn');

@@ -99,14 +99,14 @@
           (€{{ number_format($bestNet, 2) }})
         &nbsp;&nbsp;
         <strong>Worst month:</strong>
-          {{-- show “—” if all months tie --}}
           {{ $worstMonth
              ? Carbon::create($year, $worstMonth, 1)->format('F')
              : '—' }}
           (€{{ number_format($worstNet, 2) }})
       </div>
 
-      <div class="table-responsive small">
+      {{-- Wrap table in a div for AJAX refreshing --}}
+      <div id="comparisonTable" class="table-responsive small">
         <table class="table table-bordered align-middle">
           <thead>
             <tr>
@@ -160,48 +160,49 @@
           </tbody>
         </table>
       </div>
-    </div>
-  </div>
 
-  <!-- Summary Mini-Cards -->
-  <div class="row g-3 text-center mb-4">
-    <div class="col-6 col-md-3">
-      <div class="mini-card border border-success">
-        <i class="bi bi-wallet2 text-success"></i>
-        <div>Income ({{ Carbon::create($year, $month, 1)->format('F Y') }})</div>
-        <h3>€{{ number_format($incomeThisMonth, 2) }}</h3>
+      <!-- Summary Mini-Cards -->
+      <div class="row g-3 text-center mb-4">
+        <div class="col-6 col-md-3">
+          <div class="mini-card border border-success">
+            <i class="bi bi-wallet2 text-success"></i>
+            <div>Income ({{ Carbon::create($year, $month, 1)->format('F Y') }})</div>
+            <h3>€{{ number_format($incomeThisMonth, 2) }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mini-card border border-secondary">
+            <i class="bi bi-wallet text-secondary"></i>
+            <div>Income ({{ Carbon::create($lastYear, $month, 1)->format('F Y') }})</div>
+            <h3>€{{ number_format($incomeLastYearSame, 2) }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mini-card border border-primary">
+            <i class="bi bi-receipt text-primary"></i>
+            <div>Total Costs ({{ $year }})</div>
+            <h3>€{{ number_format($totalCostYear, 2) }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mini-card border border-success">
+            <i class="bi bi-cash-stack text-success"></i>
+            <div>Total Income ({{ $year }})</div>
+            <h3>€{{ number_format($totalIncomeYear, 2) }}</h3>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 offset-md-4">
+          <div class="mini-card border border-danger">
+            <i class="bi bi-percent text-danger"></i>
+            <div>Net ({{ $year }})</div>
+            @php $net = $totalIncomeYear - $totalCostYear; @endphp
+            <h3 class="{{ $net >= 0 ? 'text-success' : 'text-danger' }}">
+              €{{ number_format($net, 2) }}
+            </h3>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="mini-card border border-secondary">
-        <i class="bi bi-wallet text-secondary"></i>
-        <div>Income ({{ Carbon::create($lastYear, $month, 1)->format('F Y') }})</div>
-        <h3>€{{ number_format($incomeLastYearSame, 2) }}</h3>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="mini-card border border-primary">
-        <i class="bi bi-receipt text-primary"></i>
-        <div>Total Costs ({{ $year }})</div>
-        <h3>€{{ number_format($totalCostYear, 2) }}</h3>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="mini-card border border-success">
-        <i class="bi bi-cash-stack text-success"></i>
-        <div>Total Income ({{ $year }})</div>
-        <h3>€{{ number_format($totalIncomeYear, 2) }}</h3>
-      </div>
-    </div>
-    <div class="col-12 col-md-4 offset-md-4">
-      <div class="mini-card border border-danger">
-        <i class="bi bi-percent text-danger"></i>
-        <div>Net ({{ $year }})</div>
-        @php $net = $totalIncomeYear - $totalCostYear; @endphp
-        <h3 class="{{ $net >= 0 ? 'text-success' : 'text-danger' }}">
-          €{{ number_format($net, 2) }}
-        </h3>
-      </div>
+
     </div>
   </div>
 
@@ -210,9 +211,23 @@
 
 @section('scripts')
 <script>
+  // When you pick a new year, reload the page via named route
   document.getElementById('yearSelector').addEventListener('change', function () {
     const y = this.value, m = {{ $month }};
-    window.location.href = `?y=${y}&m=${m}`;
+    window.location.href = `{{ route('costs.dashboard') }}?y=${y}&m=${m}`;
+  });
+
+  // (Optional) AJAXify month‐tab clicks so sidebar never re-renders
+  $(function(){
+    $('.month-tabs a').on('click', function(e){
+      e.preventDefault();
+      const url = $(this).attr('href');
+      $('#comparisonTable').load(url + ' #comparisonTable > *', function(){
+        $('.month-tabs .active').removeClass('active');
+        $(`.month-tabs a[href="${url}"]`).addClass('active');
+        history.pushState(null, '', url);
+      });
+    });
   });
 </script>
 @endsection

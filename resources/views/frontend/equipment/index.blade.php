@@ -17,7 +17,14 @@
         @csrf
         <div class="col-md-8">
           <label for="Name" class="form-label fw-semibold">Equipment Name</label>
-          <input type="text" id="Name" name="name" class="form-control form-control-lg" placeholder="e.g. Mixer, Oven" required value="{{ old('name') }}">
+          <input
+            type="text"
+            id="Name"
+            name="name"
+            class="form-control form-control-lg"
+            placeholder="e.g. Mixer, Oven"
+            required
+            value="{{ old('name') }}">
           <div class="invalid-feedback">Please provide an equipment name.</div>
         </div>
         <div class="col-md-4 text-end align-self-end">
@@ -32,10 +39,15 @@
   <!-- Equipments Table Card -->
   <div class="card border-primary shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #041930;">
-      <h5 class="mb-0 fw-bold" style="color: #e2ae76;"><i class="bi bi-list-ul me-2" style="color: #e2ae76;"></i>Equipments List</h5>
+      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+        <i class="bi bi-list-ul me-2" style="color: #e2ae76;"></i> Equipments List
+      </h5>
     </div>
     <div class="card-body table-responsive">
-      <table id="equipmentTable" class="table table-bordered table-striped table-hover align-middle text-center mb-0" data-page-length="10">
+      <table
+        id="equipmentTable"
+        class="table table-bordered table-striped table-hover align-middle text-center mb-0"
+        data-page-length="10">
         <thead>
           <tr>
             <th class="text-center">Name</th>
@@ -53,7 +65,11 @@
                 <a href="{{ route('equipment.edit', $equ) }}" class="btn btn-sm btn-gold me-1" title="Edit Equipment">
                   <i class="bi bi-pencil-square"></i>
                 </a>
-                <form action="{{ route('equipment.destroy', $equ) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this equipment?');">
+                <form
+                  action="{{ route('equipment.destroy', $equ) }}"
+                  method="POST"
+                  class="d-inline"
+                  onsubmit="return confirm('Delete this equipment?');">
                   @csrf
                   @method('DELETE')
                   <button type="submit" class="btn btn-sm btn-red" title="Delete Equipment">
@@ -71,8 +87,10 @@
       </table>
     </div>
   </div>
+
 </div>
 @endsection
+
 
 <style>
   .btn-gold-filled {
@@ -84,12 +102,10 @@
     border-radius: 12px;
     transition: background-color 0.2s ease;
   }
-
   .btn-gold-filled:hover {
     background-color: #d89d5c !important;
     color: white !important;
   }
-
   .btn-gold-filled i {
     color: inherit !important;
   }
@@ -98,6 +114,7 @@
     border: 1px solid #e2ae76 !important;
     color: #e2ae76 !important;
     background-color: transparent !important;
+    transition: all 0.2s ease-in-out;
   }
   .btn-gold:hover {
     background-color: #e2ae76 !important;
@@ -106,8 +123,9 @@
 
   .btn-deepblue {
     border: 1px solid #041930 !important;
-    color: #041930;
+    color: #041930 !important;
     background-color: transparent !important;
+    transition: all 0.2s ease-in-out;
   }
   .btn-deepblue:hover {
     background-color: #041930 !important;
@@ -116,48 +134,55 @@
 
   .btn-red {
     border: 1px solid #ff0000 !important;
-    color: red;
+    color: red !important;
     background-color: transparent !important;
+    transition: all 0.2s ease-in-out;
   }
   .btn-red:hover {
     background-color: #ff0000 !important;
     color: white !important;
   }
 
-  table th {
+  table thead th {
     background-color: #e2ae76 !important;
     color: #041930 !important;
     text-align: center;
     vertical-align: middle;
   }
-
-  table td {
+  table tbody td {
     text-align: center;
     vertical-align: middle;
   }
 </style>
 
+
 @section('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    $('#equipmentTable').DataTable({
-      paging: true,
-      ordering: true,
-      responsive: true,
-      pageLength: $('#equipmentTable').data('page-length'),
-      columnDefs: [
-        { orderable: false, targets: 1 }
-      ]
-    });
+    if (window.$ && $.fn.DataTable) {
+      // suppress DataTables error popups
+      $.fn.dataTable.ext.errMode = 'none';
 
+      $('#equipmentTable').DataTable({
+        paging:      true,
+        ordering:    true,
+        responsive:  true,
+        pageLength:  $('#equipmentTable').data('page-length') || 10,
+        columnDefs: [
+          { orderable: false, targets: -1 } // only Actions column
+        ]
+      });
+    }
+
+    // Bootstrap client-side validation
     const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
-      form.addEventListener('submit', e => {
-        if (!form.checkValidity()) {
+      form.addEventListener('submit', function(e) {
+        if (!this.checkValidity()) {
           e.preventDefault();
           e.stopPropagation();
         }
-        form.classList.add('was-validated');
+        this.classList.add('was-validated');
       }, false);
     });
   });

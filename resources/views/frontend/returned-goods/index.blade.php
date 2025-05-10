@@ -86,7 +86,7 @@
     {{-- A) Supplies Table --}}
     <div class="col-lg-6">
       <div class="card h-100">
-        <div class="card-header bg-dark text-gold fw-bold">All Supplies</div>
+        <div class="card-header bg-dark text-gold fw-bold" style="color: #e2ae76">All Supplies</div>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-striped mb-0">
@@ -138,48 +138,50 @@
       </div>
     </div>
 
-    {{-- B) Daily Comparison --}}
-    <div class="col-lg-6">
-      <div class="card h-100">
-        <div class="card-header bg-dark text-gold fw-bold">
-          Daily Comparison (Sold - Returned)
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-striped mb-0">
-              <thead class="bg-gold text-dark">
-                <tr>
-                  
-                  <th>Date</th>
-                  <th>Supply (€)</th>
-                  <th>Returned (€)</th>
-                  <th>Net (€)</th>
-                </tr>
-              </thead>
-              <tbody>
-                @forelse($supsByDate as $d)
-                  <tr>
-                   
-                    <td>{{ \Carbon\Carbon::parse($row->date)->format('Y-m-d') }}</td>
-                    <td>€{{ number_format($row->total_supply, 2) }}</td>
-                    <td class="{{ $row->total_return > 0 ? 'text-danger' : 'text-success' }}">
-                      €{{ number_format($row->total_return, 2) }}
-                    </td>
-                    <td class="{{ $row->net >= 0 ? 'text-success' : 'text-danger' }}">
-                      €{{ number_format($row->net, 2) }}
-                    </td>
-                  </tr>
-                @empty
-                  <tr>
-                    <td colspan="4" class="text-center text-muted">No data to compare.</td>
-                  </tr>
-                @endforelse
-              </tbody>
-            </table>
-          </div>
-        </div>
+   {{-- B) Daily Comparison --}}
+<div class="col-lg-6">
+  <div class="card h-100">
+    <div class="card-header bg-dark text-gold fw-bold" style="color:#e2ae76">
+      Daily Comparison (Sold - Returned)
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead class="bg-gold text-dark">
+            <tr>
+              <th>Date</th>
+              <th>Supply (€)</th>
+              <th>Returned (€)</th>
+              <th>Net (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse($supsByDate as $d)
+              @php
+                $net = $d->total_supply - $d->total_return;
+              @endphp
+              <tr>
+                <td>{{ \Carbon\Carbon::parse($d->date)->format('Y-m-d') }}</td>
+                <td>€{{ number_format($d->total_supply, 2) }}</td>
+                <td class="{{ $d->total_return > 0 ? 'text-danger' : 'text-success' }}">
+                  €{{ number_format($d->total_return, 2) }}
+                </td>
+                <td class="{{ $net >= 0 ? 'text-success' : 'text-danger' }}">
+                  €{{ number_format($net, 2) }}
+                </td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="4" class="text-center text-muted">No data to compare.</td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
       </div>
     </div>
+  </div>
+</div>
+
   </div>
 
 </div>
