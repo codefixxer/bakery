@@ -54,14 +54,14 @@
 
 
 
-{{-- Finentials --}}
+{{-- Financials --}}
 @canany(['costs','income','cost comparison'])
 <li class="dropdown">
   <a href="javascript:void(0)" class="d-flex align-items-center">
-    <!-- SVG icon sized via .menu-icon CSS -->
-    <svg class="menu-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="255.997" cy="255.997" r="167.991"/>
-      <g>
+    <!-- Original SVG icon, sized like Labor Cost icon -->
+    <svg class="menu-icon" viewBox="0 0 512 512" style="width:1.5em; height:1.5em; color:#e2ae76;" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="255.997" cy="255.997" r="167.991" fill="currentColor"/>
+      <g fill="currentColor">
         <path d="M256,0c-7.664,0-13.877,6.213-13.877,13.877S248.336,27.753,256,27.753
           c57.945,0,110.905,21.716,151.199,57.422l-32.781,32.781C341.468,89.6,299.928,74.132,256,74.132
           c-45.156,0-86.517,16.549-118.35,43.892L95.044,75.42c-0.075-0.075-0.158-0.139-0.235-0.212c-0.071-0.075-0.132-0.154-0.205-0.228
@@ -81,7 +81,7 @@
           c-1.987,11.118-4.751,19.626-8.47,26.042c-6.72,11.84-16.295,17.596-29.27,17.596c-14.231,0-24.569-5.483-31.631-16.813
           c-3.643-5.669-6.433-12.354-8.326-19.928h55.85c1.869,0,3.521-1.225,4.06-3.017l5.023-16.658c0.387-1.284,0.143-2.675-0.656-3.752
           c-0.799-1.077-2.062-1.712-3.404-1.712h-63.723c-0.001-0.534-0.001-1.069-0.001-1.6c0-3.101,0.058-5.864,0.173-8.351h58.636
-          c1.88,0,3.534-1.238,4.066-3.039l4.915-16.658c0.379,1.284,0.13,2.668-0.67,3.74c0.799,1.07,2.058,1.701,3.396,1.701h-59.829
+          c1.88,0,3.534-1.238,4.066-3.039l4.915-16.658c0.379,1.284,0.13,2.668,0.67,3.74c0.799,1.07,2.058,1.701,3.396,1.701h-59.829
           c1.998-7.478,4.771-13.605,8.408-18.61c7.994-10.839,18.152-16.108,31.051-16.108c10.599,0,18.471,2.766,24.115,8.505
           c5.777,5.681,9.712,13.764,11.697,24.023c0.387,1.994,2.133,3.434,4.164,3.434h19.115c0.017,0,0.033,0,0.042,0
           c2.344,0,4.241-1.898,4.241-4.241c0-0.329-0.037-0.651-0.108-0.956c-1.359-15.216-7.356-28.97-17.84-40.895
@@ -93,47 +93,41 @@
           c10.047-12.88,16.047-28.911,17.836-47.644C338.104,278.11,337.71,276.927,336.905,276.043z"/>
       </g>
     </svg>
-
-    <!-- Fixed-size text independent of icon -->
-    <span class="menu-text ms-2" style="color: #e2ae76; font-size: 16px; line-height: 1;">
-      Financials
-    </span>
-
-    <!-- Dropdown chevron -->
-    <iconify-icon icon="mdi:chevron-right" class="menu-icon ms-auto"></iconify-icon>
+    <span class="ms-2" style="color: #e2ae76; font-size:16px; line-height:1;">Financials</span>
+    <iconify-icon icon="" class="menu-icon ms-auto" style="color: #e2ae76;"></iconify-icon>
   </a>
-
 
   <ul class="sidebar-submenu">
     @can('costs')
     <li>
-      <a href="{{ route('costs.index') }}">
-        <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-        <span style="color: #e2ae76;">Costs</span>
+      <a href="{{ route('costs.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:format-list-bulleted" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color: #e2ae76; font-size:16px; line-height:1;">Costs</span>
       </a>
     </li>
     @endcan
 
     @can('income')
     <li>
-      <a href="{{ route('incomes.index') }}">
+      <a href="{{ route('incomes.index') }}" class="d-flex align-items-center">
         <iconify-icon icon="mdi:currency-usd" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
-        <span style="color: #e2ae76;">Income</span>
+        <span class="ms-2" style="color: #e2ae76; font-size:16px; line-height:1;">Income</span>
       </a>
     </li>
     @endcan
 
     @can('cost comparison')
     <li>
-      <a href="{{ route('costs.dashboard') }}">
+      <a href="{{ route('costs.dashboard') }}" class="d-flex align-items-center">
         <iconify-icon icon="mdi:currency-usd-circle" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
-        <span style="color: #e2ae76;">Cost Comparison</span>
+        <span class="ms-2" style="color: #e2ae76; font-size:16px; line-height:1;">Cost Comparison</span>
       </a>
     </li>
     @endcan
   </ul>
 </li>
 @endcanany
+
 
 
   {{-- Sale Comparison --}}
@@ -152,192 +146,207 @@
 
   
       {{-- Ingredients --}}
-    
-      @can('ingredients')
-      <li>
-        <a href="{{ route('ingredients.index') }}" class="d-flex align-items-center">
-          <!-- SVG icon sized via .menu-icon CSS -->
-          <svg class="menu-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-            <path d="M479.605,91.769c-23.376,23.376-66.058,33.092-79.268,19.882
-              c-13.21-13.21-3.494-55.892,19.883-79.268s85.999-26.614,85.999-26.614S502.982,68.393,479.605,91.769z"/>
-            <g>
-              <path d="M506.218,5.785L400.345,111.658c13.218,13.2,55.888,3.483,79.26-19.889
-                C502.864,68.511,506.186,6.411,506.218,5.785z"/>
-              <path d="M432.367,200.156c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992
-                s79.629,41.992,79.629,41.992S465.426,200.156,432.367,200.156z"/>
-            </g>
-            <path d="M311.84,79.629c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11S353.832,0,353.832,0
-              S311.84,46.571,311.84,79.629z"/>
-            <path d="M367.516,265.006c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992
-              s79.629,41.992,79.629,41.992S400.575,265.006,367.516,265.006z"/>
-            <path d="M246.99,144.48c0,33.059,23.311,70.11,41.992,70.11c18.681,0,41.992-37.052,41.992-70.11
-              S288.982,64.85,288.982,64.85S246.99,111.421,246.99,144.48z"/>
-            <path d="M302.666,329.857c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992
-              s79.629,41.992,79.629,41.992S335.726,329.857,302.666,329.857z"/>
-            <path d="M182.14,209.33c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11
-              s-41.992-79.629-41.992-79.629S182.14,176.27,182.14,209.33z"/>
-            <path d="M237.025,395.498c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992
-              s79.629,41.992,79.629,41.992S270.085,395.498,237.025,395.498z"/>
-            <path d="M116.498,274.97c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11
-              s-41.992-79.629-41.992-79.629S116.498,241.912,116.498,274.97z"/>
-            <path d="M170.438,462.084c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992
-              s79.629,41.992,79.629,41.992S203.497,462.084,170.438,462.084z"/>
-            <path d="M49.912,341.558c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11
-              s-41.992-79.629-41.992-79.629S49.912,308.499,49.912,341.558z"/>
-            <path d="M4.917,507.087c-6.552-6.552-6.552-17.174,0-23.725L404.75,83.527c6.552-6.552,17.174-6.552,23.725,0
-              c6.552,6.552,6.552,17.174,0,23.725L28.643,507.087C22.091,513.637,11.468,513.637,4.917,507.087z"/>
-          </svg>
-      
-          <!-- Fixed-size text independent of icon -->
-          <span class="menu-text ms-2" style="color: #e2ae76; font-size: 16px; line-height: 1;">
-            Ingredients
-          </span>
-      
-          <!-- Optional chevron if dropdown -->
-          <!-- <iconify-icon icon="mdi:chevron-right" class="menu-icon ms-auto"></iconify-icon> -->
-        </a>
-      </li>
-      @endcan
+@can('ingredients')
+<li>
+  <a href="{{ route('ingredients.index') }}" class="d-flex align-items-center">
+    <!-- Original SVG icon, sized like Labor Cost icon -->
+    <svg class="menu-icon" viewBox="0 0 512 512" style="width:1.5em; height:1.5em; color:#e2ae76;" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M479.605,91.769c-23.376,23.376-66.058,33.092-79.268,19.882
+        c-13.21-13.21-3.494-55.892,19.883-79.268s85.999-26.614,85.999-26.614S502.982,68.393,479.605,91.769z"/>
+      <g fill="currentColor">
+        <path d="M506.218,5.785L400.345,111.658c13.218,13.2,55.888,3.483,79.26-19.889
+          C502.864,68.511,506.186,6.411,506.218,5.785z"/>
+        <path d="M432.367,200.156c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992
+          s79.629,41.992,79.629,41.992S465.426,200.156,432.367,200.156z"/>
+      </g>
+      <path fill="currentColor" d="M311.84,79.629c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11S353.832,0,353.832,0
+        S311.84,46.571,311.84,79.629z"/>
+      <path fill="currentColor" d="M367.516,265.006c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992
+        s79.629,41.992,79.629,41.992S400.575,265.006,367.516,265.006z"/>
+      <path fill="currentColor" d="M246.99,144.48c0,33.059,23.311,70.11,41.992,70.11c18.681,0,41.992-37.052,41.992-70.11
+        S288.982,64.85,288.982,64.85S246.99,111.421,246.99,144.48z"/>
+      <path fill="currentColor" d="M302.666,329.857c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992
+        s79.629,41.992,79.629,41.992S335.726,329.857,302.666,329.857z"/>
+      <path fill="currentColor" d="M182.14,209.33c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11
+        s-41.992-79.629-41.992-79.629S182.14,176.27,182.14,209.33z"/>
+      <path fill="currentColor" d="M237.025,395.498c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992
+        s79.629,41.992,79.629,41.992S270.085,395.498,237.025,395.498z"/>
+      <path fill="currentColor" d="M116.498,274.97c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11
+        s-41.992-79.629-41.992-79.629S116.498,241.912,116.498,274.97z"/>
+      <path fill="currentColor" d="M170.438,462.084c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992
+        s79.629,41.992,79.629,41.992S203.497,462.084,170.438,462.084z"/>
+      <path fill="currentColor" d="M49.912,341.558c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11
+        s-41.992-79.629-41.992-79.629S49.912,308.499,49.912,341.558z"/>
+      <path fill="currentColor" d="M4.917,507.087c-6.552-6.552-6.552-17.174,0-23.725L404.75,83.527c6.552-6.552,17.174-6.552,23.725,0
+        c6.552,6.552,6.552,17.174,0,23.725L28.643,507.087C22.091,513.637,11.468,513.637,4.917,507.087z"/>
+    </svg>
+
+    <span class="ms-2" style="color: #e2ae76; font-size:16px; line-height:1;">
+      Ingredients
+    </span>
+  </a>
+</li>
+@endcan
 
 
 
 
-      
+
       {{-- Recipe --}}
-      @can('recipe')
-      <li class="dropdown">
-        <a href="javascript:void(0)" class="d-flex align-items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 512 512"
-            style="width: 1.25em; height: 1.25em; fill: #e2ae76; margin-right: .5em;"
-          >
-            <path d="M356.334,494.134c43.124-12.321,153.745-52.878,155.636-110.035c1.88-57.184-85.049-58.301-139.549-49.294L356.334,494.134z"/>
-            <path d="M17.864,155.664l159.328-16.088c9.01-54.497,7.893-141.426-49.291-139.546C70.742,1.918,30.184,112.54,17.864,155.664z"/>
-            <path d="M182.525,479.291c17.563,9.501,39.263,18.014,58.835,23.244c44.236,11.799,107.683,14.791,113.83-4.066c6.165-18.838,22.757-161.567,15.537-175.497c-7.204-13.913-32.605-22.372-47.628-26.378c-5.971-1.59-13.743-3.393-21.822-4.467L182.525,479.291z"/>
-            <path d="M9.466,270.641c5.227,19.569,13.741,41.27,23.244,58.835l187.165-118.752c-1.076-8.081-2.879-15.851-4.47-21.824c-4.015-15.03-12.462-40.422-26.375-47.626c-13.93-7.219-156.661,9.37-175.497,15.537C-5.325,162.957-2.332,226.404,9.466,270.641z"/>
-            <path d="M277.509,234.492c-10.833-10.833-30.659-28.329-46.765-27.786C214.616,207.227,48.711,314.21,34.496,328.424c-14.223,14.223,18.794,66.572,50.651,98.429c31.855,31.855,84.205,64.874,98.429,50.651c14.215-14.215,121.194-180.123,121.717-196.251C305.836,265.147,288.341,245.322,277.509,234.492z"/>
-          </svg>
-          <span style="color: #e2ae76;">Recipe</span>
-        </a>
-      
-      
-        <ul class="sidebar-submenu">
-          <li>
-            <a href="{{ route('recipes.create') }}">
-              <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Create</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ route('recipes.index') }}">
-              <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">List</span>
-            </a>
-          </li>
-        </ul>
-      </li>
-      @endcan
+@can('recipe')
+<li class="dropdown">
+  <a href="javascript:void(0)" class="d-flex align-items-center">
+    <!-- Recipe icon, sized like Labor Cost icon -->
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+      style="width:1.5em; height:1.5em; fill:#e2ae76;"
+      class="menu-icon"
+    >
+      <path d="M356.334,494.134c43.124-12.321,153.745-52.878,155.636-110.035c1.88-57.184-85.049-58.301-139.549-49.294L356.334,494.134z"/>
+      <path d="M17.864,155.664l159.328-16.088c9.01-54.497,7.893-141.426-49.291-139.546C70.742,1.918,30.184,112.54,17.864,155.664z"/>
+      <path d="M182.525,479.291c17.563,9.501,39.263,18.014,58.835,23.244c44.236,11.799,107.683,14.791,113.83-4.066c6.165-18.838,22.757-161.567,15.537-175.497c-7.204-13.913-32.605-22.372-47.628-26.378c-5.971-1.59-13.743-3.393-21.822-4.467L182.525,479.291z"/>
+      <path d="M9.466,270.641c5.227,19.569,13.741,41.27,23.244,58.835l187.165-118.752c-1.076-8.081-2.879-15.851-4.47-21.824c-4.015-15.03-12.462-40.422-26.375-47.626c-13.93-7.219-156.661,9.37-175.497,15.537C-5.325,162.957-2.332,226.404,9.466,270.641z"/>
+      <path d="M277.509,234.492c-10.833-10.833-30.659-28.329-46.765-27.786C214.616,207.227,48.711,314.21,34.496,328.424c-14.223,14.223,18.794,66.572,50.651,98.429c31.855,31.855,84.205,64.874,98.429,50.651c14.215-14.215,121.194-180.123,121.717-196.251C305.836,265.147,288.341,245.322,277.509,234.492z"/>
+    </svg>
+    <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+      Recipe
+    </span>
+    <iconify-icon icon="" class="menu-icon ms-auto" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+  </a>
+
+  <ul class="sidebar-submenu">
+    <li>
+      <a href="{{ route('recipes.create') }}" class="d-flex align-items-center">
+        <!-- New Create icon -->
+        <iconify-icon icon="mdi:plus-circle-outline" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">Create</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ route('recipes.index') }}" class="d-flex align-items-center">
+        <!-- New List icon -->
+        <iconify-icon icon="mdi:format-list-bulleted" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">List</span>
+      </a>
+    </li>
+  </ul>
+</li>
+@endcan
+
 
 
 
       {{-- Showcase --}}
-      @can('showcase')
-      <li class="dropdown">
-        <a href="javascript:void(0)" class="d-flex align-items-center">
-          <!-- SVG icon sized via .menu-icon CSS -->
-          <svg class="menu-icon" viewBox="0 0 512.005 512.005" xmlns="http://www.w3.org/2000/svg">
-            <g>
-              <path d="M159.669,238.344L159.669,238.344c-26.601,0-48.166-21.564-48.166-48.166V21.609h96.331v168.57
-                  C207.835,216.779,186.269,238.344,159.669,238.344z"/>
-              <path d="M352.331,238.344L352.331,238.344c-26.601,0-48.166-21.564-48.166-48.166V21.609h96.331v168.57
-                  C400.496,216.779,378.932,238.344,352.331,238.344z"/>
-              <rect x="191.378" y="312.192" width="129.249" height="178.209"/>
-            </g>
-            <path d="M496.828,104.985c8.379,0,15.172-6.792,15.172-15.172V58.537c0-28.728-23.372-52.099-52.099-52.099
-                h-59.404h-96.332h-96.331h-96.332H52.099C23.372,6.437,0,29.809,0,58.537V190.18c0,20.106,9.428,38.04,24.084,49.651v250.563
-                c0,8.379,6.792,15.172,15.172,15.172h152.122h129.244h152.124c8.379,0,15.172-6.792,15.172-15.172V312.189
-                c0-8.379-6.792-15.172-15.172-15.172c-8.379,0-15.172,6.792-15.172,15.172v163.032h-121.78V312.189
-                c0-8.379-6.792-15.172-15.172-15.172H191.378c-8.379,0-15.172,6.792-15.172,15.172v163.032H54.428V252.878
-                c2.913,0.413,5.885,0.639,8.91,0.639c19.267,0,36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275
-                s36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275s36.54-8.659,48.166-22.275
-                c11.626,13.617,28.899,22.275,48.166,22.275c19.267,0,36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275
-                c34.924,0,63.338-28.414,63.338-63.338v-26.232c0-8.379-6.792-15.172-15.172-15.172s-15.172,6.792-15.172,15.172v26.232
-                c0,18.193-14.8,32.994-32.994,32.994s-32.994-14.8-32.994-32.994V36.78h44.232c11.996,0,21.755,9.76,21.755,21.755v31.277
-                C481.656,98.193,488.449,104.985,496.828,104.985z"/>
-          </svg>
-      
-          <!-- Fixed-size text independent of icon -->
-          <span class="menu-text ms-2" style="color: #e2ae76; font-size: 16px; line-height: 1;">
-            Showcase
-          </span>
-      
-          <!-- Dropdown chevron -->
-          <iconify-icon icon="" class="menu-icon ms-auto" style="color: #e2ae76;"></iconify-icon>
-        </a>
-        
-        <ul class="sidebar-submenu">
-          <li>
-            <a href="{{ route('showcase.create') }}">
-              <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Create</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ route('showcase.index') }}">
-              <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">List</span>
-            </a>
-          </li>
-        </ul>
-      </li>
-      @endcan
+@can('showcase')
+<li class="dropdown">
+  <a href="javascript:void(0)" class="d-flex align-items-center">
+    <!-- Original SVG icon, sized like Labor Cost icon -->
+    <svg class="menu-icon" viewBox="0 0 512.005 512.005" style="width:1.5em; height:1.5em; color:#e2ae76;" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <path fill="currentColor" d="M159.669,238.344L159.669,238.344c-26.601,0-48.166-21.564-48.166-48.166V21.609h96.331v168.57
+            C207.835,216.779,186.269,238.344,159.669,238.344z"/>
+        <path fill="currentColor" d="M352.331,238.344L352.331,238.344c-26.601,0-48.166-21.564-48.166-48.166V21.609h96.331v168.57
+            C400.496,216.779,378.932,238.344,352.331,238.344z"/>
+        <rect fill="currentColor" x="191.378" y="312.192" width="129.249" height="178.209"/>
+      </g>
+      <path fill="currentColor" d="M496.828,104.985c8.379,0,15.172-6.792,15.172-15.172V58.537c0-28.728-23.372-52.099-52.099-52.099
+          h-59.404h-96.332h-96.331h-96.332H52.099C23.372,6.437,0,29.809,0,58.537V190.18c0,20.106,9.428,38.04,24.084,49.651v250.563
+          c0,8.379,6.792,15.172,15.172,15.172h152.122h129.244h152.124c8.379,0,15.172-6.792,15.172-15.172V312.189
+          c0-8.379-6.792-15.172-15.172-15.172c-8.379,0-15.172,6.792-15.172,15.172v163.032h-121.78V312.189
+          c0-8.379-6.792-15.172-15.172-15.172H191.378c-8.379,0-15.172,6.792-15.172,15.172v163.032H54.428V252.878
+          c2.913,0.413,5.885,0.639,8.91,0.639c19.267,0,36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275
+          s36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275s36.54-8.659,48.166-22.275
+          c11.626,13.617,28.899,22.275,48.166,22.275c19.267,0,36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275
+          c34.924,0,63.338-28.414,63.338-63.338v-26.232c0-8.379-6.792-15.172-15.172-15.172s-15.172,6.792-15.172,15.172v26.232
+          c0,18.193-14.8,32.994-32.994,32.994s-32.994-14.8-32.994-32.994V36.78h44.232c11.996,0,21.755,9.76,21.755,21.755v31.277
+          C481.656,98.193,488.449,104.985,496.828,104.985z"/>
+    </svg>
+
+    <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+      Showcase
+    </span>
+
+    <iconify-icon icon="" class="menu-icon ms-auto" style="color:#e2ae76;"></iconify-icon>
+  </a>
+
+  <ul class="sidebar-submenu">
+    <li>
+      <a href="{{ route('showcase.create') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:plus-circle-outline" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">Create</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ route('showcase.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:format-list-bulleted" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">List</span>
+      </a>
+    </li>
+  </ul>
+</li>
+@endcan
 
 
 
 
       
       {{-- External Supplies --}}
-      @can('external supplies')
-      <li class="dropdown">
-        <a href="javascript:void(0)">
-          <iconify-icon icon="mdi:truck-delivery" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
-          <span style="color: #e2ae76;">External Supplies</span>
-        </a>
-        <ul class="sidebar-submenu">
-          <li>
-            <a href="{{ route('external-supplies.create') }}">
-              <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Create</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ route('external-supplies.index') }}">
-              <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">List</span>
-            </a>
-          </li>
-        </ul>
-      </li>
-      @endcan
+@can('external supplies')
+<li class="dropdown">
+  <a href="javascript:void(0)" class="d-flex align-items-center">
+    <!-- Main icon -->
+    <iconify-icon icon="mdi:warehouse" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+    <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+      External Supplies
+    </span>
+    <iconify-icon icon="" class="menu-icon ms-auto" style="color:#e2ae76;"></iconify-icon>
+  </a>
+  <ul class="sidebar-submenu">
+    <li>
+      <a href="{{ route('external-supplies.create') }}" class="d-flex align-items-center">
+        <!-- Create icon like Showcase -->
+        <iconify-icon icon="mdi:plus-circle-outline" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">Create</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ route('external-supplies.index') }}" class="d-flex align-items-center">
+        <!-- List icon like Showcase -->
+        <iconify-icon icon="mdi:format-list-bulleted" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">List</span>
+      </a>
+    </li>
+  </ul>
+</li>
+@endcan
+
 
       {{-- Returned Goods --}}
-      @can('returned goods')
-      <li class="dropdown">
-        <a href="javascript:void(0)">
-          <iconify-icon icon="mdi:truck-delivery" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
-          <span style="color: #e2ae76;">Returned Goods</span>
-        </a>
-        <ul class="sidebar-submenu">
-          <li>
-            <a href="{{ route('returned-goods.index') }}">
-              <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Sale/Return Comparison</span>
-            </a>
-          </li>
-        </ul>
-      </li>
-      @endcan
+@can('returned goods')
+<li class="dropdown">
+  <a href="javascript:void(0)" class="d-flex align-items-center">
+    <!-- Original main icon -->
+    <iconify-icon icon="mdi:truck-delivery" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+    <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+      Returned Goods
+    </span>
+    <iconify-icon icon="" class="menu-icon ms-auto" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+  </a>
+  <ul class="sidebar-submenu">
+    <li>
+      <a href="{{ route('returned-goods.index') }}" class="d-flex align-items-center">
+        <!-- Improved Sale/Return Comparison icon -->
+        <iconify-icon icon="mdi:swap-horizontal-bold" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Sale/Return Comparison
+        </span>
+      </a>
+    </li>
+  </ul>
+</li>
+@endcan
+
 
       
 
@@ -350,94 +359,143 @@
   </a>
   <ul class="sidebar-submenu">
     <li>
-      <a href="{{ route('production.create') }}">
-        <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-        <span style="color: #e2ae76;">Create</span>
+      <a href="{{ route('production.create') }}" class="d-flex align-items-center">
+        <iconify-icon 
+          icon="mdi:plus-circle-outline" 
+          class="menu-icon" 
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Create
+        </span>
       </a>
     </li>
     <li>
-      <a href="{{ route('production.index') }}">
-        <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-        <span style="color: #e2ae76;">List</span>
+      <a href="{{ route('production.index') }}" class="d-flex align-items-center">
+        <iconify-icon 
+          icon="mdi:format-list-bulleted" 
+          class="menu-icon" 
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          List
+        </span>
       </a>
     </li>
   </ul>
+  
 </li>
 @endcan
       
 
 
-      
-      {{-- Management --}}
-      @canany([
-        'recipe categories','clients','cost categories',
-        'departments','pastry chefs','equipment'
-      ])
-      <li class="dropdown">
-        <a href="javascript:void(0)">
-          <iconify-icon icon="mdi:account-cog-outline" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
-          <span style="color: #e2ae76;">Management</span>
-        </a>
-        <ul class="sidebar-submenu">
-          @can('recipe categories')
-          <li>
-            <a href="{{ route('recipe-categories.index') }}">
-              <iconify-icon icon="mdi:shape-outline" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Recipe Categories</span>
-            </a>
-          </li>
-          @endcan
-      
-          @can('clients')
-          <li>
-            <a href="{{ route('clients.index') }}">
-              <iconify-icon icon="mdi:account-group-outline" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Clients</span>
-            </a>
-          </li>
-          @endcan
-      
-          @can('cost categories')
-          <li>
-            <a href="{{ route('cost_categories.index') }}">
-              <iconify-icon icon="mdi:tag-outline" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Cost Categories</span>
-            </a>
-          </li>
-          @endcan
-      
-          @can('departments')
-          <li>
-            <a href="{{ route('departments.index') }}">
-              <iconify-icon icon="mdi:office-building-outline" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Departments</span>
-            </a>
-          </li>
-          @endcan
-      
-          @can('pastry chefs')
-          <li>
-            <a href="{{ route('pastry-chefs.index') }}">
-              <iconify-icon icon="mdi:chef-hat" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Pastry Chefs</span>
-            </a>
-          </li>
-          @endcan
-      
-          @can('equipment')
-          <li>
-            <a href="{{ route('equipment.index') }}">
-              <iconify-icon icon="mdi:tools" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Equipment</span>
-            </a>
-          </li>
-          @endcan
-        </ul>
-      </li>
-      @endcanany
-      
-      
-      
+ {{-- Management --}}
+@canany([
+  'recipe categories','clients','cost categories',
+  'departments','pastry chefs','equipment'
+])
+<li class="dropdown">
+  <a href="javascript:void(0)" class="d-flex align-items-center">
+    <iconify-icon icon="mdi:account-cog-outline" class="menu-icon"
+      style="width:1.5em; height:1.5em; color:#e2ae76;">
+    </iconify-icon>
+    <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+      Management
+    </span>
+    <iconify-icon icon="" class="menu-icon ms-auto"
+      style="width:1.5em; height:1.5em; color:#e2ae76;">
+    </iconify-icon>
+  </a>
+  <ul class="sidebar-submenu">
+    @can('recipe categories')
+    <li>
+      <a href="{{ route('recipe-categories.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:category-outline" class="menu-icon"
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Recipe Categories
+        </span>
+      </a>
+    </li>
+    @endcan
+
+    @can('clients')
+    <li>
+      <a href="{{ route('clients.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon"
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Clients
+        </span>
+      </a>
+    </li>
+    @endcan
+
+    @can('cost categories')
+    <li>
+      <a href="{{ route('cost_categories.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:tag-multiple" class="menu-icon"
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Cost Categories
+        </span>
+      </a>
+    </li>
+    @endcan
+
+    @can('departments')
+    <li>
+      <a href="{{ route('departments.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:office-building-marker-outline" class="menu-icon"
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Departments
+        </span>
+      </a>
+    </li>
+    @endcan
+
+    @can('pastry chefs')
+    <li>
+      <a href="{{ route('pastry-chefs.index') }}" class="d-flex align-items-center">
+        <iconify-icon 
+          icon="mdi:chef-hat" 
+          class="menu-icon" 
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Pastry Chefs
+        </span>
+      </a>
+    </li>
+    @endcan
+    
+
+    @can('equipment')
+    <li>
+      <a href="{{ route('equipment.index') }}" class="d-flex align-items-center">
+        <iconify-icon
+          icon="mdi:tools"
+          class="menu-icon"
+          width="24"
+          height="24"
+          style="color: #e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Equipment
+        </span>
+      </a>
+    </li>
+    @endcan
+  </ul>
+</li>
+@endcanany
+
+
       
       
         
@@ -445,45 +503,45 @@
 
 
       {{-- User Management --}}
-      @can('manage-users')
-      <li class="dropdown">
-        <a href="javascript:void(0)">
-          <!-- Icon with color change -->
-          <iconify-icon icon="mdi:account-cog-outline" class="menu-icon" style="color: #e2ae76;"></iconify-icon>
-          <!-- Text with color change -->
-          <span style="color: #e2ae76;">User Management</span>
-        </a>
-        
-        <ul class="sidebar-submenu">
-          @can('view users')
-          <li>
-            <a href="{{ route('users.index') }}">
-              <iconify-icon icon="mdi:account-multiple-outline" class="circle-icon" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Users</span>
-            </a>
-          </li>
-          @endcan
+@can('manage-users')
+<li class="dropdown">
+  <a href="javascript:void(0)" class="d-flex align-items-center">
+    <!-- Main icon (unchanged) -->
+    <iconify-icon icon="mdi:account-cog-outline" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+    <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">User Management</span>
+    <iconify-icon icon="" class="menu-icon ms-auto" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+  </a>
+  <ul class="sidebar-submenu">
+    @can('view users')
+    <li>
+      <a href="{{ route('users.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">Users</span>
+      </a>
+    </li>
+    @endcan
 
-          @canany(['view roles','view permissions'])
-          <li>
-            <a href="{{ route('roles.index') }}">
-              <iconify-icon icon="mdi:shield-key-outline" class="circle-icon" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Roles & Permissions</span>
-            </a>
-          </li>
-          @endcanany
+    @canany(['view roles','view permissions'])
+    <li>
+      <a href="{{ route('roles.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:shield-account-outline" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">Roles & Permissions</span>
+      </a>
+    </li>
+    @endcanany
 
-          @can('view permissions')
-          <li>
-            <a href="{{ route('permissions.index') }}">
-              <iconify-icon icon="mdi:shield-key-outline" class="circle-icon" style="color: #e2ae76;"></iconify-icon>
-              <span style="color: #e2ae76;">Permissions</span>
-            </a>
-          </li>
-          @endcan
-        </ul>
-      </li>
-      @endcan
+    @can('view permissions')
+    <li>
+      <a href="{{ route('permissions.index') }}" class="d-flex align-items-center">
+        <iconify-icon icon="mdi:key-outline" class="menu-icon" style="width:1.5em; height:1.5em; color:#e2ae76;"></iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">Permissions</span>
+      </a>
+    </li>
+    @endcan
+  </ul>
+</li>
+@endcan
+
       
      {{-- News --}}
 @can('news')
@@ -494,18 +552,31 @@
   </a>
   <ul class="sidebar-submenu">
     <li>
-      <a href="{{ route('news.create') }}">
-        <iconify-icon icon="mdi:plus-circle-outline" class="circle-icon text-primary-600" style="color: #e2ae76;"></iconify-icon>
-        <span style="color: #e2ae76;">Create</span>
+      <a href="{{ route('news.create') }}" class="d-flex align-items-center">
+        <iconify-icon 
+          icon="mdi:plus-circle-outline" 
+          class="menu-icon" 
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          Create
+        </span>
       </a>
     </li>
     <li>
-      <a href="{{ route('news.index') }}">
-        <iconify-icon icon="mdi:format-list-bulleted" class="circle-icon text-warning-main" style="color: #e2ae76;"></iconify-icon>
-        <span style="color: #e2ae76;">List</span>
+      <a href="{{ route('news.index') }}" class="d-flex align-items-center">
+        <iconify-icon 
+          icon="mdi:format-list-bulleted" 
+          class="menu-icon" 
+          style="width:1.5em; height:1.5em; color:#e2ae76;">
+        </iconify-icon>
+        <span class="ms-2" style="color:#e2ae76; font-size:16px; line-height:1;">
+          List
+        </span>
       </a>
     </li>
   </ul>
+  
 </li>
 @endcan
 
@@ -537,11 +608,29 @@
 
       {{-- Academy Link (always visible) --}}
       <li class="sidebar-academy">
-        <a href="https://www.accademiadelpasticcereimprenditore.com/" target="_blank" rel="noopener">
-          <iconify-icon icon="mdi:school" class="academy-icon"></iconify-icon>
-          <span>Accedi all’Accademia</span>
-        </a>
-      </li>
+        
+          <a href="https://www.accademiadelpasticcereimprenditore.com/" target="_blank" rel="noopener"
+             style="
+               background-color: #e2ae76;
+               color: #041930;
+               padding: 0.75rem 1.5rem;
+               border-radius: 0.5rem;
+               display: inline-flex;
+               align-items: center;
+               gap: 0.5rem;
+               font-size: 1.125rem;
+               font-weight: 600;
+               text-decoration: none;
+             ">
+            <iconify-icon
+              icon="mdi:school"
+              style="width: 2em; height: 2em; color: #041930;">
+            </iconify-icon>
+            <span>Accedi all’Accademia</span>
+          </a>
+        </li>
+        
+     
       
       <!-- Beautiful Logout Button -->
   
