@@ -53,7 +53,6 @@ class RolesAndPermissionsSeeder extends Seeder
         // 4) Fetch them back as a collection
         $perms = Permission::whereIn('name', $allPermissions)->get();
 
-        // 5) SUPER‑ADMIN gets *all* permissions
         $super = Role::firstOrCreate(
             ['name' => 'super', 'guard_name' => 'web']
         );

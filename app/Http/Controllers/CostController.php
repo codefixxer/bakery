@@ -73,7 +73,6 @@ class CostController extends Controller
                 ? collect([$user->id])
                 : $children->push($user->id);
         } else {
-            // Child user: see yourself + your creator
             $visibleUserIds = collect([$user->id, $user->created_by]);
         }
 
