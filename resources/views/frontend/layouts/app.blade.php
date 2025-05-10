@@ -139,8 +139,16 @@
 
     <style>
         .dropdown a::after{color: #e2ae76}
-        /* ─── Sidebar Background + Overlay ───────────────────────────────────── */
-        .sidebar {
+.sidebar-menu-area{
+    overflow: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+    border:none !important; 
+}
+
+.sidebar-menu-area::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}        .sidebar {
             /* position: relative; */
             background: url('{{ asset("assets/images/asset/sidebar.jpg") }}')  center/cover no-repeat;
             color: #fff;
@@ -168,10 +176,13 @@
         .sidebar-logout {
             margin-top: auto;
             /* push to bottom of flex container */
+            
         }
 
         .sidebar-logo {
-            border-right: 6px solid white;
+            border-right: 0 solid white;
+                border-bottom: none;
+
         }
 
         .logout-btn {
