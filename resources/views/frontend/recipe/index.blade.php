@@ -22,7 +22,6 @@
         <table id="recipesTable" class="table table-striped table-hover table-bordered mb-0" style="width:100%;">
           <thead class="custom-recipe-head">
             <tr class="text-center">
-              <th></th>
               <th>Name</th>
               <th>Sell Mode</th>
               <th class="text-end">Price</th>
@@ -76,55 +75,58 @@
               @endphp
 
               <tr class="dt-control" data-ingredients='@json($ingredientsData)'>
-                <td></td>
                 <td>{{ $r->recipe_name }}</td>
                 <td>
                   <span class="badge bg-secondary text-uppercase">{{ $r->sell_mode }}</span>
                 </td>
 
-                {{-- Price (per-unit) --}}
-                <td class="text-end">
-                  <div class="d-flex flex-column align-items-end">
-                    <span>€{{ number_format($unitSell,2) }}</span>
-                    <small class="text-muted">(100%)</small>
-                  </div>
-                </td>
+           {{-- PRICE --}}
+{{-- PRICE --}}
+<td class="text-end" data-order="{{ $unitSell }}">
+  <div class="d-flex flex-column align-items-end">
+    <span>€{{ number_format($unitSell,2) }}</span>
+    <small class="text-muted">(100%)</small>
+  </div>
+</td>
 
-                {{-- Ingredient Cost (per-unit) --}}
-                <td class="text-end">
-                  <div class="d-flex flex-column align-items-end">
-                    <span>€{{ number_format($unitIngCost,2) }}</span>
-                    <small class="text-muted">({{ $ingPct }}%)</small>
-                  </div>
-                </td>
 
-                {{-- Labor Cost (per-unit) --}}
-                <td class="text-end">
-                  <div class="d-flex flex-column align-items-end">
-                    <span>€{{ number_format($unitLabCost,2) }}</span>
-                    <small class="text-muted">({{ $labPct }}%)</small>
-                  </div>
-                </td>
 
-                {{-- Total Cost (per-unit) --}}
-                <td class="text-end">
-                  <div class="d-flex flex-column align-items-end">
-                    <span>€{{ number_format($unitTotalCost,2) }}</span>
-                    <small class="text-muted">({{ $costPct }}%)</small>
-                  </div>
-                </td>
+     {{-- INGREDIENT COST --}}
+<td class="text-end" data-order="{{ $unitIngCost }}">
+  <div class="d-flex flex-column align-items-end">
+    <span>€{{ number_format($unitIngCost,2) }}</span>
+    <small class="text-muted">({{ $ingPct }}%)</small>
+  </div>
+</td>
 
-                {{-- Margin (per-unit) --}}
-                <td class="text-end">
-                  <div class="d-flex flex-column align-items-end">
-                    @if($unitMargin>=0)
-                      <span class="text-success">€{{ number_format($unitMargin,2) }}</span>
-                    @else
-                      <span class="text-danger">€{{ number_format($unitMargin,2) }}</span>
-                    @endif
-                    <small class="text-muted">({{ $marPct }}%)</small>
-                  </div>
-                </td>
+{{-- LABOR COST --}}
+<td class="text-end" data-order="{{ $unitLabCost }}">
+  <div class="d-flex flex-column align-items-end">
+    <span>€{{ number_format($unitLabCost,2) }}</span>
+    <small class="text-muted">({{ $labPct }}%)</small>
+  </div>
+</td>
+
+{{-- TOTAL COST --}}
+<td class="text-end" data-order="{{ $unitTotalCost }}">
+  <div class="d-flex flex-column align-items-end">
+    <span>€{{ number_format($unitTotalCost,2) }}</span>
+    <small class="text-muted">({{ $costPct }}%)</small>
+  </div>
+</td>
+
+{{-- MARGIN --}}
+<td class="text-end" data-order="{{ $unitMargin }}">
+  <div class="d-flex flex-column align-items-end">
+    @if($unitMargin >= 0)
+      <span class="text-success">€{{ number_format($unitMargin,2) }}</span>
+    @else
+      <span class="text-danger">€{{ number_format($unitMargin,2) }}</span>
+    @endif
+    <small class="text-muted">({{ $marPct }}%)</small>
+  </div>
+</td>
+
 
                 {{-- Actions --}}
                 <td class="text-center">
