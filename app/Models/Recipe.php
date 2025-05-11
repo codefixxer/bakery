@@ -30,7 +30,8 @@ class Recipe extends Model
         'total_pieces',
         'recipe_weight',
         'production_cost_per_kg',
-        'user_id', // ✅ Add user_id for ownership
+        'add_as_ingredient',
+        'user_id',
     ];
 
     public function ingredients()

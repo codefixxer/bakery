@@ -31,6 +31,7 @@ return new class extends Migration {
             $table->decimal('total_pieces', 10, 2)->nullable();
             $table->integer('recipe_weight')->nullable();
             $table->decimal('production_cost_per_kg',    10, 2)->nullable();
+            $table->integer('add_as_ingredient')->nullable();
 
             $table->timestamps();
         });

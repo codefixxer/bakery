@@ -36,50 +36,66 @@
              value="{{ request('end_date') }}">
     </div>
     <div class="col-md-3 d-flex align-items-end">
-      <button type="submit" class="btn btn-primary w-100">
-        <i class="bi bi-funnel me-1"></i> Apply Filters
-      </button>
+     <button
+  type="submit"
+  class="btn w-100"
+  style="
+    background-color: #e2ae76;
+    border: 2px solid #e2ae76;
+    color: #041930;
+  "
+>
+  <i class="bi bi-funnel me-1" style="color: #041930;"></i>
+  Apply Filters
+</button>
+
     </div>
   </form>
 
-  {{-- Summary Cards --}}
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card text-white h-100 bg-success">
-        <div class="card-body d-flex align-items-center">
-          <i class="bi bi-box-seam fs-2 me-3"></i>
-          <div>
-            <div class="fs-5">Total Supplies</div>
-            <div class="fs-4">€{{ number_format($grandSupply,2) }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card text-white h-100 bg-danger">
-        <div class="card-body d-flex align-items-center">
-          <i class="bi bi-arrow-counterclockwise fs-2 me-3"></i>
-          <div>
-            <div class="fs-5">Total Returns</div>
-            <div class="fs-4">€{{ number_format($grandReturn,2) }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card text-white h-100 bg-primary">
-        <div class="card-body d-flex align-items-center">
-          <i class="bi bi-cash-stack fs-2 me-3"></i>
-          <div>
-            <div class="fs-5">Net Income</div>
-            <div class="fs-4">€{{ number_format($grandNet,2) }}</div>
-          </div>
+ {{-- Summary Cards --}}
+<div class="row g-3 mb-4">
+  <!-- Total Supplies: gold background, blue text/icons -->
+  <div class="col-md-4">
+    <div class="card h-100" style="background-color: #e2ae76;">
+      <div class="card-body d-flex align-items-center">
+        <i class="bi bi-box-seam fs-2 me-3" style="color: #041930;"></i>
+        <div>
+          <div class="fs-5" style="color: #041930;">Total Supplies</div>
+          <div class="fs-4" style="color: #041930;">€{{ number_format($grandSupply,2) }}</div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Total Returns: gold background, blue text/icons -->
+  <div class="col-md-4">
+  <div class="card h-100" style="background-color: #dc3545;">
+    <div class="card-body d-flex align-items-center">
+      <i class="bi bi-arrow-counterclockwise fs-2 me-3" style="color: #ffffff;"></i>
+      <div>
+        <div class="fs-5" style="color: #ffffff;">Total Returns</div>
+        <div class="fs-4" style="color: #ffffff;">€{{ number_format($grandReturn, 2) }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- Net Income: dark blue background, gold text/icons -->
+  <div class="col-md-4">
+    <div class="card h-100" style="background-color: #041930;">
+      <div class="card-body d-flex align-items-center">
+        <i class="bi bi-cash-stack fs-2 me-3" style="color: #e2ae76;"></i>
+        <div>
+          <div class="fs-5" style="color: #e2ae76;">Net Income</div>
+          <div class="fs-4" style="color: #e2ae76;">€{{ number_format($grandNet,2) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   {{-- All Supplies vs Returns --}}
   <div class="row g-4">

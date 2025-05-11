@@ -42,16 +42,17 @@
 <section class="auth bg-base d-flex flex-wrap">  
     <div class="auth-left d-lg-block d-none">
         <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-            <img src="{{ asset('assets/images/auth/auth-img.png') }}" alt="">
-        </div>
+  <img src="{{ asset('assets/images/asset/login.jpg') }}" alt="">
+</div>
+
     </div>
     <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
         <div class="max-w-464-px mx-auto w-100">
             <div>
                 <a href="{{ url('/') }}" class="mb-40 max-w-290-px">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="">
+                    <img src="{{ asset('assets/images/asset/logo.jpg') }}" alt="">
                 </a>
-                <h4 class="mb-12">Sign In to your Accounts two or more</h4>
+                <h4 class="mb-12">Login To Pasticcere Pro</h4>
                 <p class="mb-32 text-secondary-light text-lg">Welcome back! please enter your detail</p>
             </div>
          {{-- resources/views/auth/login.blade.php --}}
@@ -143,33 +144,9 @@
         Sign In
     </button>
 
-    <div class="mt-32 center-border-horizontal text-center">
-        <span class="bg-base z-1 px-4">Or sign in with</span>
-    </div>
+   
 
-    <div class="mt-32 d-flex align-items-center gap-3">
-        <button
-            type="button"
-            class="fw-semibold text-primary-light py-16 px-24 w-50 border radius-12 text-md d-flex align-items-center justify-content-center gap-12 line-height-1 bg-hover-primary-50"
-        >
-            <iconify-icon icon="ic:baseline-facebook" class="text-primary-600 text-xl line-height-1"></iconify-icon>
-            Facebook
-        </button>
-        <button
-            type="button"
-            class="fw-semibold text-primary-light py-16 px-24 w-50 border radius-12 text-md d-flex align-items-center justify-content-center gap-12 line-height-1 bg-hover-primary-50"
-        >
-            <iconify-icon icon="logos:google-icon" class="text-primary-600 text-xl line-height-1"></iconify-icon>
-            Google
-        </button>
-    </div>
-
-    <div class="mt-32 text-center text-sm">
-        <p class="mb-0">
-            Don't have an account?
-            <a href="{{ route('register') }}" class="text-primary-600 fw-semibold">Sign Up</a>
-        </p>
-    </div>
+    
 </form>
 
         </div>

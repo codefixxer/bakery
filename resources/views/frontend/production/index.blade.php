@@ -194,7 +194,7 @@
             <div class="d-flex align-items-center">
               <i class="bi bi-cash-stack fs-2 me-3"></i>
               <div>
-                <div class="small">Total Potential</div>
+                <div class="small" style="color: white">Total Potential</div>
                 <div class="h5 fw-bold mb-0">Revenue</div>
               </div>
             </div>

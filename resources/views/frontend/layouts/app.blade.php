@@ -41,7 +41,14 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" />
 
     <style>
-        /* 1) make the UL stretch and push last item down */
+        .sidebar-menu li.dropdown.open > a, .sidebar-menu li.dropdown.dropdown-open > a {
+  background-color:#041930 !important;
+  color: #fff;
+}
+
+        
+        /* 1) mak
+        e the UL stretch and push last item down */
         .sidebar-menu-area {
             display: flex;
             flex-direction: column;
