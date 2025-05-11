@@ -19,22 +19,23 @@
 
             <div class="card mb-4 border-primary shadow-sm">
                 <div class="card-header d-flex align-items-center" style="background-color: #041930;">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 512 512"
-                      style="width: 1.5em; height: 1.5em; fill: #e2ae76; margin-right: .5em;"
-                      aria-hidden="true"
-                      focusable="false"
-                    >
-                      <path d="M356.334,494.134c43.124-12.321,153.745-52.878,155.636-110.035c1.88-57.184-85.049-58.301-139.549-49.294L356.334,494.134z"/>
-                      <path d="M17.864,155.664l159.328-16.088c9.01-54.497,7.893-141.426-49.291-139.546C70.742,1.918,30.184,112.54,17.864,155.664z"/>
-                      <path d="M182.525,479.291c17.563,9.501,39.263,18.014,58.835,23.244c44.236,11.799,107.683,14.791,113.83-4.066c6.165-18.838,22.757-161.567,15.537-175.497c-7.204-13.913-32.605-22.372-47.628-26.378c-5.971-1.59-13.743-3.393-21.822-4.467L182.525,479.291z"/>
-                      <path d="M9.466,270.641c5.227,19.569,13.741,41.27,23.244,58.835l187.165-118.752c-1.076-8.081-2.879-15.851-4.47-21.824c-4.015-15.03-12.462-40.422-26.375-47.626c-13.93-7.219-156.661,9.37-175.497,15.537C-5.325,162.957-2.332,226.404,9.466,270.641z"/>
-                      <path d="M277.509,234.492c-10.833-10.833-30.659-28.329-46.765-27.786C214.616,207.227,48.711,314.21,34.496,328.424c-14.223,14.223,18.794,66.572,50.651,98.429c31.855,31.855,84.205,64.874,98.429,50.651c14.215-14.215,121.194-180.123,121.717-196.251C305.836,265.147,288.341,245.322,277.509,234.492z"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                        style="width: 1.5em; height: 1.5em; fill: #e2ae76; margin-right: .5em;" aria-hidden="true"
+                        focusable="false">
+                        <path
+                            d="M356.334,494.134c43.124-12.321,153.745-52.878,155.636-110.035c1.88-57.184-85.049-58.301-139.549-49.294L356.334,494.134z" />
+                        <path
+                            d="M17.864,155.664l159.328-16.088c9.01-54.497,7.893-141.426-49.291-139.546C70.742,1.918,30.184,112.54,17.864,155.664z" />
+                        <path
+                            d="M182.525,479.291c17.563,9.501,39.263,18.014,58.835,23.244c44.236,11.799,107.683,14.791,113.83-4.066c6.165-18.838,22.757-161.567,15.537-175.497c-7.204-13.913-32.605-22.372-47.628-26.378c-5.971-1.59-13.743-3.393-21.822-4.467L182.525,479.291z" />
+                        <path
+                            d="M9.466,270.641c5.227,19.569,13.741,41.27,23.244,58.835l187.165-118.752c-1.076-8.081-2.879-15.851-4.47-21.824c-4.015-15.03-12.462-40.422-26.375-47.626c-13.93-7.219-156.661,9.37-175.497,15.537C-5.325,162.957-2.332,226.404,9.466,270.641z" />
+                        <path
+                            d="M277.509,234.492c-10.833-10.833-30.659-28.329-46.765-27.786C214.616,207.227,48.711,314.21,34.496,328.424c-14.223,14.223,18.794,66.572,50.651,98.429c31.855,31.855,84.205,64.874,98.429,50.651c14.215-14.215,121.194-180.123,121.717-196.251C305.836,265.147,288.341,245.322,277.509,234.492z" />
                     </svg>
                     <h5 class="mb-0" style="color: #e2ae76;">Recipe Details</h5>
-                  </div>
-                  
+                </div>
+
 
                 <div class="card-body">
                     <div class="row g-3">
@@ -74,28 +75,37 @@
 
             <div class="card mb-4 border-info shadow-sm">
                 <div class="card-header d-flex align-items-center" style="background-color: #041930;">
-                    <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                    style="width: 1.5em; height: 1.5em; fill: #e2ae76; margin-right: .5em;"
-                    aria-hidden="true"
-                    focusable="false"
-                  >
-                    <path d="M479.605,91.769c-23.376,23.376-66.058,33.092-79.268,19.882c-13.21-13.21-3.494-55.892,19.883-79.268s85.999-26.614,85.999-26.614S502.982,68.393,479.605,91.769z"/>
-                    <path d="M506.218,5.785L400.345,111.658c13.218,13.2,55.888,3.483,79.26-19.889C502.864,68.511,506.186,6.411,506.218,5.785z"/>
-                    <path d="M432.367,200.156c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S465.426,200.156,432.367,200.156z"/>
-                    <path d="M311.84,79.629c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11S353.832,0,353.832,0S311.84,46.571,311.84,79.629z"/>
-                    <path d="M367.516,265.006c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S400.575,265.006,367.516,265.006z"/>
-                    <path d="M246.99,144.48c0,33.059,23.311,70.11,41.992,70.11c18.681,0,41.992-37.052,41.992-70.11S288.982,64.85,288.982,64.85S246.99,111.421,246.99,144.48z"/>
-                    <path d="M302.666,329.857c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S335.726,329.857,302.666,329.857z"/>
-                    <path d="M182.14,209.33c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11s-41.992-79.629-41.992-79.629S182.14,176.27,182.14,209.33z"/>
-                    <path d="M237.025,395.498c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S270.085,395.498,237.025,395.498z"/>
-                    <path d="M116.498,274.97c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11s-41.992-79.629-41.992-79.629S116.498,241.912,116.498,274.97z"/>
-                    <path d="M170.438,462.084c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S203.497,462.084,170.438,462.084z"/>
-                    <path d="M49.912,341.558c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11s-41.992-79.629-41.992-79.629S49.912,308.499,49.912,341.558z"/>
-                    <path d="M4.917,507.087c-6.552-6.552-6.552-17.174,0-23.725L404.75,83.527c6.552-6.552,17.174-6.552,23.725,0c6.552,6.552,6.552,17.174,0,23.725L28.643,507.087C22.091,513.637,11.468,513.637,4.917,507.087z"/>
-                  </svg>
-                  <h5 class="mb-0" style="color: #e2ae76;">Ingredients</h5>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                        style="width: 1.5em; height: 1.5em; fill: #e2ae76; margin-right: .5em;" aria-hidden="true"
+                        focusable="false">
+                        <path
+                            d="M479.605,91.769c-23.376,23.376-66.058,33.092-79.268,19.882c-13.21-13.21-3.494-55.892,19.883-79.268s85.999-26.614,85.999-26.614S502.982,68.393,479.605,91.769z" />
+                        <path
+                            d="M506.218,5.785L400.345,111.658c13.218,13.2,55.888,3.483,79.26-19.889C502.864,68.511,506.186,6.411,506.218,5.785z" />
+                        <path
+                            d="M432.367,200.156c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S465.426,200.156,432.367,200.156z" />
+                        <path
+                            d="M311.84,79.629c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11S353.832,0,353.832,0S311.84,46.571,311.84,79.629z" />
+                        <path
+                            d="M367.516,265.006c-33.059,0-70.11-23.311-70.11-41.992s37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S400.575,265.006,367.516,265.006z" />
+                        <path
+                            d="M246.99,144.48c0,33.059,23.311,70.11,41.992,70.11c18.681,0,41.992-37.052,41.992-70.11S288.982,64.85,288.982,64.85S246.99,111.421,246.99,144.48z" />
+                        <path
+                            d="M302.666,329.857c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S335.726,329.857,302.666,329.857z" />
+                        <path
+                            d="M182.14,209.33c0,33.059,23.311,70.11,41.992,70.11s41.992-37.052,41.992-70.11s-41.992-79.629-41.992-79.629S182.14,176.27,182.14,209.33z" />
+                        <path
+                            d="M237.025,395.498c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S270.085,395.498,237.025,395.498z" />
+                        <path
+                            d="M116.498,274.97c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11s-41.992-79.629-41.992-79.629S116.498,241.912,116.498,274.97z" />
+                        <path
+                            d="M170.438,462.084c-33.059,0-70.11-23.311-70.11-41.992c0-18.681,37.052-41.992,70.11-41.992s79.629,41.992,79.629,41.992S203.497,462.084,170.438,462.084z" />
+                        <path
+                            d="M49.912,341.558c0,33.059,23.31,70.11,41.992,70.11s41.992-37.052,41.992-70.11s-41.992-79.629-41.992-79.629S49.912,308.499,49.912,341.558z" />
+                        <path
+                            d="M4.917,507.087c-6.552-6.552-6.552-17.174,0-23.725L404.75,83.527c6.552-6.552,17.174-6.552,23.725,0c6.552,6.552,6.552,17.174,0,23.725L28.643,507.087C22.091,513.637,11.468,513.637,4.917,507.087z" />
+                    </svg>
+                    <h5 class="mb-0" style="color: #e2ae76;">Ingredients</h5>
                     <button type="button" class="btn btn-outline-light ms-auto" data-bs-toggle="modal"
                         data-bs-target="#addIngredientModal">
                         <i class="bi bi-plus-lg"></i> New Ingredient
@@ -121,7 +131,7 @@
                                             <td>
                                                 <select name="ingredients[{{ $i }}][id]"
                                                     class="form-select ingredient-select" required>
-                                                    <option value="" selected>Select ingredient…</option>
+                                                    <option value="">Select ingredient…</option>
                                                     @foreach ($ingredients as $ing)
                                                         <option value="{{ $ing->id }}"
                                                             data-price="{{ $ing->price_per_kg }}"
@@ -182,7 +192,8 @@
                                                 readonly>
                                         </td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient">
+                                            <button type="button"
+                                                class="btn btn-outline-danger btn-sm remove-ingredient">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
@@ -296,7 +307,8 @@
                                 <span class="input-group-text">Packing</span>
                                 <span class="input-group-text">€</span>
                                 <input type="number" step="0.01" id="packingCost" name="packing_cost"
-                                    class="form-control text-end" value="0">
+                                    class="form-control text-end"
+                                    value="{{ old('packing_cost', $isEdit ? $recipe->packing_cost : 0) }}">
                             </div>
                             <div class="input-group input-group-lg w-75 mb-3">
                                 <span class="input-group-text">Cost / kg After Packing</span>
@@ -396,26 +408,31 @@
                 </div>
             </div>
 
-            <div class="card mb-4 border-info shadow-sm">
-                <div class="card-header d-flex align-items-center" style="background-color: #041930;">
-                    <i class="bi bi-plus-circle fs-4 me-2" style="color: #e2ae76;"></i>
-                    <h5 class="mb-0" style="color: #e2ae76;">Additions</h5>
-                </div>
+            {{-- only show on Create, not on Edit --}}
+            @if (!$isEdit)
+                <div class="card mb-4 border-info shadow-sm">
+                    <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+                        <i class="bi bi-plus-circle fs-4 me-2" style="color: #e2ae76;"></i>
+                        <h5 class="mb-0" style="color: #e2ae76;">Additions</h5>
+                    </div>
 
-                <div class="card-body">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="addAsIngredient" name="add_as_ingredient"
-                            value="1" {{ old('add_as_ingredient', $isEdit ? 1 : 0) ? 'checked' : '' }}>
-                        <label class="form-check-label fw-semibold" for="addAsIngredient">
-                            Add this recipe as an <em>ingredient</em>
-                        </label>
-                        <p class="small text-muted mb-0">
-                            If checked, the recipe name will be saved to the ingredients table with
-                            a cost / kg equal to "Cost / kg Before Packing".
-                        </p>
+                    <div class="card-body">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="addAsIngredient"
+                                name="add_as_ingredient" value="1"
+                                {{ old('add_as_ingredient', 0) ? 'checked' : '' }}>
+                            <label class="form-check-label fw-semibold" for="addAsIngredient">
+                                Add this recipe as an <em>ingredient</em>
+                            </label>
+                            <p class="small text-muted mb-0">
+                                If checked, the recipe name will be saved to the ingredients table with
+                                a cost / kg equal to "Cost / kg Before Packing".
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
+
 
             <div class="text-end">
                 <button type="submit" class="btn btn-lg btn-primary"><i
@@ -454,362 +471,381 @@
 @endsection
 
 @section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const addForm            = document.getElementById('addIngredientForm');
-    const modalEl            = document.getElementById('addIngredientModal');
-    const vatRateEl          = document.getElementById('vatRate');
-    const shopRateEl         = document.getElementById('shopRate');
-    const externalRateEl     = document.getElementById('externalRate');
-    const costModeShop       = document.getElementById('costModeShop');
-    const costModeExternal   = document.getElementById('costModeExternal');
-    const laborTimeInput     = document.getElementById('laborTimeInput');
-    const costPerMinIn       = document.getElementById('costPerMin');
-    const laborCostIn        = document.getElementById('laborCost');
-    const laborIncidenceIn   = document.getElementById('laborIncidence');
-    const pricePerPiece      = document.getElementById('pricePerPiece');
-    const pricePerKg         = document.getElementById('pricePerKg');
-    const modePiece          = document.getElementById('modePiece');
-    const modeKg             = document.getElementById('modeKg');
-    const totalPiecesIn      = document.getElementById('totalPieces');
-    const weightPerPieceIn   = document.getElementById('weightPerPiece');
-    const weightWithLossIn   = document.getElementById('weightWithLoss');
-    const tableBody          = document.getElementById('ingredientsTable');
-    const totalCostIn        = document.getElementById('totalCostFooter');
-    const totalIncidenceIn   = document.getElementById('totalIncidenceFooter');
-    const totalWeightFt      = document.getElementById('totalWeightFooter');
-    const hiddenTotalWt      = document.getElementById('ingredientsTotalWeightHidden');
-    const packingCostIn      = document.getElementById('packingCost');
-    const prodCostKgIn       = document.getElementById('prodCostKg');
-    const totalExpenseIn     = document.getElementById('totalExpense');
-    const potentialMargin    = document.getElementById('potentialMargin');
-    const potentialInput     = document.getElementById('potentialMarginInput');
-    let weightLossTouched = false;
-    let idx = {{ isset($recipe) ? $recipe->ingredients->count() : 1 }};
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addForm = document.getElementById('addIngredientForm');
+            const modalEl = document.getElementById('addIngredientModal');
+            const vatRateEl = document.getElementById('vatRate');
+            const shopRateEl = document.getElementById('shopRate');
+            const externalRateEl = document.getElementById('externalRate');
+            const costModeShop = document.getElementById('costModeShop');
+            const costModeExternal = document.getElementById('costModeExternal');
+            const laborTimeInput = document.getElementById('laborTimeInput');
+            const costPerMinIn = document.getElementById('costPerMin');
+            const laborCostIn = document.getElementById('laborCost');
+            const laborIncidenceIn = document.getElementById('laborIncidence');
+            const pricePerPiece = document.getElementById('pricePerPiece');
+            const pricePerKg = document.getElementById('pricePerKg');
+            const modePiece = document.getElementById('modePiece');
+            const modeKg = document.getElementById('modeKg');
+            const totalPiecesIn = document.getElementById('totalPieces');
+            const weightPerPieceIn = document.getElementById('weightPerPiece');
+            const weightWithLossIn = document.getElementById('weightWithLoss');
+            const tableBody = document.getElementById('ingredientsTable');
+            const totalCostIn = document.getElementById('totalCostFooter');
+            const totalIncidenceIn = document.getElementById('totalIncidenceFooter');
+            const totalWeightFt = document.getElementById('totalWeightFooter');
+            const hiddenTotalWt = document.getElementById('ingredientsTotalWeightHidden');
+            const packingCostIn = document.getElementById('packingCost');
+            const prodCostKgIn = document.getElementById('prodCostKg');
+            const totalExpenseIn = document.getElementById('totalExpense');
+            const potentialMargin = document.getElementById('potentialMargin');
+            const potentialInput = document.getElementById('potentialMarginInput');
+            let weightLossTouched = false;
+            let idx = {{ isset($recipe) ? $recipe->ingredients->count() : 1 }};
 
-    // 1) AJAX “Add Ingredient”
-    addForm.addEventListener('submit', async e => {
-        e.preventDefault();
-        const fd = new FormData(addForm);
+            // 1) AJAX “Add Ingredient”
+            addForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                const fd = new FormData(addForm);
 
-        try {
-            const res = await fetch(addForm.action, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                body: fd
+                try {
+                    const res = await fetch(addForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: fd
+                    });
+                    const json = await res.json();
+
+                    if (!res.ok) {
+                        alert(
+                            json.errors ?
+                            Object.values(json.errors).flat().join('\n') :
+                            'Failed to save ingredient.'
+                        );
+                        return;
+                    }
+
+                    // build new <option>
+                    const opt = document.createElement('option');
+                    opt.value = json.id;
+                    opt.textContent = `${json.ingredient_name} (€${json.price_per_kg}/kg)`;
+                    opt.dataset.price = json.price_per_kg;
+
+                    document.querySelectorAll('.ingredient-select').forEach(sel => {
+                        // remember current selection
+                        const prev = sel.value;
+
+                        // insert in sorted order
+                        const clone = opt.cloneNode(true);
+                        const newName = json.ingredient_name.toLowerCase().trim();
+                        let inserted = false;
+                        for (let i = 1; i < sel.options.length; i++) {
+                            const existingName = sel.options[i].textContent
+                                .split('(')[0]
+                                .toLowerCase()
+                                .trim();
+                            if (newName.localeCompare(existingName) < 0) {
+                                sel.insertBefore(clone, sel.options[i]);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                        if (!inserted) {
+                            sel.appendChild(clone);
+                        }
+
+                        // restore placeholder at front
+                        const placeholder = sel.querySelector('option[value=""]');
+                        sel.removeChild(placeholder);
+                        sel.insertBefore(placeholder, sel.firstChild);
+
+                        // restore previous selection
+                        if (prev) {
+                            sel.value = prev;
+                            if (sel.value !== prev) sel.selectedIndex = 0;
+                        } else {
+                            sel.selectedIndex = 0;
+                        }
+                    });
+
+                    // hide modal & reset form
+                    bootstrap.Modal.getInstance(modalEl).hide();
+                    addForm.reset();
+
+                } catch (err) {
+                    console.error(err);
+                    alert('Unexpected error while saving ingredient.');
+                }
             });
-            const json = await res.json();
 
-            if (!res.ok) {
-                alert(
-                    json.errors ?
-                    Object.values(json.errors).flat().join('\n') :
-                    'Failed to save ingredient.'
-                );
-                return;
+            // 2) gross → net (VAT)
+            function netPrice(gross) {
+                const vat = parseFloat(vatRateEl.value) || 0;
+                return gross / (1 + vat / 100);
             }
 
-            // build new <option>
-            const opt = document.createElement('option');
-            opt.value = json.id;
-            opt.textContent = `${json.ingredient_name} (€${json.price_per_kg}/kg)`;
-            opt.dataset.price = json.price_per_kg;
+            // 3) grams per piece — NOW based on total weight WITH LOSS
+            function calcWeightPerPiece() {
+                const pcs = parseFloat(totalPiecesIn.value) || 0;
+                const totalG = parseFloat(weightWithLossIn.value) || 0;
+                weightPerPieceIn.value = pcs > 0 ?
+                    (totalG / pcs).toFixed(2) :
+                    '';
+            }
 
-            document.querySelectorAll('.ingredient-select').forEach(sel => {
-                // remember current selection
-                const prev = sel.value;
+            // 4) cost-per-min toggle
+            function updateCostPerMin() {
+                const rate = costModeShop.checked ?
+                    parseFloat(shopRateEl.value) || 0 :
+                    parseFloat(externalRateEl.value) || 0;
+                costPerMinIn.value = rate.toFixed(4);
+                updateLaborCost();
+            }
 
-                // insert in sorted order
-                const clone = opt.cloneNode(true);
-                const newName = json.ingredient_name.toLowerCase().trim();
-                let inserted = false;
-                for (let i = 1; i < sel.options.length; i++) {
-                    const existingName = sel.options[i].textContent
-                        .split('(')[0]
-                        .toLowerCase()
-                        .trim();
-                    if (newName.localeCompare(existingName) < 0) {
-                        sel.insertBefore(clone, sel.options[i]);
-                        inserted = true;
-                        break;
-                    }
-                }
-                if (!inserted) {
-                    sel.appendChild(clone);
-                }
-
-                // restore placeholder at front
-                const placeholder = sel.querySelector('option[value=""]');
-                sel.removeChild(placeholder);
-                sel.insertBefore(placeholder, sel.firstChild);
-
-                // restore previous selection
-                if (prev) {
-                    sel.value = prev;
-                    if (sel.value !== prev) sel.selectedIndex = 0;
-                } else {
-                    sel.selectedIndex = 0;
-                }
-            });
-
-            // hide modal & reset form
-            bootstrap.Modal.getInstance(modalEl).hide();
-            addForm.reset();
-
-        } catch (err) {
-            console.error(err);
-            alert('Unexpected error while saving ingredient.');
-        }
-    });
-
-    // 2) gross → net (VAT)
-    function netPrice(gross) {
-        const vat = parseFloat(vatRateEl.value) || 0;
-        return gross / (1 + vat / 100);
-    }
-
-    // 3) grams per piece — NOW based on total weight WITH LOSS
-    function calcWeightPerPiece() {
-        const pcs    = parseFloat(totalPiecesIn.value)    || 0;
-        const totalG = parseFloat(weightWithLossIn.value) || 0;
-        weightPerPieceIn.value = pcs > 0
-            ? (totalG / pcs).toFixed(2)
-            : '';
-    }
-
-    // 4) cost-per-min toggle
-    function updateCostPerMin() {
-        const rate = costModeShop.checked
-            ? parseFloat(shopRateEl.value)     || 0
-            : parseFloat(externalRateEl.value) || 0;
-        costPerMinIn.value = rate.toFixed(4);
-        updateLaborCost();
-    }
-
-    // 5) labor cost
-    function updateLaborCost() {
-        const mins = parseFloat(laborTimeInput.value) || 0;
-        const rate = parseFloat(costPerMinIn.value)   || 0;
-        laborCostIn.value = (mins * rate).toFixed(2);
-        calculateLaborIncidence();
-        recalcTotals();
-    }
-
-    // 6) labor incidence %
-    function calculateLaborIncidence() {
-        const lc   = parseFloat(laborCostIn.value)        || 0;
-        const g    = parseFloat(weightWithLossIn.value)   || 0;
-        const kg   = g / 1000;
-        const sell = modePiece.checked
-            ? (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0)
-            : parseFloat(pricePerKg.value) || 0;
-
-        laborIncidenceIn.value = (kg > 0 && sell > 0
-            ? ((lc / kg) / netPrice(sell)) * 100
-            : 0
-        ).toFixed(2);
-    }
-
-    // 7) recalc one ingredient row
-    function recalcRow(row) {
-        const price = parseFloat(
-            row.querySelector('.ingredient-select').selectedOptions[0]?.dataset.price
-        ) || 0;
-        const qty  = parseFloat(
-            row.querySelector('.ingredient-quantity').value
-        ) || 0;
-        const cost = price / 1000 * qty;
-        row.querySelector('.ingredient-cost').value = cost.toFixed(2);
-
-        const g    = parseFloat(weightWithLossIn.value) || 0;
-        const kg   = g / 1000;
-        const sell = modePiece.checked
-            ? (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0)
-            : parseFloat(pricePerKg.value) || 0;
-
-        row.querySelector('.ingredient-incidence').value = (
-            kg > 0 && sell > 0
-                ? ((cost / kg) / netPrice(sell)) * 100
-                : 0
-        ).toFixed(2);
-    }
-
-    // 8) recalc all ingredient totals
-    function recalcTotals() {
-        let sW = 0, sC = 0, sI = 0;
-        document.querySelectorAll('.ingredient-row').forEach(r => {
-            sW += parseFloat(r.querySelector('.ingredient-quantity').value) || 0;
-            sC += parseFloat(r.querySelector('.ingredient-cost').value)     || 0;
-            sI += parseFloat(r.querySelector('.ingredient-incidence').value)|| 0;
-        });
-
-        totalWeightFt.value  = sW;
-        totalCostIn.value    = sC.toFixed(2);
-        totalIncidenceIn.value = sI.toFixed(2);
-
-        if (!weightLossTouched) weightWithLossIn.value = sW;
-        hiddenTotalWt.value  = weightWithLossIn.value;
-
-        recalcExpense();
-        recalcMargin();
-    }
-
-    // 9) cost before/after packing — NOW packing cost is divided by number of pieces
-    function recalcExpense() {
-        const ing = parseFloat(totalCostIn.value)    || 0;
-        const lab = parseFloat(laborCostIn.value)    || 0;
-        const raw = ing + lab;
-        const pack = parseFloat(packingCostIn.value) || 0;
-
-        if (modePiece.checked) {
-            const pcs    = parseFloat(totalPiecesIn.value) || 0;
-            const before = pcs > 0 ? raw / pcs : 0;
-            const packPerPiece = pcs > 0 ? pack / pcs : 0;
-            prodCostKgIn.value = before.toFixed(2);
-            totalExpenseIn.value = (before + packPerPiece).toFixed(2);
-        } else {
-            const g    = parseFloat(weightWithLossIn.value) || 0;
-            const kg   = g / 1000;
-            const before = kg > 0 ? raw / kg : 0;
-            prodCostKgIn.value = before.toFixed(2);
-            totalExpenseIn.value = (before + pack).toFixed(2);
-        }
-    }
-
-    // 10) potential margin
-    function recalcMargin() {
-        const ingTot  = parseFloat(totalCostIn.value)    || 0;
-        const labTot  = parseFloat(laborCostIn.value)    || 0;
-        const packIn  = parseFloat(packingCostIn.value)  || 0;
-
-        if (modePiece.checked) {
-            const sellP = parseFloat(pricePerPiece.value) || 0;
-            const netSP = netPrice(sellP);
-            const pcs   = parseFloat(totalPiecesIn.value) || 0;
-            const ingPP = pcs > 0 ? ingTot / pcs : 0;
-            const labPP = pcs > 0 ? labTot / pcs : 0;
-            const m     = netSP - ingPP - labPP - packIn;
-            const pct   = netSP > 0 ? (m * 100 / netSP) : 0;
-
-            potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / piece`;
-            potentialInput.value      = m.toFixed(2);
-        } else {
-            const g     = parseFloat(weightWithLossIn.value) || 0;
-            const kg    = g / 1000;
-            const sellK = parseFloat(pricePerKg.value)        || 0;
-            const netSK = netPrice(sellK);
-            const ingKg = kg > 0 ? ingTot / kg : 0;
-            const labKg = kg > 0 ? labTot / kg : 0;
-            const m     = netSK - ingKg - labKg - packIn;
-            const pct   = netSK > 0 ? (m * 100 / netSK) : 0;
-
-            potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / kg`;
-            potentialInput.value      = m.toFixed(2);
-        }
-    }
-
-    // 11) mode toggle & label swapping (also re-calc gram-per-piece)
-    function updateMode() {
-        const beforeLabel = prodCostKgIn.closest('.input-group')
-                              .querySelector('.input-group-text');
-        const afterLabel  = totalExpenseIn.closest('.input-group')
-                              .querySelector('.input-group-text');
-
-        if (modePiece.checked) {
-            beforeLabel.textContent = 'Cost / pc Before Packing';
-            afterLabel .textContent = 'Cost / pc After Packing';
-        } else {
-            beforeLabel.textContent = 'Cost / kg Before Packing';
-            afterLabel .textContent = 'Cost / kg After Packing';
-        }
-
-        document.getElementById('pieceInputs')
-            .classList.toggle('d-none', !modePiece.checked);
-        document.getElementById('kgInputs')
-            .classList.toggle('d-none',  modePiece.checked);
-
-        recalcTotals();
-        if (modePiece.checked) {
-            calcWeightPerPiece();
-        }
-    }
-
-    // ——————————————
-    // Wire up all listeners
-    // ——————————————
-
-    costModeShop.addEventListener('change',  updateCostPerMin);
-    costModeExternal.addEventListener('change', updateCostPerMin);
-    laborTimeInput.addEventListener('input',  updateLaborCost);
-    vatRateEl.addEventListener('change',      recalcTotals);
-    packingCostIn.addEventListener('input',   recalcExpense);
-
-    // **Re-calc gram-per-piece whenever total weight changes**
-    weightWithLossIn.addEventListener('input', () => {
-        weightLossTouched = true;
-        recalcTotals();
-        calcWeightPerPiece();
-    });
-
-    pricePerPiece.addEventListener('input',    recalcMargin);
-    pricePerKg.addEventListener('input',       recalcMargin);
-
-    totalPiecesIn.addEventListener('input',    () => {
-        calcWeightPerPiece();
-        updateMode();
-    });
-    modePiece.addEventListener('change',       () => {
-        calcWeightPerPiece();
-        updateMode();
-    });
-    modeKg.addEventListener('change',          updateMode);
-
-    ['input','change'].forEach(evt => {
-        tableBody.addEventListener(evt, e => {
-            if (e.target.matches('.ingredient-select, .ingredient-quantity')) {
-                const row = e.target.closest('.ingredient-row');
-                recalcRow(row);
+            // 5) labor cost
+            function updateLaborCost() {
+                const mins = parseFloat(laborTimeInput.value) || 0;
+                const rate = parseFloat(costPerMinIn.value) || 0;
+                laborCostIn.value = (mins * rate).toFixed(2);
+                calculateLaborIncidence();
                 recalcTotals();
             }
-        });
-    });
 
-    document.getElementById('addIngredientBtn').addEventListener('click', e => {
-        e.preventDefault();
-        const first = tableBody.querySelector('.ingredient-row');
-        const clone = first.cloneNode(true);
-        const newIdx = idx++;
-        clone.querySelectorAll('select[name], input[name]').forEach(el => {
-            el.name = el.name.replace(/\[\d+\]/, `[${newIdx}]`);
-            if (el.tagName === 'SELECT') el.selectedIndex = 0;
-            else el.value = el.classList.contains('ingredient-quantity') ? '0' : '';
-        });
-        tableBody.appendChild(clone);
-        recalcRow(clone);
-        recalcTotals();
-    });
+            // 6) labor incidence %
+            function calculateLaborIncidence() {
+                const lc = parseFloat(laborCostIn.value) || 0;
+                const g = parseFloat(weightWithLossIn.value) || 0;
+                const kg = g / 1000;
+                const sell = modePiece.checked ?
+                    (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0) :
+                    parseFloat(pricePerKg.value) || 0;
 
-    tableBody.addEventListener('click', e => {
-        if (e.target.closest('.remove-ingredient') 
-            && tableBody.children.length > 1) {
-            e.target.closest('.ingredient-row').remove();
+                laborIncidenceIn.value = (kg > 0 && sell > 0 ?
+                    ((lc / kg) / netPrice(sell)) * 100 :
+                    0
+                ).toFixed(2);
+            }
+
+            // 7) recalc one ingredient row
+            function recalcRow(row) {
+                const price = parseFloat(
+                    row.querySelector('.ingredient-select').selectedOptions[0]?.dataset.price
+                ) || 0;
+                const qty = parseFloat(
+                    row.querySelector('.ingredient-quantity').value
+                ) || 0;
+                const cost = price / 1000 * qty;
+                row.querySelector('.ingredient-cost').value = cost.toFixed(2);
+
+                const g = parseFloat(weightWithLossIn.value) || 0;
+                const kg = g / 1000;
+                const sell = modePiece.checked ?
+                    (parseFloat(totalPiecesIn.value) || 0) * (parseFloat(pricePerPiece.value) || 0) :
+                    parseFloat(pricePerKg.value) || 0;
+
+                row.querySelector('.ingredient-incidence').value = (
+                    kg > 0 && sell > 0 ?
+                    ((cost / kg) / netPrice(sell)) * 100 :
+                    0
+                ).toFixed(2);
+            }
+
+            // 8) recalc all ingredient totals
+            function recalcTotals() {
+                    calculateLaborIncidence();
+
+                let sW = 0,
+                    sC = 0,
+                    sI = 0;
+                document.querySelectorAll('.ingredient-row').forEach(r => {
+                    sW += parseFloat(r.querySelector('.ingredient-quantity').value) || 0;
+                    sC += parseFloat(r.querySelector('.ingredient-cost').value) || 0;
+                    sI += parseFloat(r.querySelector('.ingredient-incidence').value) || 0;
+                });
+
+                totalWeightFt.value = sW;
+                totalCostIn.value = sC.toFixed(2);
+                totalIncidenceIn.value = sI.toFixed(2);
+
+                if (!weightLossTouched) weightWithLossIn.value = sW;
+                hiddenTotalWt.value = weightWithLossIn.value;
+
+                recalcExpense();
+                recalcMargin();
+            }
+
+            // 9) cost before/after packing — NOW packing cost is divided by number of pieces
+            function recalcExpense() {
+                const ing = parseFloat(totalCostIn.value) || 0;
+                const lab = parseFloat(laborCostIn.value) || 0;
+                const raw = ing + lab;
+                const pack = parseFloat(packingCostIn.value) || 0;
+
+                if (modePiece.checked) {
+                    const pcs = parseFloat(totalPiecesIn.value) || 0;
+                    const before = pcs > 0 ? raw / pcs : 0;
+                    const packPerPiece = pcs > 0 ? pack / pcs : 0;
+                    prodCostKgIn.value = before.toFixed(2);
+                    totalExpenseIn.value = (before + packPerPiece).toFixed(2);
+                } else {
+                    const g = parseFloat(weightWithLossIn.value) || 0;
+                    const kg = g / 1000;
+                    const before = kg > 0 ? raw / kg : 0;
+                    prodCostKgIn.value = before.toFixed(2);
+                    totalExpenseIn.value = (before + pack).toFixed(2);
+                }
+            }
+
+            // 10) potential margin
+            function recalcMargin() {
+                const ingTot = parseFloat(totalCostIn.value) || 0;
+                const labTot = parseFloat(laborCostIn.value) || 0;
+                const packIn = parseFloat(packingCostIn.value) || 0;
+
+                if (modePiece.checked) {
+                    const sellP = parseFloat(pricePerPiece.value) || 0;
+                    const netSP = netPrice(sellP);
+                    const pcs = parseFloat(totalPiecesIn.value) || 0;
+                    const ingPP = pcs > 0 ? ingTot / pcs : 0;
+                    const labPP = pcs > 0 ? labTot / pcs : 0;
+                    const m = netSP - ingPP - labPP - packIn;
+                    const pct = netSP > 0 ? (m * 100 / netSP) : 0;
+
+                    potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / piece`;
+                    potentialInput.value = m.toFixed(2);
+                } else {
+                    const g = parseFloat(weightWithLossIn.value) || 0;
+                    const kg = g / 1000;
+                    const sellK = parseFloat(pricePerKg.value) || 0;
+                    const netSK = netPrice(sellK);
+                    const ingKg = kg > 0 ? ingTot / kg : 0;
+                    const labKg = kg > 0 ? labTot / kg : 0;
+                    const m = netSK - ingKg - labKg - packIn;
+                    const pct = netSK > 0 ? (m * 100 / netSK) : 0;
+
+                    potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / kg`;
+                    potentialInput.value = m.toFixed(2);
+                }
+            }
+
+            // 11) mode toggle & label swapping (also re-calc gram-per-piece)
+            function updateMode() {
+                const beforeLabel = prodCostKgIn.closest('.input-group')
+                    .querySelector('.input-group-text');
+                const afterLabel = totalExpenseIn.closest('.input-group')
+                    .querySelector('.input-group-text');
+
+                if (modePiece.checked) {
+                    beforeLabel.textContent = 'Cost / pc Before Packing';
+                    afterLabel.textContent = 'Cost / pc After Packing';
+                } else {
+                    beforeLabel.textContent = 'Cost / kg Before Packing';
+                    afterLabel.textContent = 'Cost / kg After Packing';
+                }
+
+                document.getElementById('pieceInputs')
+                    .classList.toggle('d-none', !modePiece.checked);
+                document.getElementById('kgInputs')
+                    .classList.toggle('d-none', modePiece.checked);
+
+                recalcTotals();
+                if (modePiece.checked) {
+                    calcWeightPerPiece();
+                }
+            }
+
+            // ——————————————
+            // Wire up all listeners
+            // ——————————————
+
+            costModeShop.addEventListener('change', updateCostPerMin);
+            costModeExternal.addEventListener('change', updateCostPerMin);
+            laborTimeInput.addEventListener('input', updateLaborCost);
+            vatRateEl.addEventListener('change', recalcTotals);
+            packingCostIn.addEventListener('input', recalcExpense);
+
+            // **Re-calc gram-per-piece whenever total weight changes**
+            weightWithLossIn.addEventListener('input', () => {
+                weightLossTouched = true;
+                recalcTotals();
+                calcWeightPerPiece();
+            });
+
+            pricePerPiece.addEventListener('input', recalcMargin);
+            pricePerKg.addEventListener('input', recalcMargin);
+
+            totalPiecesIn.addEventListener('input', () => {
+                calcWeightPerPiece();
+                updateMode();
+            });
+            modePiece.addEventListener('change', () => {
+                calcWeightPerPiece();
+                updateMode();
+            });
+            modeKg.addEventListener('change', updateMode);
+
+
+
+
+            function updateAllRows() {
+                document.querySelectorAll('.ingredient-row').forEach(r => recalcRow(r));
+                recalcTotals();
+            }
+
+            // wire up those extra listeners:
+            pricePerPiece.addEventListener('input', updateAllRows);
+            pricePerKg.addEventListener('input', updateAllRows);
+            vatRateEl.addEventListener('change', updateAllRows);
+            weightWithLossIn.addEventListener('input', () => {
+                weightLossTouched = true;
+                updateAllRows();
+            });
+            ['input', 'change'].forEach(evt => {
+                tableBody.addEventListener(evt, e => {
+                    if (e.target.matches('.ingredient-select, .ingredient-quantity')) {
+                        const row = e.target.closest('.ingredient-row');
+                        recalcRow(row);
+                        recalcTotals();
+                    }
+                });
+            });
+
+            document.getElementById('addIngredientBtn').addEventListener('click', e => {
+                e.preventDefault();
+                const first = tableBody.querySelector('.ingredient-row');
+                const clone = first.cloneNode(true);
+                const newIdx = idx++;
+                clone.querySelectorAll('select[name], input[name]').forEach(el => {
+                    el.name = el.name.replace(/\[\d+\]/, `[${newIdx}]`);
+                    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                    else el.value = el.classList.contains('ingredient-quantity') ? '0' : '';
+                });
+                tableBody.appendChild(clone);
+                recalcRow(clone);
+                recalcTotals();
+            });
+
+            tableBody.addEventListener('click', e => {
+                if (e.target.closest('.remove-ingredient') &&
+                    tableBody.children.length > 1) {
+                    e.target.closest('.ingredient-row').remove();
+                    recalcTotals();
+                }
+            });
+
+
+
+
+            updateMode();
+            updateCostPerMin();
+            document.querySelectorAll('.ingredient-row').forEach(r => recalcRow(r));
+            calcWeightPerPiece();
             recalcTotals();
-        }
-    });
-
-    // ——————————————
-    // Initial bootstrap
-    // ——————————————
-    document.querySelectorAll('.ingredient-row').forEach(r => recalcRow(r));
-    calcWeightPerPiece();
-    updateMode();
-    updateCostPerMin();
-    recalcTotals();
-});
-</script>
+        });
+    </script>
 
 @endsection
-
