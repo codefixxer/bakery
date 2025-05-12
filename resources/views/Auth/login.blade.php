@@ -138,11 +138,17 @@
     </div>
 
     <button
-        type="submit"
-        class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"
-    >
-        Sign In
-    </button>
+  type="submit"
+  class="btn text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"
+  style="
+    background-color: #e2ae76;
+    color: #041930;
+    border: 2px solid #e2ae76;
+  "
+>
+  Sign In
+</button>
+
 
    
 
