@@ -435,8 +435,19 @@
 
 
             <div class="text-end">
-                <button type="submit" class="btn btn-lg btn-primary"><i
-                        class="bi bi-save2 me-2"></i>{{ $isEdit ? 'Update' : 'Save' }} Recipe</button>
+                <button
+  type="submit"
+  class="btn btn-lg submit_btn"
+  style="
+    background-color: #e2ae76;
+    color: #041930;
+    border: 2px solid #e2ae76;
+  "
+>
+  <i class="bi bi-save2 me-2"></i>
+  {{ $isEdit ? 'Update' : 'Save' }} Recipe
+</button>
+
             </div>
         </form>
     </div>
