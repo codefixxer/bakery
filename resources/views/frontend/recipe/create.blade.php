@@ -5,6 +5,12 @@
     $sectionHeaderStyle = 'style="background-color: #041930; color: #e2ae76;"';
 @endphp
 @section('content')
+
+    <style>
+        .incidence-col {
+            display: none !important;
+        }
+    </style>
     <div class="container py-5">
         @php
             $isEdit = isset($recipe);
@@ -112,6 +118,13 @@
                     </button>
                 </div>
 
+                {{-- hide incidence column via CSS --}}
+                <style>
+                    .incidence-col {
+                        display: none !important;
+                    }
+                </style>
+
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
@@ -120,7 +133,7 @@
                                     <th>Ingredient</th>
                                     <th class="text-center">Qty&nbsp;(g)</th>
                                     <th class="text-center">Cost&nbsp;($)</th>
-                                    <th class="text-center">Incidence&nbsp;(%)</th>
+                                    <th class="text-center incidence-col">Incidence&nbsp;(%)</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -153,7 +166,7 @@
                                                     class="form-control text-center ingredient-cost" readonly
                                                     value="{{ old("ingredients.$i.cost", $line->cost) }}">
                                             </td>
-                                            <td>
+                                            <td class="incidence-col">
                                                 <input type="text" class="form-control text-center ingredient-incidence"
                                                     readonly>
                                             </td>
@@ -187,7 +200,7 @@
                                             <input type="text" name="ingredients[0][cost]"
                                                 class="form-control text-center ingredient-cost" readonly>
                                         </td>
-                                        <td>
+                                        <td class="incidence-col">
                                             <input type="text" class="form-control text-center ingredient-incidence"
                                                 readonly>
                                         </td>
@@ -213,7 +226,7 @@
                                         <input type="text" id="totalCostFooter" name="ingredients_total_cost"
                                             class="form-control text-center" readonly>
                                     </td>
-                                    <td>
+                                    <td class="incidence-col">
                                         <input type="text" id="totalIncidenceFooter"
                                             class="form-control text-center fw-bold" readonly>
                                     </td>
@@ -235,58 +248,70 @@
                         </table>
                     </div>
                 </div>
+
             </div>
 
-            <div class="card mb-4 border-warning shadow-sm">
-                <input type="hidden" id="shopRate" value="{{ optional($laborCost)->shop_cost_per_min ?? 0 }}">
-                <input type="hidden" id="externalRate" value="{{ optional($laborCost)->external_cost_per_min ?? 0 }}">
-                <div class="card-header d-flex align-items-center" style="background-color: #041930;">
-                    <i class="bi bi-clock-history fs-4 me-2" style="color: #e2ae76;"></i>
-                    <h5 class="mb-0" style="color: #e2ae76;">Labor</h5>
-                </div>
+         <div class="card mb-4 border-warning shadow-sm">
+    {{-- pass the selected labor cost record ID --}}
+    <input type="hidden" name="labor_cost_id" value="{{ optional($laborCost)->id }}">
 
-                <div class="card-body">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="labor_cost_mode" id="costModeShop"
-                            value="shop"
-                            {{ old('labor_cost_mode', $isEdit ? $recipe->labor_cost_mode : 'shop') == 'shop' ? 'checked' : '' }}>
-                        <label class="form-check-label" for="costModeShop">Use Shop Cost / Min</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="labor_cost_mode" id="costModeExternal"
-                            value="external"
-                            {{ old('labor_cost_mode', $isEdit ? $recipe->labor_cost_mode : 'shop') == 'external' ? 'checked' : '' }}>
-                        <label class="form-check-label" for="costModeExternal">Use External Cost / Min</label>
-                    </div>
-                    <div class="row g-3 mt-3">
-                        <div class="col-md-3">
-                            <label for="laborTimeInput" class="form-label fw-semibold">Labor Time (min)</label>
-                            <input type="number" id="laborTimeInput" name="labor_time_input" class="form-control"
-                                min="0"
-                                value="{{ old('labor_time_input', $isEdit ? $recipe->labour_time_min : 0) }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="costPerMin" class="form-label fw-semibold">Cost per Minute (€)</label>
-                            <div class="input-group">
-                                <span class="input-group-text">€</span>
-                                <input type="text" id="costPerMin" class="form-control" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="laborCost" class="form-label fw-semibold">Labor Cost (€)</label>
-                            <div class="input-group">
-                                <span class="input-group-text">€</span>
-                                <input type="text" id="laborCost" name="labor_cost" class="form-control" readonly
-                                    value="{{ old('labor_cost', $isEdit ? $recipe->labour_cost : '') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="laborIncidence" class="form-label fw-semibold">Labor Incidence (%)</label>
-                            <input type="text" id="laborIncidence" class="form-control text-center" readonly>
-                        </div>
-                    </div>
+    {{-- preserve your existing shop/external rates for JS --}}
+    <input type="hidden" id="shopRate" value="{{ optional($laborCost)->shop_cost_per_min ?? 0 }}">
+    <input type="hidden" id="externalRate" value="{{ optional($laborCost)->external_cost_per_min ?? 0 }}">
+
+    <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+        <i class="bi bi-clock-history fs-4 me-2" style="color: #e2ae76;"></i>
+        <h5 class="mb-0" style="color: #e2ae76;">Labor</h5>
+    </div>
+
+    <div class="card-body">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="labor_cost_mode" id="costModeShop"
+                   value="shop"
+                   {{ old('labor_cost_mode', $isEdit ? $recipe->labor_cost_mode : 'shop') == 'shop' ? 'checked' : '' }}>
+            <label class="form-check-label" for="costModeShop">Use Shop Cost / Min</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="labor_cost_mode" id="costModeExternal"
+                   value="external"
+                   {{ old('labor_cost_mode', $isEdit ? $recipe->labor_cost_mode : 'shop') == 'external' ? 'checked' : '' }}>
+            <label class="form-check-label" for="costModeExternal">Use External Cost / Min</label>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-3">
+                <label for="laborTimeInput" class="form-label fw-semibold">Labor Time (min)</label>
+                <input type="number" id="laborTimeInput" name="labor_time_input" class="form-control"
+                       min="0"
+                       value="{{ old('labor_time_input', $isEdit ? $recipe->labour_time_min : 0) }}">
+            </div>
+
+            <div class="col-md-3">
+                <label for="costPerMin" class="form-label fw-semibold">Cost per Minute (€)</label>
+                <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <input type="text" id="costPerMin" class="form-control" readonly>
                 </div>
             </div>
+
+            <div class="col-md-3">
+                <label for="laborCost" class="form-label fw-semibold">Labor Cost (€)</label>
+                <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <input type="text" id="laborCost" name="labor_cost" class="form-control" readonly
+                           value="{{ old('labor_cost', $isEdit ? $recipe->labour_cost : '') }}">
+                </div>
+            </div>
+
+            {{-- incidence stays hidden --}}
+            <div class="col-md-3" style="display: none">
+                <label for="laborIncidence" class="form-label fw-semibold">Labor Incidence (%)</label>
+                <input type="text" id="laborIncidence" class="form-control text-center" readonly>
+            </div>
+        </div>
+    </div>
+</div>
+
 
             <div class="row gx-4 mb-4">
                 <div class="col-md-6">
@@ -435,18 +460,15 @@
 
 
             <div class="text-end">
-                <button
-  type="submit"
-  class="btn btn-lg submit_btn"
-  style="
+                <button type="submit" class="btn btn-lg submit_btn"
+                    style="
     background-color: #e2ae76;
     color: #041930;
     border: 2px solid #e2ae76;
-  "
->
-  <i class="bi bi-save2 me-2"></i>
-  {{ $isEdit ? 'Update' : 'Save' }} Recipe
-</button>
+  ">
+                    <i class="bi bi-save2 me-2"></i>
+                    {{ $isEdit ? 'Update' : 'Save' }} Recipe
+                </button>
 
             </div>
         </form>
@@ -667,7 +689,7 @@
 
             // 8) recalc all ingredient totals
             function recalcTotals() {
-                    calculateLaborIncidence();
+                calculateLaborIncidence();
 
                 let sW = 0,
                     sC = 0,
@@ -712,36 +734,34 @@
             }
 
             // 10) potential margin
-            function recalcMargin() {
-                const ingTot = parseFloat(totalCostIn.value) || 0;
-                const labTot = parseFloat(laborCostIn.value) || 0;
-                const packIn = parseFloat(packingCostIn.value) || 0;
+          function recalcMargin() {
+    const ingTot  = parseFloat(totalCostIn.value) || 0;      // raw ingredient total
+    const labTot  = parseFloat(laborCostIn.value) || 0;     // raw labor total
+    const packIn  = parseFloat(packingCostIn.value) || 0;   // packing total (flat or per-piece)
+    const sellP   = parseFloat(pricePerPiece.value) || 0;
+    const sellK   = parseFloat(pricePerKg.value)   || 0;
+    const kg      = (parseFloat(weightWithLossIn.value) || 0) / 1000;
+    const pcs     = parseFloat(totalPiecesIn.value)  || 0;
+    const netSP   = netPrice(sellP);
+    const netSK   = netPrice(sellK);
 
-                if (modePiece.checked) {
-                    const sellP = parseFloat(pricePerPiece.value) || 0;
-                    const netSP = netPrice(sellP);
-                    const pcs = parseFloat(totalPiecesIn.value) || 0;
-                    const ingPP = pcs > 0 ? ingTot / pcs : 0;
-                    const labPP = pcs > 0 ? labTot / pcs : 0;
-                    const m = netSP - ingPP - labPP - packIn;
-                    const pct = netSP > 0 ? (m * 100 / netSP) : 0;
+    // totalExpenseIn already holds:
+    //   - in piece mode: (ingTot + labTot)/pcs + packIn/pcs
+    //   - in kg   mode: (ingTot + labTot)/kg  + packIn
+    const totalCostPerUnit = parseFloat(totalExpenseIn.value) || 0;
 
-                    potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / piece`;
-                    potentialInput.value = m.toFixed(2);
-                } else {
-                    const g = parseFloat(weightWithLossIn.value) || 0;
-                    const kg = g / 1000;
-                    const sellK = parseFloat(pricePerKg.value) || 0;
-                    const netSK = netPrice(sellK);
-                    const ingKg = kg > 0 ? ingTot / kg : 0;
-                    const labKg = kg > 0 ? labTot / kg : 0;
-                    const m = netSK - ingKg - labKg - packIn;
-                    const pct = netSK > 0 ? (m * 100 / netSK) : 0;
-
-                    potentialMargin.innerText = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / kg`;
-                    potentialInput.value = m.toFixed(2);
-                }
-            }
+    if (modePiece.checked) {
+      const m   = netSP - totalCostPerUnit;
+      const pct = netSP > 0 ? (m * 100 / netSP) : 0;
+      potentialMargin.innerText   = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / piece`;
+      potentialInput.value        = m.toFixed(2);
+    } else {
+      const m   = netSK - totalCostPerUnit;
+      const pct = netSK > 0 ? (m * 100 / netSK) : 0;
+      potentialMargin.innerText   = `€${m.toFixed(2)} (${pct.toFixed(2)}%) / kg`;
+      potentialInput.value        = m.toFixed(2);
+    }
+  }
 
             // 11) mode toggle & label swapping (also re-calc gram-per-piece)
             function updateMode() {

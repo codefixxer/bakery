@@ -19,7 +19,7 @@ class CreateShowcasesTable extends Migration
             $table->decimal('break_even', 10, 2)->default(0);
             $table->decimal('total_revenue', 10, 2)->nullable();
             $table->decimal('plus', 10, 2)->nullable();
-            $table->decimal('real_margin', 5, 2)->nullable();
+            $table->decimal('real_margin', 8, 2)->nullable();
             $table->decimal('potential_income_average', 10, 2)->nullable();
             
           

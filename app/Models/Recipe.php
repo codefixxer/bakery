@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Department;
 use App\Models\RecipeCategory;
 use App\Models\RecipeIngredient;
+use App\Models\LaborCost;  // <— import your LaborCost model
 use App\Models\User;
 
 class Recipe extends Model
@@ -21,10 +22,9 @@ class Recipe extends Model
         'selling_price_per_piece',
         'selling_price_per_kg',
         'labour_time_min',
-        'labour_cost',
-        'packing_cost',
+        'labor_cost_id',
         'labor_cost_mode',
-        'ingredients_total_cost',
+        'packing_cost',
         'total_expense',
         'potential_margin',
         'total_pieces',
@@ -33,6 +33,34 @@ class Recipe extends Model
         'add_as_ingredient',
         'user_id',
     ];
+
+        public function getIngredientsTotalCostAttribute(): float
+    {
+        // uses the dynamic `cost` on each pivot
+        return $this->ingredients->sum('cost');
+    }
+
+
+
+    public function laborCostRate()
+    {
+        return $this->belongsTo(LaborCost::class, 'labor_cost_id');
+    }
+
+    /**
+     * Compute actual € labour cost on the fly.
+     */
+public function getLaborCostAttribute(): float
+{
+    $rate = $this->labor_cost_mode === 'external'
+          ? ($this->laborCostRate->external_cost_per_min ?? 0)
+          : ($this->laborCostRate->shop_cost_per_min     ?? 0);
+
+    return round($this->labour_time_min * $rate, 2);
+}
+
+    // … all your other relationships & accessors remain unchanged …
+
 
     public function ingredients()
     {

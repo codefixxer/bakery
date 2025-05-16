@@ -35,10 +35,8 @@
             <th>Name</th>
             <th>Break-even (€)</th>
             <th>Total Revenue (€)</th>
-            <th>Potential Avg (€)</th>
             <th>Plus (€)</th>
-            <th>Real Margin (%)</th>
-            <th>Updated</th>
+            <th>Real Margin (€)</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -49,16 +47,14 @@
               <td>{{ $s->showcase_name }}</td>
               <td>€{{ number_format($s->break_even, 2) }}</td>
               <td>€{{ number_format($s->total_revenue, 2) }}</td>
-              <td>€{{ number_format($s->potential_income_average, 2) }}</td>
               <td>€{{ number_format($s->plus, 2) }}</td>
               <td>
                 @if($s->real_margin >= 0)
-                  <span class="text-success">{{ $s->real_margin }}%</span>
+                  <span class="text-success">€{{ $s->real_margin }}</span>
                 @else
-                  <span class="text-danger">{{ $s->real_margin }}%</span>
+                  <span class="text-danger">€{{ $s->real_margin }}</span>
                 @endif
               </td>
-              <td>{{ optional($s->updated_at)->format('Y-m-d') }}</td>
               <td>
                 <a href="{{ route('showcase.show', $s) }}" class="btn btn-sm btn-deepblue me-1" title="View">
                   <i class="bi bi-eye"></i>
@@ -144,8 +140,6 @@
         null,  // Total Revenue
         null,  // Potential Avg
         null,  // Plus
-        null,  // Real Margin
-        null,  // Updated
         { orderable: false }  // Actions
       ],
       language: {
