@@ -5,12 +5,18 @@
 @section('content')
 <div class="container py-5">
   <div class="card border-primary shadow-sm">
-    <div class="card-header d-flex align-items-center gap-2" style="background-color: #041930; color: #e2ae76;">
-      <iconify-icon icon="mdi:truck-delivery" class="menu-icon" style="color: #e2ae76; font-size:35px"></iconify-icon>
-      <h5 class="mb-0" style="color: #e2ae76;">
-        {{ isset($externalSupply) ? 'Edit External Supply' : 'Create External Supply' }}
-      </h5>
-    </div>
+    <div class="card-header d-flex align-items-center gap-2"
+     style="background-color: #041930; color: #e2ae76; padding: .5rem; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+  <iconify-icon
+    icon="mdi:warehouse"
+    class="me-2"
+    style="font-size: 35px; color: #e2ae76;">
+  </iconify-icon>
+  <h5 class="mb-0" style="color: #e2ae76; font-size: 1.6vw;">
+    {{ isset($externalSupply) ? 'Edit External Supply' : 'Create External Supply' }}
+  </h5>
+</div>
+
 
     <div class="card-body">
       <form method="POST"

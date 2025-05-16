@@ -7,14 +7,25 @@
   <!-- Header Card -->
   <div class="card shadow-sm border-0 mb-4" style="background-color: #041930;">
     <div class="card-body d-flex justify-content-between align-items-center">
-      <h3 class="mb-0 text-uppercase fw-bold" style="color: #e2ae76;">
-        <i class="bi bi-box-seam me-2"></i>External Supplies & Returns
-      </h3>
-      <a href="{{ route('external-supplies.create') }}" class="btn btn-lg fw-semibold"
-         style="background-color: #e2ae76; color: #041930;">
-        <i class="bi bi-truck me-2" style="color: #041930;"></i> Add Supply
-      </a>
-    </div>
+  <h3 class="mb-0 text-uppercase fw-bold d-flex align-items-center" style="color: #e2ae76;">
+    <iconify-icon
+      icon="mdi:warehouse"
+      class="me-2"
+      style="width:; height: 1.1em; color: #e2ae76; font-size:2.1vw;">
+    </iconify-icon>
+    External Supplies & Returns
+  </h3>
+  <a href="{{ route('external-supplies.create') }}" class="btn btn-lg fw-semibold d-flex align-items-center"
+     style="background-color: #e2ae76; color: #041930;">
+    <iconify-icon
+      icon="mdi:truck-delivery"
+      class="me-2"
+      style="width: 1.5em; height: 1.5em; color: #041930;">
+    </iconify-icon>
+    Add Supply
+  </a>
+</div>
+
   </div>
 
   <!-- Filters -->

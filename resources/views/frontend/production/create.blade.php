@@ -7,10 +7,18 @@
 <div class="container py-5">
   <div class="card border-primary shadow-sm">
     <!-- Header with custom blue background and gold text -->
-    <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76;">
-      <i class="bi bi-calendar-plus fs-4 me-3"></i>
-      <h5 class="mb-0" style="color: #e2ae76;">{{ isset($production) ? 'Edit' : 'Create' }} Production Entry</h5>
-    </div>
+    <div class="card-header d-flex align-items-center"
+     style="background-color: #041930; color: #e2ae76; padding: .5rem; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+  <iconify-icon
+    icon="mdi:factory"
+    class="me-3"
+    style=" height: 1.1em; color: #e2ae76; font-size:1.5vw;">
+  </iconify-icon>
+  <h5 class="mb-0" style="color: #e2ae76;">
+    {{ isset($production) ? 'Edit' : 'Create' }} Production Entry
+  </h5>
+</div>
+
     <div class="card-body">
       <form method="POST"
             action="{{ isset($production) ? route('production.update', $production->id) : route('production.store') }}"

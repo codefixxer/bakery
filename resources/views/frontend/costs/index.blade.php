@@ -8,9 +8,16 @@
   <!-- Add / Edit Cost Card -->
   <div class="card mb-5 border-warning shadow-sm">
     <div class="card-header d-flex align-items-center" style="background-color: #041930;">
-      <i class="bi bi-currency-dollar fs-4 me-2" style="color: #e2ae76;"></i>
-      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">{{ isset($cost) ? 'Edit Cost' : 'Add Cost' }}</h5>
-    </div>
+  <iconify-icon
+    icon="mdi:format-list-bulleted"
+    class="me-2"
+    style="width: 1.0em; height: 1.0em; color: #e2ae76;  font-size: 1.6vw;">
+  </iconify-icon>
+  <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+    {{ isset($cost) ? 'Edit Cost' : 'Add Cost' }}
+  </h5>
+</div>
+>
     <div class="card-body">
       <form method="POST"
             action="{{ isset($cost) ? route('costs.update', $cost) : route('costs.store') }}"
@@ -106,7 +113,17 @@
   <!-- Costs Table -->
   <div class="card border-warning shadow-sm">
     <div class="card-header d-flex align-items-center" style="background-color: #041930;">
-      <h5 class="mb-0 fw-bold" style="color: #e2ae76;"><i class="bi bi-table me-2"></i>All Costs</h5>
+     <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
+ <h5 class="mb-0 fw-bold d-flex align-items-center" style="color: #e2ae76; font-size: 1.6vw;">
+  <iconify-icon
+    icon="mdi:table"
+    class="me-2"
+    style="font-size: 1.7vw; color: #e2ae76;">
+  </iconify-icon>
+  All Costs
+</h5>
+
+
     </div>
     <div class="card-body table-responsive">
       <table id="costTable" class="table table-bordered table-striped table-hover align-middle text-center mb-0" data-page-length="10">

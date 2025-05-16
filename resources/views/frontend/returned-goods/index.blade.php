@@ -7,10 +7,15 @@
 
   <!-- Header -->
   <div class="page-header d-flex align-items-center mb-4"
-       style="background-color: #041930; border-radius: .75rem; padding: 1rem 2rem;">
-    <i class="bi bi-arrow-counterclockwise me-2 fs-3" style="color: #e2ae76;"></i>
-    <h2 class="mb-0 fw-bold" style="color: #e2ae76;">Returned Goods</h2>
-  </div>
+     style="background-color: #041930; border-radius: .75rem; padding: 1rem 2rem;">
+  <iconify-icon
+    icon="mdi:truck-delivery"
+    class="me-2"
+    style="width: 1.5em; height: 1.0em; color: #e2ae76; font-size: 1.7vw;">
+  </iconify-icon>
+  <h4 class="mb-0 fw-bold" style="color: #e2ae76;">Returned Goods</h4>
+</div>
+
 
   {{-- Filters --}}
   <form method="GET" class="row g-3 mb-4">

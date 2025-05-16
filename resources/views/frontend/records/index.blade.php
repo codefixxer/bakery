@@ -80,9 +80,41 @@
   <div class="row gx-4">
     {{-- Showcase (50%) --}}
     <div class="col-lg-6 mb-5">
-      <div style="background:#041930; color:#e2ae76; padding:.5rem; border-top-left-radius:.5rem; border-top-right-radius:.5rem;">
-        <i class="bi bi-list-ul me-1"></i> Showcase Records
-      </div>
+      <div class="d-flex align-items-center"
+     style="background: #041930;
+            color: #e2ae76;
+            padding: .5rem;
+            border-top-left-radius: .5rem;
+            border-top-right-radius: .5rem;">
+  <svg
+    class="me-1"
+    viewBox="0 0 512.005 512.005"
+    style="width: 1.0em;
+           height: 1.0em;
+           color: #e2ae76;"
+    xmlns="http://www.w3.org/2000/svg">
+    <g>
+      <path fill="currentColor" d="M159.669,238.344L159.669,238.344c-26.601,0-48.166-21.564-48.166-48.166V21.609h96.331v168.57
+          C207.835,216.779,186.269,238.344,159.669,238.344z"/>
+      <path fill="currentColor" d="M352.331,238.344L352.331,238.344c-26.601,0-48.166-21.564-48.166-48.166V21.609h96.331v168.57
+          C400.496,216.779,378.932,238.344,352.331,238.344z"/>
+      <rect fill="currentColor" x="191.378" y="312.192" width="129.249" height="178.209"/>
+    </g>
+    <path fill="currentColor" d="M496.828,104.985c8.379,0,15.172-6.792,15.172-15.172V58.537c0-28.728-23.372-52.099-52.099-52.099
+        h-59.404h-96.332h-96.331h-96.332H52.099C23.372,6.437,0,29.809,0,58.537V190.18c0,20.106,9.428,38.04,24.084,49.651v250.563
+        c0,8.379,6.792,15.172,15.172,15.172h152.122h129.244h152.124c8.379,0,15.172-6.792,15.172-15.172V312.189
+        c0-8.379-6.792-15.172-15.172-15.172c-8.379,0-15.172,6.792-15.172,15.172v163.032h-121.78V312.189
+        c0-8.379-6.792-15.172-15.172-15.172H191.378c-8.379,0-15.172,6.792-15.172,15.172v163.032H54.428V252.878
+        c2.913,0.413,5.885,0.639,8.91,0.639c19.267,0,36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275
+        s36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275s36.54-8.659,48.166-22.275
+        c11.626,13.617,28.899,22.275,48.166,22.275c19.267,0,36.54-8.659,48.166-22.275c11.626,13.617,28.899,22.275,48.166,22.275
+        c34.924,0,63.338-28.414,63.338-63.338v-26.232c0-8.379-6.792-15.172-15.172-15.172s-15.172,6.792-15.172,15.172v26.232
+        c0,18.193-14.8,32.994-32.994,32.994s-32.994-14.8-32.994-32.994V36.78h44.232c11.996,0,21.755,9.76,21.755,21.755v31.277
+        C481.656,98.193,488.449,104.985,496.828,104.985z"/>
+  </svg>
+  Showcase Records
+</div>
+
       <table class="table mb-0 border showcaseTable">
         <thead class="table-light text-center">
           <tr>
@@ -149,9 +181,23 @@
 
     {{-- External (50%) --}}
     <div class="col-lg-6 mb-5">
-      <div style="background:#041930; color:#e2ae76; padding:.5rem; border-top-left-radius:.5rem; border-top-right-radius:.5rem;">
-        <i class="bi bi-box-seam me-1"></i> External Supply Records
-      </div>
+      <div class="d-flex align-items-center"
+     style="background: #041930;
+            color: #e2ae76;
+            padding: .5rem;
+            border-top-left-radius: .5rem;
+            border-top-right-radius: .5rem;">
+  <iconify-icon
+    icon="mdi:warehouse"
+    class="me-1"
+    style="
+           height: 1.2em;
+           font-size:1.0vw;
+           color: #e2ae76;">
+  </iconify-icon>
+  External Supply Records
+</div>
+
       <table class="table mb-0 border externalTable">
         <thead class="table-light text-center">
           <tr>

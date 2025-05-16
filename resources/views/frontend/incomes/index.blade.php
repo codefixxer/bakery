@@ -8,12 +8,17 @@
 
   <!-- Add / Edit Income Card -->
   <div class="card mb-5 border-success shadow-sm">
-    <div class="card-header d-flex align-items-center" style="background-color: #041930; color: #e2ae76;">
-      <i class="bi bi-currency-dollar fs-4 me-2"></i>
-      <h5 class="mb-0 fw-bold" style="color: #e2ae76;">
-        {{ isset($income) ? 'Edit' : 'Add' }} Income
-      </h5>
-    </div>
+    <div class="card-header d-flex align-items-center" style="background-color: #041930;">
+  <h5 class="mb-0 fw-bold d-flex align-items-center" style="color: #e2ae76; font-size: 1.7vw;">
+    <iconify-icon
+      icon="mdi:currency-usd"
+      style="margin-right: 0.0em; height: 1.1em; font-size: 1.7vw; color: #e2ae76;">
+    </iconify-icon>
+    {{ isset($income) ? 'Edit' : 'Add' }} Income
+  </h5>
+</div>
+
+
     <div class="card-body">
       <form
         action="{{ isset($income) ? route('incomes.update', $income) : route('incomes.store') }}"
