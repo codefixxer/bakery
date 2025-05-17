@@ -1,3 +1,4 @@
+{{-- resources/views/frontend/external-supplies/create.blade.php --}}
 @extends('frontend.layouts.app')
 
 @section('title', isset($externalSupply) ? 'Edit External Supply' : 'Create External Supply')
@@ -6,17 +7,16 @@
 <div class="container py-5">
   <div class="card border-primary shadow-sm">
     <div class="card-header d-flex align-items-center gap-2"
-     style="background-color: #041930; color: #e2ae76; padding: .5rem; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
-  <iconify-icon
-    icon="mdi:warehouse"
-    class="me-2"
-    style="font-size: 35px; color: #e2ae76;">
-  </iconify-icon>
-  <h5 class="mb-0" style="color: #e2ae76; font-size: 1.6vw;">
-    {{ isset($externalSupply) ? 'Edit External Supply' : 'Create External Supply' }}
-  </h5>
-</div>
-
+         style="background-color: #041930; color: #e2ae76; padding: .5rem; border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+      <iconify-icon
+        icon="mdi:warehouse"
+        class="me-2"
+        style="font-size: 35px; color: #e2ae76;">
+      </iconify-icon>
+      <h5 class="mb-0" style="color: #e2ae76; font-size: 1.6vw;">
+        {{ isset($externalSupply) ? 'Edit External Supply' : 'Create External Supply' }}
+      </h5>
+    </div>
 
     <div class="card-body">
       <form method="POST"
@@ -32,7 +32,9 @@
 
         <!-- Supply Name -->
         <div class="col-md-6">
-          <label for="supply_name" class="form-label fw-semibold">Supply Name</label>
+          <label id="supplyNameLabel" for="supply_name" class="form-label fw-semibold">
+            Supply Name
+          </label>
           <input
             type="text"
             id="supply_name"
@@ -105,7 +107,6 @@
             <div class="card-header d-flex align-items-center" style="background-color: #041930;">
               <strong style="color: #e2ae76; font-size: 1.1rem;">Supplied Products</strong>
             </div>
-            
             <div class="card-body p-0">
               <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" id="supplyTable">
@@ -167,19 +168,17 @@
                       </tr>
                     @endforeach
                   </tbody>
-                  
                 </table>
               </div>
               <div class="p-3 border-top text-end">
                 <button type="button" id="addRowBtn"
-                class="btn btn-sm"
-                style="border: 1px solid #e2ae76; color: #041930; background-color: transparent;"
-                onmouseover="this.style.backgroundColor='#e2ae76'; this.style.color='white'; this.querySelector('i').style.color='white';"
-                onmouseout="this.style.backgroundColor='transparent'; this.style.color='#041930'; this.querySelector('i').style.color='#041930';">
-          <i class="bi bi-plus-circle me-1" style="color: #041930;"></i>
-          Add Recipe
-        </button>
-        
+                        class="btn btn-sm"
+                        style="border: 1px solid #e2ae76; color: #041930; background-color: transparent;"
+                        onmouseover="this.style.backgroundColor='#e2ae76'; this.style.color='white'; this.querySelector('i').style.color='white';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#041930'; this.querySelector('i').style.color='#041930';">
+                  <i class="bi bi-plus-circle me-1" style="color: #041930;"></i>
+                  Add Recipe
+                </button>
               </div>
             </div>
           </div>
@@ -206,33 +205,32 @@
 </div>
 @endsection
 
-
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const actionSelect = document.getElementById('template_action');
-  const nameInput    = document.getElementById('supply_name');
-  const nameLabel    = document.getElementById('supplyNameLabel');
-  const supplyBody   = document.getElementById('supplyTableBody');
-  const addBtn       = document.getElementById('addRowBtn');
-  const dateInput    = document.getElementById('supply_date');
-  const templateSelect = document.getElementById('template_select');
-  const totalAmountInput = document.getElementById('totalAmount');
+  const actionSelect      = document.getElementById('template_action');
+  const nameInput         = document.getElementById('supply_name');
+  const nameLabel         = document.getElementById('supplyNameLabel');
+  const supplyBody        = document.getElementById('supplyTableBody');
+  const addBtn            = document.getElementById('addRowBtn');
+  const templateSelect    = document.getElementById('template_select');
+  const totalAmountInput  = document.getElementById('totalAmount');
+  const dateInput         = document.getElementById('supply_date');
 
+  // Toggle label text & required attribute
   function toggleNameRequirement() {
     const v = actionSelect.value;
     const isTemplate = v === 'template' || v === 'both';
+    nameLabel.textContent = isTemplate ? 'Template Name' : 'Supply Name';
     nameInput.required = isTemplate;
-    if (nameLabel) nameLabel.textContent = isTemplate ? 'Template Name *' : 'Supply Name';
   }
-
   toggleNameRequirement();
-  actionSelect?.addEventListener('change', toggleNameRequirement);
+  actionSelect.addEventListener('change', toggleNameRequirement);
 
-  // Clone a blank row (template)
+  // Prepare blank row for adding
   let rowIndex = supplyBody.querySelectorAll('.supply-row').length;
   const baseRow = supplyBody.querySelector('.supply-row');
-  const blankRow = () => {
+  function blankRow() {
     const clone = baseRow.cloneNode(true);
     clone.querySelectorAll('input, select').forEach(el => {
       if (el.tagName === 'SELECT') el.selectedIndex = 0;
@@ -240,9 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
       else el.value = '';
     });
     return clone;
-  };
+  }
 
-  // Add row logic
+  // Add new row
   addBtn.addEventListener('click', () => {
     const newRow = blankRow();
     newRow.querySelectorAll('input, select').forEach(el => {
@@ -253,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rowIndex++;
   });
 
-  // Recalculate a row’s total
+  // Recalculate row total
   function recalcRow(row) {
     const opt      = row.querySelector('.recipe-select')?.selectedOptions[0];
     const priceIn  = row.querySelector('input[name*="[price]"]');
@@ -263,17 +261,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const price = parseFloat(opt?.dataset.price || 0).toFixed(2);
     const mode  = opt?.dataset.sellMode || 'piece';
+    priceIn.value = price;
+    unitSpan.textContent = mode === 'kg' ? '/kg' : '/piece';
 
-    if (priceIn) priceIn.value = price;
-    if (unitSpan) unitSpan.textContent = mode === 'kg' ? '/kg' : '/piece';
-
-    const qty = parseFloat(qtyIn?.value || 0);
-    if (totalIn) totalIn.value = (price * qty).toFixed(2);
-
+    const qty = parseFloat(qtyIn.value || 0);
+    totalIn.value = (price * qty).toFixed(2);
     calcSummary();
   }
 
-  // Recalculate total amount
+  // Recalculate overall total
   function calcSummary() {
     let sum = 0;
     document.querySelectorAll('.total-field').forEach(input => {
@@ -283,35 +279,22 @@ document.addEventListener('DOMContentLoaded', () => {
     totalAmountInput.value = sum.toFixed(2);
   }
 
-  // Event listeners for live updates
-  supplyBody.addEventListener('change', e => {
-    if (e.target.classList.contains('recipe-select')) {
-      recalcRow(e.target.closest('tr'));
-    }
+  // Attach live recalc to existing rows
+  supplyBody.querySelectorAll('.supply-row').forEach(r => {
+    r.querySelector('.recipe-select').addEventListener('change', () => recalcRow(r));
+    r.querySelector('.qty-field').addEventListener('input', () => recalcRow(r));
+    r.querySelector('.remove-row').addEventListener('click', () => {
+      if (supplyBody.querySelectorAll('.supply-row').length > 1) {
+        r.remove();
+        calcSummary();
+      }
+    });
   });
 
-  supplyBody.addEventListener('input', e => {
-    if (e.target.classList.contains('qty-field')) {
-      recalcRow(e.target.closest('tr'));
-    }
-  });
-
-  supplyBody.addEventListener('click', e => {
-    if (e.target.closest('.remove-row') &&
-        supplyBody.querySelectorAll('.supply-row').length > 1) {
-      e.target.closest('tr').remove();
-      calcSummary();
-    }
-  });
-
-  // Init existing rows
-  supplyBody.querySelectorAll('.supply-row').forEach(r => recalcRow(r));
-
-  // Load from template
+  // Load template details
   templateSelect?.addEventListener('change', function() {
     const id = this.value;
     if (!id) return;
-
     fetch(`/external-supplies/template/${id}`)
       .then(res => res.json())
       .then(data => {
@@ -322,17 +305,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         supplyBody.innerHTML = '';
         rowIndex = 0;
-
         data.rows.forEach(rowData => {
           const r = blankRow();
           r.querySelectorAll('input, select').forEach(el => {
             if (el.name) el.name = el.name.replace(/\[\d+\]/, `[${rowIndex}]`);
           });
-
           r.querySelector('.recipe-select').value = rowData.recipe_id;
           r.querySelector('input[name*="[qty]"]').value = rowData.qty;
           r.querySelector('input[name*="[total_amount]"]').value = parseFloat(rowData.total_amount).toFixed(2);
-
           supplyBody.appendChild(r);
           recalcRow(r);
           rowIndex++;
@@ -343,6 +323,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endsection
-
-
-

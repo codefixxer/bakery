@@ -11,6 +11,7 @@ use App\Models\ProductionDetail;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Chef;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductionController extends Controller
@@ -37,46 +38,54 @@ class ProductionController extends Controller
         return response()->json($details);
     }
 
-   public function show(Request $request, Production $production)
+public function show(Request $request, Production $production)
     {
-        // Map equipment ids → names
+        // 1) Equipment lookup
         $equipmentMap = Equipment::pluck('name', 'id')->toArray();
 
-        // Gather all chefs used in this production record
-        $allChefs = $production->details
-            ->map->chef
-            ->unique('id')
-            ->pluck('name','id')
-            ->toArray();
+        // 2) Build dropdown of chefs used here
+        $allChefs = PastryChef::whereIn(
+            'id',
+            $production->details()->pluck('pastry_chef_id')->unique()
+        )
+        ->orderBy('name')
+        ->pluck('name', 'id')
+        ->toArray();
 
-        // Start with full collection of details
-        $details = $production->details;
+        // 3) Start query
+        $detailsQuery = $production
+            ->details()
+            ->with(['recipe', 'chef']); 
+            // make sure your ProductionDetail model’s chef() relation uses pastry_chef_id
 
-        // 1) Filter by chef if requested
+        // 4) Apply chef filter
         if ($request->filled('chef_id')) {
-            $details = $details->where('chef_id', $request->chef_id);
+            $detailsQuery->where('pastry_chef_id', $request->chef_id);
         }
 
-        // 2) Sort by chef name if requested
+        // 5) Sort by chef if requested
+        $sortDir = $request->input('direction', 'asc');
         if ($request->input('sort') === 'chef') {
-            $direction = $request->input('direction','asc');
-            $details = $details->sortBy(
-                fn($d) => $d->chef->name,
-                SORT_REGULAR,
-                $direction === 'desc'
-            );
+            $detailsQuery
+                ->join('pastry_chefs', 'production_details.pastry_chef_id', '=', 'pastry_chefs.id')
+                ->orderBy('pastry_chefs.name', $sortDir)
+                ->select('production_details.*');
         }
 
-        // Pass everything to the view
+        // 6) Get the rows
+        $details = $detailsQuery->get();
+
+        // 7) Render
         return view('frontend.production.show', [
             'production'   => $production,
             'equipmentMap' => $equipmentMap,
             'allChefs'     => $allChefs,
             'details'      => $details,
             'selectedChef' => $request->chef_id,
-            'sortDir'      => $request->input('direction','asc'),
+            'sortDir'      => $sortDir,
         ]);
     }
+
 
     public function index(Request $request)
     {

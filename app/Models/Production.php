@@ -29,4 +29,9 @@ class Production extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function chef()
+{
+    return $this->belongsTo(\App\Models\PastryChef::class, 'pastry_chef_id');
+}
+
 }

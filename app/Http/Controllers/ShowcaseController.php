@@ -37,19 +37,22 @@ class ShowcaseController extends Controller
 
 
 
-    public function create()
+ public function create()
 {
-    $user = Auth::user();
+    $user        = Auth::user();
     $groupRootId = $user->created_by ?? $user->id;
-        $laborCost = \App\Models\LaborCost::where('user_id', $groupRootId)->first();
 
-    // all users in this group
+    // get the group's labor cost record
+    $laborCost     = LaborCost::where('user_id', $groupRootId)->first();
+    $laborCostRate = $laborCost;
+
+    // all user IDs in this group
     $groupUserIds = User::where('created_by', $groupRootId)
         ->pluck('id')
         ->push($groupRootId);
 
-    // fetch only recipes with a valid selling price
-    $recipes = Recipe::with('ingredients')   // make sure ingredients are eager-loaded
+    // fetch valid recipes with ingredients
+    $recipes = Recipe::with('ingredients')
         ->whereIn('user_id', $groupUserIds)
         ->where(function ($q) {
             $q->where(fn($q2) =>
@@ -63,32 +66,32 @@ class ShowcaseController extends Controller
         })
         ->get();
 
-    // load your laborCost record for this group
-    $laborCostRate = LaborCost::where('user_id', $groupRootId)->first();
-
-    // **HERE** replicate the index() logic so each Recipe gets batch_ing_cost
+    // compute each recipe's batch costs
     $recipes->each(function ($r) use ($laborCostRate) {
-        // labor cost per batch (you may not need it in the showcase, but good to compute)
         $rate = $r->labor_cost_mode === 'external'
             ? ($laborCostRate->external_cost_per_min ?? 0)
             : ($laborCostRate->shop_cost_per_min     ?? 0);
         $r->batch_labor_cost = round($r->labour_time_min * $rate, 2);
-
-        // ingredients cost per batch
-        $r->batch_ing_cost = $r->ingredients_cost_per_batch;
+        $r->batch_ing_cost   = $r->ingredients_cost_per_batch;
     });
 
-    // templates for “save as template”
+    // load full Showcase models for "Choose Template"
     $templates = Showcase::where('save_template', true)
         ->whereIn('user_id', $groupUserIds)
-        ->pluck('showcase_name','id');
+        ->get();
 
+    // flag for view
     $isEdit = false;
 
     return view('frontend.showcase.create', compact(
-        'recipes','laborCostRate','templates','isEdit','laborCost'
+        'recipes',
+        'laborCost',
+        'laborCostRate',
+        'templates',
+        'isEdit'
     ));
 }
+
 
     // public function create()
     // {
@@ -295,35 +298,39 @@ class ShowcaseController extends Controller
         ]);
 
         return response()->json([
-            'showcase_name'   => $template->showcase_name,
-            'showcase_date'   => $template->showcase_date->format('Y-m-d'),
-            'template_action' => $template->template_action,
-            'rows'            => $rows,
-        ]);
+        'showcase_name'   => $template->showcase_name,
+        'showcase_date'   => $template->showcase_date->format('Y-m-d'),
+        'template_action' => $template->template_action,
+          'break_even'      => $template->break_even,      // ← add this
+        'details'         => $rows,  // <-- changed from 'rows' to 'details'
+    ]);
     }
 
-    public function edit(Showcase $showcase)
-    {
-        abort_if($showcase->user_id !== Auth::id(), 403);
+  public function edit(Showcase $showcase)
+{
+    abort_if($showcase->user_id !== Auth::id(), 403);
 
-        $userId    = Auth::id();
-        $recipes   = Recipe::where('user_id', $userId)->get();
-        $laborCost = LaborCost::first();
-        $templates = Showcase::where('save_template', true)
-            ->where('user_id', $userId)
-            ->pluck('showcase_name', 'id');
+    $userId    = Auth::id();
+    $recipes   = Recipe::where('user_id', $userId)->get();
+    $laborCost = LaborCost::first();
 
-        $isEdit = true;
-        $showcase->load('recipes');
+    // ← define $templates just like in create()
+    $templates = Showcase::where('save_template', true)
+        ->where('user_id', $userId)
+        ->get();
 
-        return view('frontend.showcase.create', compact(
-            'showcase',
-            'recipes',
-            'laborCost',
-            'templates',
-            'isEdit'
-        ));
-    }
+    $isEdit = true;
+    $showcase->load('recipes');
+
+    return view('frontend.showcase.create', compact(
+        'showcase',
+        'recipes',
+        'laborCost',
+        'templates',   // ← make sure this is here
+        'isEdit'
+    ));
+}
+
 
 
     public function destroy(Showcase $showcase)

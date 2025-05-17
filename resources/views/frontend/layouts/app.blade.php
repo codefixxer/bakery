@@ -272,6 +272,45 @@
                 });
             });
         </script>
+        <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 1) Convert every <input type="date"> value from yyyy-mm-dd to dd/mm/yyyy
+  document.querySelectorAll('input[type="date"]').forEach(function(input) {
+    if (!input.value) return;
+    let parts = input.value.split('-');           // [yyyy, mm, dd]
+    input.value = parts[2] + '/' + parts[1] + '/' + parts[0];
+    // When the user picks a new date, convert it back:
+    input.addEventListener('change', function() {
+      let p = this.value.split('/');
+      // assume dd/mm/yyyy → yyyy-mm-dd for underlying value
+      this.value = p[2] + '-' + p[1] + '-' + p[0];
+      // then reformat for display
+      this.setAttribute('data-date-raw', this.value);
+      let d = this.value.split('-');
+      this.value = d[2] + '/' + d[1] + '/' + d[0];
+    });
+  });
+
+  // 2) Swap all visible dates in ISO format (yyyy-mm-dd) inside text nodes
+  //    to Italian format (dd/mm/yyyy).
+  //    This will catch any literal “2025-05-17” in your markup.
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+  let node;
+  const isoDateRE = /\b(\d{4})-(\d{2})-(\d{2})\b/g;
+  while (node = walker.nextNode()) {
+    if (isoDateRE.test(node.nodeValue)) {
+      node.nodeValue = node.nodeValue.replace(isoDateRE, function(_, yyyy, mm, dd) {
+        return dd + '/' + mm + '/' + yyyy;
+      });
+    }
+  }
+});
+</script>
 
 
         <!-- Pusher JS -->

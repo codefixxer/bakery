@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Client;
 use App\Models\Recipe;
-use App\Models\ExternalSupply;
-use App\Models\ExternalSupplyRecipe;
 use App\Models\ReturnedGood;
 use Illuminate\Http\Request;
+use App\Models\ExternalSupply;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use App\Models\ExternalSupplyRecipe;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use Carbon\Carbon;
 
 class ReturnedGoodController extends Controller
 {
@@ -21,78 +23,89 @@ class ReturnedGoodController extends Controller
 
 
 
- public function index(Request $request)
-    {
-        $user        = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
+  public function index(Request $request)
+{
+    $user        = Auth::user();
+    $groupRootId = $user->created_by ?? $user->id;
 
-        // → two-level visibility group
-        $groupUserIds = \App\Models\User::where('created_by', $groupRootId)
-            ->pluck('id')
-            ->push($groupRootId);
+    // 1) Visibility Group
+    $groupUserIds = User::where('created_by', $groupRootId)
+                        ->pluck('id')
+                        ->push($groupRootId)
+                        ->unique();
 
-        // 1) clients dropdown
-        $clients = Client::whereIn('user_id', $groupUserIds)
-                         ->orderBy('name')
-                         ->get();
+    // 2) Clients for dropdown
+    $clients = Client::whereIn('user_id', $groupUserIds)
+                     ->orderBy('name')
+                     ->get();
 
-        // 2) base queries
-        $suppliesQ = ExternalSupply::with('client')
-                          ->whereIn('user_id', $groupUserIds);
-        $returnsQ  = ReturnedGood::with('client','recipes')
-                          ->whereIn('user_id', $groupUserIds);
+    // 3) Base queries
+    $suppliesQ = ExternalSupply::with('client')
+                               ->whereIn('user_id', $groupUserIds);
+    $returnsQ  = ReturnedGood::with('client', 'recipes', 'externalSupply')
+                              ->whereIn('user_id', $groupUserIds);
 
-        // 3) apply same filters
-        if ($request->filled('client_id')) {
-            $suppliesQ->where('client_id', $request->client_id);
-            $returnsQ->where('client_id',  $request->client_id);
-        }
-        if ($request->filled('start_date')) {
-            $suppliesQ->where('supply_date', '>=', $request->start_date);
-            $returnsQ->where('return_date', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $suppliesQ->where('supply_date', '<=', $request->end_date);
-            $returnsQ->where('return_date', '<=', $request->end_date);
-        }
+    // 4) Apply filters
+    if ($request->filled('client_id')) {
+        $suppliesQ->where('client_id', $request->client_id);
+        $returnsQ->where('client_id', $request->client_id);
+    }
+    if ($request->filled('start_date')) {
+        $suppliesQ->where('supply_date', '>=', $request->start_date);
+        $returnsQ->where('return_date', '>=', $request->start_date);
+    }
+    if ($request->filled('end_date')) {
+        $suppliesQ->where('supply_date', '<=', $request->end_date);
+        $returnsQ->where('return_date', '<=', $request->end_date);
+    }
 
-        // 4) fetch *and sort* descending
-        $supplies      = $suppliesQ->orderBy('supply_date', 'desc')->get();
-        $returnedGoods = $returnsQ->orderBy('return_date','desc')->get();
+    // 5) Fetch & sort
+    $supplies      = $suppliesQ->orderBy('supply_date', 'desc')->get();
+    $returnedGoods = $returnsQ->orderBy('return_date', 'desc')->get();
 
-        // map returns by supply
-        $returnsBySupply = $returnedGoods
-            ->groupBy('external_supply_id')
-            ->map(fn($group) => $group->sum('total_amount'));
+    // 6) Returns mapped by supply ID
+    $returnsBySupply = $returnedGoods
+        ->groupBy('external_supply_id')
+        ->map(fn($grp) => $grp->sum('total_amount'));
 
-        // 5) daily comparison (already sorted by supply_date desc)
-        $supsByDate = $supplies
-            ->groupBy(fn($s) => $s->supply_date->toDateString())
-            ->map(fn($group,$date) => (object)[
+    // 7) Correct Daily Summary (group by supply date, match returns to original supply date)
+    $supsByDate = $supplies
+        ->groupBy(fn($supply) => $supply->supply_date->toDateString())
+        ->map(function($group, $date) use ($returnedGoods) {
+            $supplyIdsOnDate = $group->pluck('id');
+
+            $returnsForDate = $returnedGoods
+                ->whereIn('external_supply_id', $supplyIdsOnDate)
+                ->sum('total_amount');
+
+            return (object)[
                 'date'         => $date,
                 'total_supply' => $group->sum('total_amount'),
-                'total_return' => $returnedGoods
-                                   ->where('return_date',$date)
-                                   ->sum('total_amount'),
-            ])
-            ->sortByDesc('date');
+                'total_return' => $returnsForDate,
+            ];
+        })
+        ->sortByDesc('date');
 
-        // grand totals *after* filters
-        $grandSupply = $supplies->sum('total_amount');
-        $grandReturn = $returnedGoods->sum('total_amount');
-        $grandNet    = $grandSupply - $grandReturn;
+    // 8) Grand totals
+    $grandSupply = $supplies->sum('total_amount');
+    $grandReturn = $returnedGoods->sum('total_amount');
+    $grandNet    = $grandSupply - $grandReturn;
 
+    // 9) AJAX response
+    if ($request->ajax()) {
         return view('frontend.returned-goods.index', compact(
-            'clients',
-            'supplies',
-            'returnedGoods',
-            'returnsBySupply',
-            'supsByDate',
-            'grandSupply',
-            'grandReturn',
-            'grandNet'
+            'clients', 'supplies', 'returnedGoods', 'returnsBySupply', 
+            'supsByDate', 'grandSupply', 'grandReturn', 'grandNet'
         ));
     }
+
+    // 10) Full page load
+    return view('frontend.returned-goods.index', compact(
+        'clients', 'supplies', 'returnedGoods', 'returnsBySupply', 
+        'supsByDate', 'grandSupply', 'grandReturn', 'grandNet'
+    ));
+}
+
 
 
 
