@@ -22,88 +22,163 @@ class ShowcaseController extends Controller
             ->push($groupRootId);
 
         $showcases = Showcase::with([
-                'recipes.recipe',
-                'user'
-            ])
+            'recipes.recipe.ingredients.ingredient',
+            'recipes.recipe'  // for price, sell_mode, recipe_weight, total_pieces
+        ])
             ->whereIn('user_id', $groupUserIds)
             ->latest()
             ->get();
 
+
+
         return view('frontend.showcase.index', compact('showcases'));
     }
 
+
+
+
     public function create()
-    {
-        $user = Auth::user();
-        $groupRootId = $user->created_by ?? $user->id;
+{
+    $user = Auth::user();
+    $groupRootId = $user->created_by ?? $user->id;
+        $laborCost = \App\Models\LaborCost::where('user_id', $groupRootId)->first();
 
-        $groupUserIds = User::where('created_by', $groupRootId)
-            ->pluck('id')
-            ->push($groupRootId);
+    // all users in this group
+    $groupUserIds = User::where('created_by', $groupRootId)
+        ->pluck('id')
+        ->push($groupRootId);
 
-        $recipes    = Recipe::whereIn('user_id', $groupUserIds)->get();
-        $laborCost  = LaborCost::first();
-        $templates  = Showcase::where('save_template', true)
-                              ->whereIn('user_id', $groupUserIds)
-                              ->pluck('showcase_name', 'id');
+    // fetch only recipes with a valid selling price
+    $recipes = Recipe::with('ingredients')   // make sure ingredients are eager-loaded
+        ->whereIn('user_id', $groupUserIds)
+        ->where(function ($q) {
+            $q->where(fn($q2) =>
+                    $q2->where('sell_mode','kg')
+                        ->where('selling_price_per_kg','>',0)
+                )
+                ->orWhere(fn($q2) =>
+                    $q2->where('sell_mode','piece')
+                        ->where('selling_price_per_piece','>',0)
+                );
+        })
+        ->get();
 
-        $isEdit = false;
+    // load your laborCost record for this group
+    $laborCostRate = LaborCost::where('user_id', $groupRootId)->first();
 
-        return view('frontend.showcase.create', compact(
-            'recipes', 'laborCost', 'templates', 'isEdit'
-        ));
-    }
+    // **HERE** replicate the index() logic so each Recipe gets batch_ing_cost
+    $recipes->each(function ($r) use ($laborCostRate) {
+        // labor cost per batch (you may not need it in the showcase, but good to compute)
+        $rate = $r->labor_cost_mode === 'external'
+            ? ($laborCostRate->external_cost_per_min ?? 0)
+            : ($laborCostRate->shop_cost_per_min     ?? 0);
+        $r->batch_labor_cost = round($r->labour_time_min * $rate, 2);
+
+        // ingredients cost per batch
+        $r->batch_ing_cost = $r->ingredients_cost_per_batch;
+    });
+
+    // templates for “save as template”
+    $templates = Showcase::where('save_template', true)
+        ->whereIn('user_id', $groupUserIds)
+        ->pluck('showcase_name','id');
+
+    $isEdit = false;
+
+    return view('frontend.showcase.create', compact(
+        'recipes','laborCostRate','templates','isEdit','laborCost'
+    ));
+}
+
+    // public function create()
+    // {
+    //     $user = Auth::user();
+    //     $groupRootId = $user->created_by ?? $user->id;
+
+    //     $groupUserIds = User::where('created_by', $groupRootId)
+    //         ->pluck('id')
+    //         ->push($groupRootId);
+
+    //     // $recipes    = Recipe::whereIn('user_id', $groupUserIds)->get();
+    //     // $laborCost  = LaborCost::first();
+    //     $recipes = Recipe::whereIn('user_id', $groupUserIds)
+    //         ->where(function ($q) {
+    //             $q->where(function ($q2) {
+    //                 // if we sell by kg, price_per_kg must be > 0
+    //                 $q2->where('sell_mode', 'kg')
+    //                     ->where('selling_price_per_kg', '>', 0);
+    //             })
+    //                 ->orWhere(function ($q2) {
+    //                     // if we sell by piece, price_per_piece must be > 0
+    //                     $q2->where('sell_mode', 'piece')
+    //                         ->where('selling_price_per_piece', '>', 0);
+    //                 });
+    //         })
+    //         ->get();
+
+    //     $groupRootId = $user->created_by ?? $user->id;
+    //     $laborCost = \App\Models\LaborCost::where('user_id', $groupRootId)->first();
+
+    //     $templates  = Showcase::where('save_template', true)
+    //         ->whereIn('user_id', $groupUserIds)
+    //         ->pluck('showcase_name', 'id');
+
+    //     $isEdit = false;
+
+    //     return view('frontend.showcase.create', compact(
+    //         'recipes',
+    //         'laborCost',
+    //         'templates',
+    //         'isEdit'
+    //     ));
+    // }
 
     public function store(Request $request)
     {
         $request->validate([
-            'showcase_date'           => 'required|date',
-            'template_action'         => 'nullable|in:none,template,both',
-            'items'                   => 'required|array|min:1',
-            'items.*.recipe_id'       => 'required|exists:recipes,id',
-            'items.*.price'           => 'required|numeric|min:0',
-            'items.*.quantity'        => 'required|integer|min:0',
-            'items.*.sold'            => 'required|integer|min:0',
-            'items.*.reuse'           => 'required|integer|min:0',
-            'items.*.waste'           => 'required|integer|min:0',
-            'items.*.potential_income'=> 'required|numeric|min:0',
-            'items.*.actual_revenue'  => 'required|numeric|min:0',
+            'showcase_name'              => 'nullable|string|max:255',
+            'showcase_date'              => 'required|date',
+            'template_action'            => 'nullable|in:none,template,both',
+            // your item lines…
+            'items'                      => 'required|array|min:1',
+            'items.*.recipe_id'          => 'required|exists:recipes,id',
+            'items.*.price'              => 'required|numeric|min:0',
+            'items.*.quantity'           => 'required|integer|min:0',
+            'items.*.sold'               => 'required|integer|min:0',
+            'items.*.reuse'              => 'required|integer|min:0',
+            'items.*.waste'              => 'required|integer|min:0',
+            'items.*.potential_income'   => 'required|numeric|min:0',
+            'items.*.actual_revenue'     => 'required|numeric|min:0',
+            // now validating the summary fields from the form:
+            'total_revenue'              => 'required|numeric|min:0',
+            'plus'                       => 'required|numeric',
+            'real_margin'                => 'required|numeric',
         ]);
 
         if (in_array($request->template_action, ['template', 'both'])) {
-            $request->validate([
-                'showcase_name' => 'required|string|max:255'
-            ]);
+            // enforce name when saving as template
+            $request->validate(['showcase_name' => 'required|string|max:255']);
         }
 
-        $userId        = Auth::id();
-        $data          = $request->all();
-        $data['save_template'] = in_array($data['template_action'], ['template', 'both']);
+        $data     = $request->all();
+        $userId   = Auth::id();
+        $saveTpl  = in_array($data['template_action'], ['template', 'both']);
 
-        $totalRevenue   = array_sum(array_column($data['items'], 'actual_revenue'));
-        $totalPotential = array_sum(array_column($data['items'], 'potential_income'));
-        $breakEven      = LaborCost::first()?->daily_bep ?? 0;
-        $plus           = round($totalRevenue - $breakEven, 2);
-        $realMargin     = $totalRevenue > 0
-                            ? round(($plus / $totalRevenue) * 100, 2)
-                            : 0;
-        $potentialAvg   = count($data['items'])
-                            ? round($totalPotential / count($data['items']), 2)
-                            : 0;
-
+        // create the Showcase from the form inputs:
         $showcase = Showcase::create([
             'showcase_name'             => $data['showcase_name'] ?? null,
             'showcase_date'             => $data['showcase_date'],
             'template_action'           => $data['template_action'],
-            'save_template'             => $data['save_template'],
-            'break_even'                => $breakEven,
-            'total_revenue'             => $totalRevenue,
-            'plus'                      => $plus,
-            'real_margin'               => $realMargin,
-            'potential_income_average'  => $potentialAvg,
+            'save_template'             => $saveTpl,
+            'break_even'                => $data['break_even'],               // already on form
+            'total_revenue'             => $data['total_revenue'],
+            'plus'                      => $data['plus'],
+            'potential_income_average'  => 0,
+            'real_margin'               => $data['real_margin'],
             'user_id'                   => $userId,
         ]);
 
+        // persist each line
         foreach ($data['items'] as $item) {
             ShowcaseRecipe::create([
                 'showcase_id'     => $showcase->id,
@@ -113,7 +188,7 @@ class ShowcaseController extends Controller
                 'sold'            => $item['sold'],
                 'reuse'           => $item['reuse'],
                 'waste'           => $item['waste'],
-                'potential_income'=> $item['potential_income'],
+                'potential_income' => $item['potential_income'],
                 'actual_revenue'  => $item['actual_revenue'],
                 'user_id'         => $userId,
             ]);
@@ -123,6 +198,82 @@ class ShowcaseController extends Controller
             ->route('showcase.index')
             ->with('success', 'Showcase created successfully.');
     }
+
+    public function update(Request $request, Showcase $showcase)
+    {
+        // only the owner can edit
+        abort_if($showcase->user_id !== Auth::id(), 403);
+
+        // same validation rules as store()
+        $request->validate([
+            'showcase_name'              => 'nullable|string|max:255',
+            'showcase_date'              => 'required|date',
+            'template_action'            => 'nullable|in:none,template,both',
+
+            // item lines
+            'items'                      => 'required|array|min:1',
+            'items.*.recipe_id'          => 'required|exists:recipes,id',
+            'items.*.price'              => 'required|numeric|min:0',
+            'items.*.quantity'           => 'required|integer|min:0',
+            'items.*.sold'               => 'required|integer|min:0',
+            'items.*.reuse'              => 'required|integer|min:0',
+            'items.*.waste'              => 'required|integer|min:0',
+            'items.*.potential_income'   => 'required|numeric|min:0',
+            'items.*.actual_revenue'     => 'required|numeric|min:0',
+
+            // summary fields from the form
+            'total_revenue'              => 'required|numeric|min:0',
+            'plus'                       => 'required|numeric',
+            'real_margin'                => 'required|numeric',
+        ]);
+
+        // if saving as a template, name becomes required
+        if (in_array($request->template_action, ['template', 'both'])) {
+            $request->validate([
+                'showcase_name' => 'required|string|max:255',
+            ]);
+        }
+
+        $data    = $request->all();
+        $userId  = Auth::id();
+        $saveTpl = in_array($data['template_action'], ['template', 'both']);
+
+        // update the parent exactly as store() does
+        $showcase->update([
+            'showcase_name'             => $data['showcase_name']             ?? null,
+            'showcase_date'             => $data['showcase_date'],
+            'template_action'           => $data['template_action'],
+            'save_template'             => $saveTpl,
+            'break_even'                => $data['break_even'],               // pulled from form
+            'total_revenue'             => $data['total_revenue'],            // from form
+            'plus'                      => $data['plus'],                     // from form
+            'potential_income_average'  => 0,                                  // same as store()
+            'real_margin'               => $data['real_margin'],              // from form
+            'user_id'                   => $userId,
+        ]);
+
+        // drop & recreate all the lines, just like store()
+        $showcase->recipes()->delete();
+        foreach ($data['items'] as $item) {
+            ShowcaseRecipe::create([
+                'showcase_id'     => $showcase->id,
+                'recipe_id'       => $item['recipe_id'],
+                'price'           => $item['price'],
+                'quantity'        => $item['quantity'],
+                'sold'            => $item['sold'],
+                'reuse'           => $item['reuse'],
+                'waste'           => $item['waste'],
+                'potential_income' => $item['potential_income'],
+                'actual_revenue'  => $item['actual_revenue'],
+                'user_id'         => $userId,
+            ]);
+        }
+
+        return redirect()
+            ->route('showcase.index')
+            ->with('success', 'Showcase updated successfully.');
+    }
+
 
     public function getTemplate($id)
     {
@@ -139,7 +290,7 @@ class ShowcaseController extends Controller
             'sold'            => $r->sold,
             'reuse'           => $r->reuse,
             'waste'           => $r->waste,
-            'potential_income'=> $r->potential_income,
+            'potential_income' => $r->potential_income,
             'actual_revenue'  => $r->actual_revenue,
         ]);
 
@@ -159,87 +310,21 @@ class ShowcaseController extends Controller
         $recipes   = Recipe::where('user_id', $userId)->get();
         $laborCost = LaborCost::first();
         $templates = Showcase::where('save_template', true)
-                             ->where('user_id', $userId)
-                             ->pluck('showcase_name', 'id');
+            ->where('user_id', $userId)
+            ->pluck('showcase_name', 'id');
 
         $isEdit = true;
         $showcase->load('recipes');
 
         return view('frontend.showcase.create', compact(
-            'showcase', 'recipes', 'laborCost', 'templates', 'isEdit'
+            'showcase',
+            'recipes',
+            'laborCost',
+            'templates',
+            'isEdit'
         ));
     }
 
-    public function update(Request $request, Showcase $showcase)
-    {
-        abort_if($showcase->user_id !== Auth::id(), 403);
-
-        $request->validate([
-            'showcase_date'           => 'required|date',
-            'template_action'         => 'nullable|in:none,template,both',
-            'items'                   => 'required|array|min:1',
-            'items.*.recipe_id'       => 'required|exists:recipes,id',
-            'items.*.price'           => 'required|numeric|min:0',
-            'items.*.quantity'        => 'required|integer|min:0',
-            'items.*.sold'            => 'required|integer|min:0',
-            'items.*.reuse'           => 'required|integer|min:0',
-            'items.*.waste'           => 'required|integer|min:0',
-            'items.*.potential_income'=> 'required|numeric|min:0',
-            'items.*.actual_revenue'  => 'required|numeric|min:0',
-        ]);
-
-        if (in_array($request->template_action, ['template', 'both'])) {
-            $request->validate([
-                'showcase_name' => 'required|string|max:255'
-            ]);
-        }
-
-        $data          = $request->all();
-        $data['save_template'] = in_array($data['template_action'], ['template', 'both']);
-
-        $totalRevenue   = array_sum(array_column($data['items'], 'actual_revenue'));
-        $totalPotential = array_sum(array_column($data['items'], 'potential_income'));
-        $breakEven      = LaborCost::first()?->daily_bep ?? 0;
-        $plus           = round($totalRevenue - $breakEven, 2);
-        $realMargin     = $totalRevenue > 0
-                            ? round(($plus / $totalRevenue) * 100, 2)
-                            : 0;
-        $potentialAvg   = count($data['items'])
-                            ? round($totalPotential / count($data['items']), 2)
-                            : 0;
-
-        $showcase->update([
-            'showcase_name'             => $data['showcase_name'] ?? null,
-            'showcase_date'             => $data['showcase_date'],
-            'template_action'           => $data['template_action'],
-            'save_template'             => $data['save_template'],
-            'break_even'                => $breakEven,
-            'total_revenue'             => $totalRevenue,
-            'plus'                      => $plus,
-            'real_margin'               => $realMargin,
-            'potential_income_average'  => $potentialAvg,
-        ]);
-
-        $showcase->recipes()->delete();
-        foreach ($data['items'] as $item) {
-            ShowcaseRecipe::create([
-                'showcase_id'     => $showcase->id,
-                'recipe_id'       => $item['recipe_id'],
-                'price'           => $item['price'],
-                'quantity'        => $item['quantity'],
-                'sold'            => $item['sold'],
-                'reuse'           => $item['reuse'],
-                'waste'           => $item['waste'],
-                'potential_income'=> $item['potential_income'],
-                'actual_revenue'  => $item['actual_revenue'],
-                'user_id'         => Auth::id(),
-            ]);
-        }
-
-        return redirect()
-            ->route('showcase.index')
-            ->with('success', 'Showcase updated successfully.');
-    }
 
     public function destroy(Showcase $showcase)
     {

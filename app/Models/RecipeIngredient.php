@@ -18,7 +18,7 @@ class RecipeIngredient extends Model
         'recipe_id',
         'ingredient_id',
         'quantity_g',
-        'cost',
+        // 'cost',
         'user_id', // ✅ Add user_id for ownership
     ];
 
